@@ -9,7 +9,7 @@ class ModifierDB {
       "CREATE TABLE modifiers(id INTEGER PRIMARY KEY, foodId INTEGER, modifierId INTEGER, subFoodId INTEGER, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)";
 
   //region InsertModifier
-  Future<void> insertModifier(Modifier modifier) async {
+  Future<void> insertModifier(Modifiers modifier) async {
     // Get a reference to the database.
     final Database db = await DBConnector().database(tableFormat);
 
@@ -24,7 +24,7 @@ class ModifierDB {
   //endregion
 
   //region Modifiers
-  Future<List<Modifier>> modifiers() async {
+  Future<List<Modifiers>> modifiers() async {
     // Get a reference to the database.
     final Database db = await DBConnector().database(tableFormat);
 
@@ -33,21 +33,14 @@ class ModifierDB {
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
-      return Modifier(
-          maps[i]['id'],
-          maps[i]['name'],
-          maps[i]['foodId'],
-          maps[i]['price'],
-          maps[i]['qty'],
-          maps[i]['discount'],
-          maps[i]['subFoodId'],
-          maps[i]['modifierId']);
+      return Modifiers(maps[i]['name'], maps[i]['foodId'], maps[i]['price'],
+          maps[i]['qty'], maps[i]['subFoodId'], maps[i]['modifierId']);
     });
   }
   //endregion
 
   //region UpdateModifier
-  Future<void> updateModifier(Modifier modifier) async {
+  Future<void> updateModifier(Modifiers modifier) async {
     // Get a reference to the database.
     final Database db = await DBConnector().database(tableFormat);
 
@@ -58,13 +51,13 @@ class ModifierDB {
       // Ensure that the Dog has a matching id.
       where: "id = ?",
       // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [modifier.id],
+      whereArgs: [modifier.modifierId],
     );
   }
 //endregion
 
   //region DeleteModifier
-  Future<void> deleteModifier(int id) async {
+  Future<void> deleteModifier(String id) async {
     // Get a reference to the database.
     final Database db = await DBConnector().database(tableFormat);
 
@@ -72,7 +65,7 @@ class ModifierDB {
     await db.delete(
       'modifiers',
       // Use a `where` clause to delete a specific dog.
-      where: "id = ?",
+      where: "modifierId = ?",
       // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     );
@@ -80,24 +73,22 @@ class ModifierDB {
 //endregion
 
   //region SingleModifier
-  Future<Modifier> fetchModifier(int modifierId) async {
+  Future<Modifiers> fetchModifier(String modifierId) async {
     var client = await DBConnector().database(tableFormat);
 
     final Future<List<Map<String, dynamic>>> futureMaps = client
         .query('modifiers', where: 'modifierId = ?', whereArgs: [modifierId]);
 
     var maps = await futureMaps;
-
+    print(maps);
     if (maps.length != 0) {
-      return Modifier(
-          maps.first['id'],
+      return Modifiers(
           maps.first['name'],
           maps.first['subFoodId'],
           maps.first['foodId'],
           maps.first['price'],
           maps.first['qty'],
-          maps.first['modifierId'],
-          maps.first['quantity']);
+          maps.first['modifierId']);
     }
 
     return null;

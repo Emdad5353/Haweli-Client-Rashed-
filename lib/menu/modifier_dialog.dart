@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/ModifierDB.dart';
+import 'package:haweli/DBModels/models/Modifiers.dart';
 import 'package:haweli/menu/commonWidgets.dart';
+import 'package:haweli/resources/graphql_client.dart';
+import 'package:haweli/resources/graphql_queries.dart';
 
 List<Map> selectedList = [];
-showModifierDialog(BuildContext context, subItem) {
+List<String> modifiersId = [];
+
+showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
   AlertDialog alert = AlertDialog(
-    //backgroundColor: Theme.of(context).primaryColor,
+      //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
       contentPadding: EdgeInsets.all(0),
       title: Container(
@@ -30,16 +37,37 @@ showModifierDialog(BuildContext context, subItem) {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          ModifierDialog(subItem),
-          RaisedButton(
-            child: Text('DONE'),
-              onPressed: (){
-                print(selectedList);
-              }
+          ModifierDialog(subItem, itemType),
+          GraphQLProvider(
+            client: client,
+            child: CacheProvider(
+              child: Mutation(
+                options: MutationOptions(document: mutationCartCreate),
+                builder: (RunMutation row, QueryResult result) {
+                  return RaisedButton(
+                      child: Text('DONE'),
+                      onPressed: () {
+                        print(selectedList);
+                        print(modifiersId);
+                        print(itemObject);
+                        if (itemType == "mainItem") {
+                          itemObject["foodItem"]["modifiers"] = modifiersId;
+                        } else {
+                          itemObject["subFoodItem"]["modifiers"] = modifiersId;
+                        }
+                        print("ItemObject ===> $itemObject");
+                        row(<String, dynamic>{"cartInput": itemObject});
+                      });
+                },
+                onCompleted: (result) {
+                  print("On Complete =====>");
+                  print(result.toString());
+                },
+              ),
+            ),
           )
         ],
-      )
-  );
+      ));
 
   // show the dialog
   showDialog(
@@ -50,10 +78,11 @@ showModifierDialog(BuildContext context, subItem) {
   );
 }
 
-
 class ModifierDialog extends StatefulWidget {
   final Map subItem;
-  ModifierDialog(this.subItem);
+  final String itemType;
+
+  ModifierDialog(this.subItem, this.itemType);
 
   @override
   State<StatefulWidget> createState() {
@@ -62,94 +91,116 @@ class ModifierDialog extends StatefulWidget {
 }
 
 class ModifierDialogState extends State<ModifierDialog> {
-
-
   @override
   Widget build(BuildContext context) {
     var tabWidgets = List<Widget>();
     var tabBodyWidgets = List<Widget>();
     for (var subItem in widget.subItem['modifierLevels']) {
-      tabWidgets.add(
-          Tab(
-            text: subItem['levelTitle'],
-          )
-      );
+      tabWidgets.add(Tab(
+        text: subItem['levelTitle'],
+      ));
     }
     for (var subItem in widget.subItem['modifierLevels']) {
-      tabBodyWidgets.add(
-          Tab(
-            child: ListView.builder(
-              itemCount: subItem['modifiers'].length,
-              padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                itemBuilder: (BuildContext context,int index){
-                bool currentBoolState=true;
-                  return Column(
-                    children: <Widget>[
-                      Container(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(subItem['modifiers'][index]['name']),
-                              Row(
-                                children: <Widget>[
-                                  Text(subItem['modifiers'][index]['price'].toString()),
-                                  SizedBox(width: 10,),
-//                                  InkWell(
-//                                    onTap: () {
-//                  if(selectedList.contains(subItem['modifiers'][index])){
-//                                        selectedList.remove(subItem['modifiers'][index]);
-//                                        setState(() {
-//                                          currentBoolState=false;
-//                                        });
-//                                      }
-//                                      else{
-//                                        selectedList.add(subItem['modifiers'][index]);
-//                                        setState(() {
-//                                          currentBoolState=true;
-//                                        });
-//                                      }
-//                                    },
-//                                    child: currentBoolState == true
-//                                        ? Icon(
-//                                      Icons.favorite,
-//                                      color: Colors.red,
-//                                    ): Icon(Icons.favorite)),
+      tabBodyWidgets.add(Tab(
+        child: ListView.builder(
+          itemCount: subItem['modifiers'].length,
+          padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+          itemBuilder: (BuildContext context, int index) {
+            return Column(
+              children: <Widget>[
+                Container(
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(subItem['modifiers'][index]['name']),
+                        Row(
+                          children: <Widget>[
+                            Text(subItem['modifiers'][index]['price']
+                                .toString()),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                if (selectedList
+                                    .contains(subItem['modifiers'][index])) {
+                                  selectedList
+                                      .remove(subItem['modifiers'][index]);
+                                  modifiersId.remove(
+                                      subItem['modifiers'][index]["_id"]);
 
-                                  GestureDetector(
-                                    onTap: () {
-                                      if(selectedList.contains(subItem['modifiers'][index])){
-                                        selectedList.remove(subItem['modifiers'][index]);
-                                      }
-                                      else{
-                                        selectedList.add(subItem['modifiers'][index]);
-                                      }
-                                        //selectedList.add(subItem['modifiers'][index]);
-                                    },
-                                    child: Icon(
-                                      Icons.add_circle,
-                                      size: 27,
-                                    ),
-                                  ),
-                                  //priceAndAddToCartButton(context, subItem['modifiers'][index]['price'].toString())
-                                ],
-                              )
-                            ],
-                          )
-                      ),
-                      Divider(
-                        thickness: 1,
-                      )
-                    ],
-                  );
-                },
-            ),
-          )
-      );
+                                  var modifier = await ModifierDB()
+                                      .fetchModifier(
+                                          subItem['modifiers'][index]["_id"]);
+                                  await ModifierDB()
+                                      .deleteModifier(modifier.modifierId);
+                                } else {
+                                  modifiersId
+                                      .add(subItem['modifiers'][index]["_id"]);
+                                  selectedList.add(subItem['modifiers'][index]);
+                                  var modifier = await ModifierDB()
+                                      .fetchModifier(
+                                          subItem['modifiers'][index]["_id"]);
+
+                                  print(modifier);
+
+                                  if (modifier == null) {
+                                    String subFoodId = "";
+                                    String foodId = "";
+                                    if (widget.itemType == "mainItem") {
+                                      subFoodId = "";
+                                      foodId = subItem["_id"];
+                                    } else {
+                                      foodId = "";
+                                      subFoodId = subItem["_id"];
+                                    }
+                                    print("Test");
+                                    var modifierData = Modifiers(
+                                        subItem['modifiers'][index]["name"],
+                                        subFoodId,
+                                        foodId,
+                                        subItem['modifiers'][index]["price"]
+                                            .toDouble(),
+                                        1,
+                                        subItem['modifiers'][index]["_id"]);
+
+                                    await ModifierDB()
+                                        .insertModifier(modifierData);
+                                  } else {
+                                    var modifierData = Modifiers(
+                                        modifier.name,
+                                        modifier.subFoodId,
+                                        modifier.foodId,
+                                        modifier.price.toDouble() * 2,
+                                        modifier.qty + 1,
+                                        modifier.modifierId);
+                                    await ModifierDB()
+                                        .updateModifier(modifierData);
+                                  }
+                                }
+                                //selectedList.add(subItem['modifiers'][index]);
+                              },
+                              child: Icon(
+                                Icons.add_circle,
+                                size: 27,
+                              ),
+                            ),
+                            //priceAndAddToCartButton(context, subItem['modifiers'][index]['price'].toString())
+                          ],
+                        )
+                      ],
+                    )),
+                Divider(
+                  thickness: 1,
+                )
+              ],
+            );
+          },
+        ),
+      ));
     }
-
-
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
@@ -158,11 +209,10 @@ class ModifierDialogState extends State<ModifierDialog> {
         length: widget.subItem['modifierLevels'].length,
         child: Scaffold(
           appBar: TabBar(
-            labelColor: Theme.of(context).primaryColor,
-            unselectedLabelColor: Colors.black54,
-            indicatorColor: Colors.redAccent,
-            tabs: tabWidgets
-          ),
+              labelColor: Theme.of(context).primaryColor,
+              unselectedLabelColor: Colors.black54,
+              indicatorColor: Colors.redAccent,
+              tabs: tabWidgets),
           body: TabBarView(
             children: tabBodyWidgets,
           ),
@@ -171,7 +221,7 @@ class ModifierDialogState extends State<ModifierDialog> {
     );
   }
 
-  Widget priceAndAddToCartButton(BuildContext context, String price){
+  Widget priceAndAddToCartButton(BuildContext context, String price) {
     return GestureDetector(
       onTap: () {
         showDefaultSnackbar(context, 'Added $price to Cart');

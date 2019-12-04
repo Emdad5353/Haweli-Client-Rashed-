@@ -7,7 +7,6 @@ import 'package:haweli/DBModels/models/SubFood.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawer.dart';
 import 'package:haweli/menu/commonWidgets.dart';
-import 'package:haweli/menu/modifier_dialog.dart';
 import 'package:haweli/resources/graphql_queries.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -71,10 +70,19 @@ class HomeScreen extends StatelessWidget {
                               result.data['getAllItem']['menuItem'][index]
                                   ['subItem'])
                         else if (result
-                            .data['getAllItem']['menuItem'][index]['modifierLevels']
-                            .length > 0)
-                          priceAndAddToCartButtonForModifier(context,result
-                              .data['getAllItem']['menuItem'][index])
+                                .data['getAllItem']['menuItem'][index]
+                                    ['modifierLevels']
+                                .length >
+                            0)
+                          priceAndAddToCartButtonForModifier(
+                              context,
+                              result.data['getAllItem']['menuItem'][index],
+                              "mainItem", {
+                            "foodItem": {
+                              "foodItemId": result.data['getAllItem']
+                                  ['menuItem'][index]["_id"]
+                            }
+                          })
                         else if (result
                                 .data['getAllItem']['menuItem'][index]
                                     ['modifierLevels']
@@ -154,9 +162,7 @@ class HomeScreen extends StatelessWidget {
 
                               await SubFoodDB().updateSubFood(subFoodData);
                               var cartInput = {
-                                "subFoodItem": {
-                                  "subFoodItemId": mainItems["_id"]
-                                }
+                                "subFoodItem": {"subFoodItemId": subItem["_id"]}
                               };
                               print(cartInput);
                               row(<String, dynamic>{"cartInput": cartInput});
@@ -176,7 +182,10 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               if (subItem['modifierLevels'].length > 0)
-                priceAndAddToCartButtonForModifier(context, subItem)
+                priceAndAddToCartButtonForModifier(
+                    context, subItem, "subItem", {
+                  "subFoodItem": {"subFoodItemId": mainItems["_id"]}
+                })
             ],
           ),
           //subItemTitleText(subItem['name']),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:haweli/menu/modifier_dialog.dart';
 
-double titleSize=17;
-double subTitleSize=14;
-double descriptionSize=14;
+double titleSize = 17;
+double subTitleSize = 14;
+double descriptionSize = 14;
 
-Widget priceAndAddToCartButton(BuildContext context, String price){
+Widget priceAndAddToCartButton(BuildContext context, String price) {
   return Row(
     children: <Widget>[
-      descriptionText('£'+ price.toString()),
+      descriptionText('£' + price.toString()),
       SizedBox(
         width: 10,
       ),
@@ -25,16 +25,17 @@ Widget priceAndAddToCartButton(BuildContext context, String price){
   );
 }
 
-Widget priceAndAddToCartButtonForModifier(BuildContext context, subItem,){
+Widget priceAndAddToCartButtonForModifier(
+    BuildContext context, subItem, itemType, itemObject) {
   return Row(
     children: <Widget>[
-      descriptionText('£'+ subItem['price'].toString()),
+      descriptionText('£' + subItem['price'].toString()),
       SizedBox(
         width: 10,
       ),
       GestureDetector(
         onTap: () {
-          showModifierDialog(context,subItem);
+          showModifierDialog(context, subItem, itemType, itemObject);
           print(subItem['modifierLevels']);
         },
         child: Icon(
@@ -77,7 +78,9 @@ Widget mainItemTitleText(String text) {
 Widget descriptionText(String text) {
   return Text(
     text,
-    style: TextStyle(fontSize: descriptionSize,),
+    style: TextStyle(
+      fontSize: descriptionSize,
+    ),
   );
 }
 
