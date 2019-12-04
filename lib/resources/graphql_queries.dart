@@ -103,3 +103,11 @@ final String mutationQuery = r"""
                           }
                         }
                   """;
+
+final String mutationCartCreate = r"""
+                    mutation CreateCart($cartInput: CartInput){
+                      CreateCart(cartInput: $cartInput){
+                        msg
+                      }
+                    }
+                  """;

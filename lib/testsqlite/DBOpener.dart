@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,7 +7,6 @@ import 'package:sqflite/sqflite.dart';
 import 'DataModel.dart';
 
 class DBOpener {
-
   Future<Database> database() async {
     return openDatabase(
       // Set the path to the database. Note: Using the `join` function from the
@@ -23,8 +22,6 @@ class DBOpener {
       // path to perform database upgrades and downgrades.
       version: 1,
     );
-
-
   }
 
   Future<void> insertFood(Food food) async {
@@ -57,10 +54,8 @@ class DBOpener {
 //        price: maps[i]['price'],
 //        qty: maps[i]['qty'],
 //      );
-      return Foods(maps[i]['id'], maps[i]['name'], maps[i]['foodId'], maps[i]['price'], maps[i]['qty'], maps[i]['discount']);
+      return Foods(maps[i]['name'], maps[i]['foodId'], maps[i]['price'],
+          maps[i]['qty'], maps[i]['discount']);
     });
   }
-
-
-
 }

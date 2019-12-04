@@ -1,16 +1,16 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:math';
+
 import 'package:haweli/DBModels/DBConnector.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:haweli/DBModels/models/SubFood.dart';
-import 'models/Foods.dart';
+import 'package:sqflite/sqflite.dart';
 
+class SubFoodDB {
+  String tableFormat =
+      "CREATE TABLE subFoodItem(id INTEGER PRIMARY KEY, subFoodId INTEGER, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)";
 
-class SubFoodDB{
-  String tableFormat = "CREATE TABLE subFoodItem(id INTEGER PRIMARY KEY, subFoodId INTEGER, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)";
-
-  Future<void> insertFood(SubFoods subFoods) async {
+  //region InsertSubFood
+  Future<void> insertSubFood(SubFoods subFoods) async {
     // Get a reference to the database.
     final Database db = await DBConnector().database(tableFormat);
 
@@ -24,5 +24,74 @@ class SubFoodDB{
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+  //endregion
+
+  //region SubFoods
+  Future<List<SubFoods>> subFood() async {
+    // Get a reference to the database.
+    final Database db = await DBConnector().database(tableFormat);
+
+    // Query the table for all The Dogs.
+    final List<Map<String, dynamic>> maps = await db.query('subFoodItem');
+
+    // Convert the List<Map<String, dynamic> into a List<Dog>.
+    return List.generate(maps.length, (i) {
+      return SubFoods(maps[i]['name'], maps[i]['foodId'], maps[i]['price'],
+          maps[i]['qty'], maps[i]['discount']);
+    });
+  }
+  //endregion
+
+  //region UpdateSubFood
+  Future<void> updateSubFood(SubFoods subFoods) async {
+    // Get a reference to the database.
+    final Database db = await DBConnector().database(tableFormat);
+
+    // Update the given Dog.
+    await db.update(
+      'subFoodItem',
+      subFoods.toMap(),
+      // Ensure that the Dog has a matching id.
+      where: "subFoodId = ?",
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [subFoods.subFoodId],
+    );
+  }
+  //endregion
+
+  //region DeleteSubFood
+  Future<void> deleteSubFood(int id) async {
+    // Get a reference to the database.
+    final Database db = await DBConnector().database(tableFormat);
+
+    // Remove the Dog from the database.
+    await db.delete(
+      'subFoodItem',
+      // Use a `where` clause to delete a specific dog.
+      where: "id = ?",
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    );
+  }
+//endregion
+
+  //region SingleFood
+  Future<SubFoods> fetchFood(String subFoodId) async {
+    final Database db = await DBConnector().database(tableFormat);
+
+    print(db.toString());
+    final Future<List<Map<String, dynamic>>> futureMaps =
+        db.query('subFoodItem', where: 'subFoodId = ?', whereArgs: [subFoodId]);
+
+    var maps = await futureMaps;
+
+    if (maps.length != 0) {
+      return SubFoods(maps.first['name'], maps.first['subFoodId'],
+          maps.first['price'], maps.first['qty'], maps.first['quantity']);
+    }
+
+    return null;
+  }
+//endregion
 
 }
