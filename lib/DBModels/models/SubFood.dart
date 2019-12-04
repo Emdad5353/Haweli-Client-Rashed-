@@ -1,28 +1,24 @@
 class SubFoods {
-  final int id;
   final String name;
-  final int subFoodId;
+  final String subFoodId;
   final double price;
   final int qty;
   final double discount;
 
-  SubFoods(this.id , this.name , this.subFoodId , this.price , this.qty ,
-      this.discount);
+  SubFoods(this.name, this.subFoodId, this.price, this.qty, this.discount);
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'foodId': subFoodId,
+      'subFoodId': subFoodId,
       'price': price,
-      'qty':qty,
-      'discount':discount
+      'qty': qty,
+      'discount': discount
     };
   }
 
   @override
   String toString() {
-    return 'Foods{id: $id, name: $name, foodId: $subFoodId, price: $price, qty: $qty, discount: $discount}';
+    return 'Foods{name: $name, foodId: $subFoodId, price: $price, qty: $qty, discount: $discount}';
   }
-
-
 }

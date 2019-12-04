@@ -3,12 +3,13 @@ class Modifier {
   final String name;
   final int subFoodId;
   final int foodId;
+  final int modifierId;
   final double price;
   final int qty;
   final double discount;
 
-  Modifier(this.id , this.name , this.subFoodId , this.foodId , this.price ,
-      this.qty , this.discount);
+  Modifier(this.id, this.name, this.subFoodId, this.foodId, this.price,
+      this.qty, this.discount, this.modifierId);
 
   Map<String, dynamic> toMap() {
     return {
@@ -16,15 +17,14 @@ class Modifier {
       'foodId': subFoodId,
       'subFoodId': foodId,
       'price': price,
-      'qty':qty,
-      'discount':discount
+      'qty': qty,
+      'modifierId': modifierId,
+      'discount': discount
     };
   }
 
   @override
   String toString() {
-    return 'SubFoods{id: $id, name: $name, subFoodId: $subFoodId, foodId: $foodId, price: $price, qty: $qty, discount: $discount}';
+    return 'Modifier{id: $id, name: $name, subFoodId: $subFoodId, foodId: $foodId, modifierId: $modifierId, price: $price, qty: $qty, discount: $discount}';
   }
-
-
 }
