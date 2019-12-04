@@ -5,6 +5,7 @@ import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/resources/graphql_queries.dart';
 import 'package:haweli/testsqlite/DBOpener.dart';
 import 'package:haweli/testsqlite/DataModel.dart';
+import 'package:haweli/ui/cart.dart';
 
 
 Widget mainDrawer() {
@@ -78,6 +79,8 @@ Widget endDrawer(BuildContext context) {
         Divider(
           color: Colors.grey,
         ),
+        //Cart
+        Cart(),
         Container(
           width: double.infinity,
           height: 60,

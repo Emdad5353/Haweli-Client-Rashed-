@@ -174,7 +174,8 @@ class _SignUpFormState extends State<SignUpForm> {
         'I agree to the terms and condition',
       ),
       controlAffinity: ListTileControlAffinity.leading,
-    ));
+    )
+    );
 
     void onPressedSubmit() {
       if (_formKey.currentState.validate() && _termsChecked) {

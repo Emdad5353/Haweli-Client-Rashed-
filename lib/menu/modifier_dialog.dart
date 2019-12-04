@@ -82,6 +82,7 @@ class ModifierDialogState extends State<ModifierDialog> {
               itemCount: subItem['modifiers'].length,
               padding: EdgeInsets.only(top: 10, left: 10, right: 10),
                 itemBuilder: (BuildContext context,int index){
+                bool currentBoolState=true;
                   return Column(
                     children: <Widget>[
                       Container(
@@ -93,9 +94,29 @@ class ModifierDialogState extends State<ModifierDialog> {
                               Text(subItem['modifiers'][index]['name']),
                               Row(
                                 children: <Widget>[
-
                                   Text(subItem['modifiers'][index]['price'].toString()),
                                   SizedBox(width: 10,),
+//                                  InkWell(
+//                                    onTap: () {
+//                  if(selectedList.contains(subItem['modifiers'][index])){
+//                                        selectedList.remove(subItem['modifiers'][index]);
+//                                        setState(() {
+//                                          currentBoolState=false;
+//                                        });
+//                                      }
+//                                      else{
+//                                        selectedList.add(subItem['modifiers'][index]);
+//                                        setState(() {
+//                                          currentBoolState=true;
+//                                        });
+//                                      }
+//                                    },
+//                                    child: currentBoolState == true
+//                                        ? Icon(
+//                                      Icons.favorite,
+//                                      color: Colors.red,
+//                                    ): Icon(Icons.favorite)),
+
                                   GestureDetector(
                                     onTap: () {
                                       if(selectedList.contains(subItem['modifiers'][index])){
