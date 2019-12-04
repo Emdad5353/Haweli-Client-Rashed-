@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawer.dart';
-import 'package:haweli/home/commonWidgets.dart';
+import 'package:haweli/menu/commonWidgets.dart';
+import 'package:haweli/menu/modifier_dialog.dart';
 import 'package:haweli/resources/graphql_queries.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -68,7 +69,7 @@ class HomeScreen extends StatelessWidget {
                         else if (result
                             .data['getAllItem']['menuItem'][index]['modifierLevels']
                             .length > 0)
-                          priceAndAddToCartButtonForModifier(context,result
+                          mainItemWithNoSubItemWithModifier(context,result
                               .data['getAllItem']['menuItem'][index])
                         else if (result
                               .data['getAllItem']['menuItem'][index]['modifierLevels']
@@ -143,6 +144,33 @@ class HomeScreen extends StatelessWidget {
       children: <Widget>[
         mainItemTitleText(mainItems['name']),
         priceAndAddToCartButton(context, mainItems['price'].toString())
+      ],
+    );
+  }
+
+  Widget mainItemWithNoSubItemWithModifier(BuildContext context, mainItems) {
+    print(mainItems);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        mainItemTitleText(mainItems['name']),
+        Row(
+          children: <Widget>[
+            descriptionText('£${mainItems['price'].toString()}'),
+            SizedBox(
+              width: 10,
+            ),
+            GestureDetector(
+              onTap: () {
+                showModifierDialog(context,mainItems);
+              },
+              child: Icon(
+                Icons.add_circle,
+                size: 27,
+              ),
+            ),
+          ],
+        )
       ],
     );
   }

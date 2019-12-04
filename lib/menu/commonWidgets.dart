@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:haweli/home/modifier_dialog.dart';
+import 'package:haweli/menu/modifier_dialog.dart';
 
 double titleSize=17;
 double subTitleSize=14;
@@ -34,7 +34,8 @@ Widget priceAndAddToCartButtonForModifier(BuildContext context, subItem,){
       ),
       GestureDetector(
         onTap: () {
-          showModifierDialog(context,subItem['modifierLevels']);
+          showModifierDialog(context,subItem);
+          print(subItem['modifierLevels']);
         },
         child: Icon(
           Icons.add_circle,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:haweli/menu/commonWidgets.dart';
 
-
+List<Map> selectedList = [];
 showModifierDialog(BuildContext context, subItem) {
   AlertDialog alert = AlertDialog(
     //backgroundColor: Theme.of(context).primaryColor,
@@ -26,7 +27,19 @@ showModifierDialog(BuildContext context, subItem) {
           ],
         ),
       ),
-      content: ModifierDialog(subItem));
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ModifierDialog(subItem),
+          RaisedButton(
+            child: Text('DONE'),
+              onPressed: (){
+                print(selectedList);
+              }
+          )
+        ],
+      )
+  );
 
   // show the dialog
   showDialog(
@@ -39,7 +52,7 @@ showModifierDialog(BuildContext context, subItem) {
 
 
 class ModifierDialog extends StatefulWidget {
-  final List subItem;
+  final Map subItem;
   ModifierDialog(this.subItem);
 
   @override
@@ -49,22 +62,24 @@ class ModifierDialog extends StatefulWidget {
 }
 
 class ModifierDialogState extends State<ModifierDialog> {
+
+
   @override
   Widget build(BuildContext context) {
     var tabWidgets = List<Widget>();
     var tabBodyWidgets = List<Widget>();
-    for (var subItem in widget.subItem) {
+    for (var subItem in widget.subItem['modifierLevels']) {
       tabWidgets.add(
           Tab(
             text: subItem['levelTitle'],
           )
       );
     }
-    for (var subItem in widget.subItem) {
-      print(subItem);
+    for (var subItem in widget.subItem['modifierLevels']) {
       tabBodyWidgets.add(
           Tab(
             child: ListView.builder(
+              itemCount: subItem['modifiers'].length,
               padding: EdgeInsets.only(top: 10, left: 10, right: 10),
                 itemBuilder: (BuildContext context,int index){
                   return Column(
@@ -76,7 +91,29 @@ class ModifierDialogState extends State<ModifierDialog> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text(subItem['modifiers'][index]['name']),
-                              Text(subItem['modifiers'][index]['price'].toString())
+                              Row(
+                                children: <Widget>[
+
+                                  Text(subItem['modifiers'][index]['price'].toString()),
+                                  SizedBox(width: 10,),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if(selectedList.contains(subItem['modifiers'][index])){
+                                        selectedList.remove(subItem['modifiers'][index]);
+                                      }
+                                      else{
+                                        selectedList.add(subItem['modifiers'][index]);
+                                      }
+                                        //selectedList.add(subItem['modifiers'][index]);
+                                    },
+                                    child: Icon(
+                                      Icons.add_circle,
+                                      size: 27,
+                                    ),
+                                  ),
+                                  //priceAndAddToCartButton(context, subItem['modifiers'][index]['price'].toString())
+                                ],
+                              )
                             ],
                           )
                       ),
@@ -86,17 +123,18 @@ class ModifierDialogState extends State<ModifierDialog> {
                     ],
                   );
                 },
-                itemCount: subItem['modifiers'].length,
             ),
           )
       );
     }
 
+
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: DefaultTabController(
-        length: widget.subItem.length,
+        length: widget.subItem['modifierLevels'].length,
         child: Scaffold(
           appBar: TabBar(
             labelColor: Theme.of(context).primaryColor,
@@ -108,6 +146,18 @@ class ModifierDialogState extends State<ModifierDialog> {
             children: tabBodyWidgets,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget priceAndAddToCartButton(BuildContext context, String price){
+    return GestureDetector(
+      onTap: () {
+        showDefaultSnackbar(context, 'Added $price to Cart');
+      },
+      child: Icon(
+        Icons.add_circle,
+        size: 27,
       ),
     );
   }

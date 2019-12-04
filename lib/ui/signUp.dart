@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/home/commonWidgets.dart';
+import 'package:haweli/menu/commonWidgets.dart';
 import 'package:haweli/resources/graphql_client.dart';
 import 'package:haweli/resources/graphql_queries.dart';
 import 'package:quiver/strings.dart';
