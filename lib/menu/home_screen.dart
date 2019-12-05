@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
-import 'package:haweli/DBModels/SubFoodDB.dart';
 import 'package:haweli/DBModels/models/Foods.dart';
-import 'package:haweli/DBModels/models/SubFood.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawer.dart';
 import 'package:haweli/menu/commonWidgets.dart';
@@ -129,21 +127,21 @@ class HomeScreen extends StatelessWidget {
                           onTap: () async {
                             print("Test");
                             var subFood =
-                                await SubFoodDB().fetchFood(subItem["_id"]);
+                                await FoodDB().fetchFood(subItem["_id"]);
                             print(subFood);
                             var discount = subItem["discount"].toDouble();
                             print("Discount $discount");
 
                             if (subFood == null) {
                               print("Test");
-                              var subFoodData = SubFoods(
+                              var subFoodData = Foods(
                                   subItem['name'],
                                   subItem['_id'],
                                   subItem['price'].toDouble(),
                                   1,
                                   discount);
 
-                              await SubFoodDB().insertSubFood(subFoodData);
+                              await FoodDB().insertFood(subFoodData);
 
                               var cartInput = {
                                 "subFoodItem": {
@@ -153,14 +151,14 @@ class HomeScreen extends StatelessWidget {
                               print("FoodItem: ,$cartInput");
                               row(<String, dynamic>{"cartInput": cartInput});
                             } else {
-                              var subFoodData = SubFoods(
+                              var subFoodData = Foods(
                                   subFood.name,
-                                  subFood.subFoodId,
+                                  subFood.foodId,
                                   subFood.price * 2,
                                   subFood.qty + 1,
                                   subFood.discount * 2);
 
-                              await SubFoodDB().updateSubFood(subFoodData);
+                              await FoodDB().updateFood(subFoodData);
                               var cartInput = {
                                 "subFoodItem": {"subFoodItemId": subItem["_id"]}
                               };

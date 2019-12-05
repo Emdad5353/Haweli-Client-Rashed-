@@ -6,12 +6,12 @@ import 'package:sqflite/sqflite.dart';
 
 class ModifierDB {
   String tableFormat =
-      "CREATE TABLE modifiers(id INTEGER PRIMARY KEY, foodId INTEGER, modifierId INTEGER, subFoodId INTEGER, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)";
+      "CREATE TABLE modifiers(id INTEGER PRIMARY KEY, foodId INTEGER, modifierId String, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)";
 
   //region InsertModifier
   Future<void> insertModifier(Modifiers modifier) async {
     // Get a reference to the database.
-    final Database db = await DBConnector().database(tableFormat);
+    final Database db = await DBConnector().database();
 
     print("TestDB $db");
     // Insert the Dog into the correct table. Also specify the
@@ -26,7 +26,7 @@ class ModifierDB {
   //region Modifiers
   Future<List<Modifiers>> modifiers() async {
     // Get a reference to the database.
-    final Database db = await DBConnector().database(tableFormat);
+    final Database db = await DBConnector().database();
 
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db.query('modifiers');
@@ -34,7 +34,26 @@ class ModifierDB {
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
       return Modifiers(maps[i]['name'], maps[i]['foodId'], maps[i]['price'],
-          maps[i]['qty'], maps[i]['subFoodId'], maps[i]['modifierId']);
+          maps[i]['qty'], maps[i]['modifierId']);
+    });
+  }
+  //endregion
+
+  //region Modifiers
+  Future<List<Modifiers>> modifiersOfFood(int foodId) async {
+    // Get a reference to the database.
+    final Database db = await DBConnector().database();
+
+    // Query the table for all The Dogs.
+    final List<Map<String, dynamic>> maps =
+        await db.query('modifiers', where: "foodId= ?", whereArgs: [foodId]);
+
+    // Convert the List<Map<String, dynamic> into a List<Dog>.
+    return List.generate(maps.length, (i) {
+      var modifier = Modifiers(maps[i]['name'], maps[i]['foodId'],
+          maps[i]['price'], maps[i]['qty'], maps[i]['modifierId']);
+
+      return modifier;
     });
   }
   //endregion
@@ -42,7 +61,7 @@ class ModifierDB {
   //region UpdateModifier
   Future<void> updateModifier(Modifiers modifier) async {
     // Get a reference to the database.
-    final Database db = await DBConnector().database(tableFormat);
+    final Database db = await DBConnector().database();
 
     // Update the given Dog.
     await db.update(
@@ -59,7 +78,7 @@ class ModifierDB {
   //region DeleteModifier
   Future<void> deleteModifier(String id) async {
     // Get a reference to the database.
-    final Database db = await DBConnector().database(tableFormat);
+    final Database db = await DBConnector().database();
 
     // Remove the Dog from the database.
     await db.delete(
@@ -74,7 +93,7 @@ class ModifierDB {
 
   //region SingleModifier
   Future<Modifiers> fetchModifier(String modifierId) async {
-    var client = await DBConnector().database(tableFormat);
+    var client = await DBConnector().database();
 
     final Future<List<Map<String, dynamic>>> futureMaps = client
         .query('modifiers', where: 'modifierId = ?', whereArgs: [modifierId]);
@@ -82,13 +101,8 @@ class ModifierDB {
     var maps = await futureMaps;
     print(maps);
     if (maps.length != 0) {
-      return Modifiers(
-          maps.first['name'],
-          maps.first['subFoodId'],
-          maps.first['foodId'],
-          maps.first['price'],
-          maps.first['qty'],
-          maps.first['modifierId']);
+      return Modifiers(maps.first['name'], maps.first['foodId'],
+          maps.first['price'], maps.first['qty'], maps.first['modifierId']);
     }
 
     return null;

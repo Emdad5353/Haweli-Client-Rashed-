@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/FoodDB.dart';
 import 'package:haweli/DBModels/ModifierDB.dart';
+import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/DBModels/models/Modifiers.dart';
-import 'package:haweli/menu/commonWidgets.dart';
 import 'package:haweli/resources/graphql_client.dart';
 import 'package:haweli/resources/graphql_queries.dart';
+
+import 'commonWidgets.dart';
 
 List<Map> selectedList = [];
 List<String> modifiersId = [];
@@ -46,16 +49,28 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                 builder: (RunMutation row, QueryResult result) {
                   return RaisedButton(
                       child: Text('DONE'),
-                      onPressed: () {
+                      onPressed: () async {
+                        var discount = subItem["discount"].toDouble();
+                        print("Discount $discount");
                         print(selectedList);
                         print(modifiersId);
                         print(itemObject);
+                        var foodData = Foods(subItem['name'], subItem['_id'],
+                            subItem['price'].toDouble(), 1, discount);
+
+                        var lastId = await FoodDB().insertFood(foodData);
+                        for (var modifers in selectedList) {
+                          var modifierData = Modifiers(modifers["name"], lastId,
+                              modifers["price"].toDouble(), 1, modifers["_id"]);
+                          ModifierDB().insertModifier(modifierData);
+                        }
                         if (itemType == "mainItem") {
                           itemObject["foodItem"]["modifiers"] = modifiersId;
+                          print("ItemObject ===> $itemObject");
                         } else {
                           itemObject["subFoodItem"]["modifiers"] = modifiersId;
+                          print("ItemObject ===> $itemObject");
                         }
-                        print("ItemObject ===> $itemObject");
                         row(<String, dynamic>{"cartInput": itemObject});
                       });
                 },
@@ -130,55 +145,10 @@ class ModifierDialogState extends State<ModifierDialog> {
                                       .remove(subItem['modifiers'][index]);
                                   modifiersId.remove(
                                       subItem['modifiers'][index]["_id"]);
-
-                                  var modifier = await ModifierDB()
-                                      .fetchModifier(
-                                          subItem['modifiers'][index]["_id"]);
-                                  await ModifierDB()
-                                      .deleteModifier(modifier.modifierId);
                                 } else {
                                   modifiersId
                                       .add(subItem['modifiers'][index]["_id"]);
                                   selectedList.add(subItem['modifiers'][index]);
-                                  var modifier = await ModifierDB()
-                                      .fetchModifier(
-                                          subItem['modifiers'][index]["_id"]);
-
-                                  print(modifier);
-
-                                  if (modifier == null) {
-                                    String subFoodId = "";
-                                    String foodId = "";
-                                    if (widget.itemType == "mainItem") {
-                                      subFoodId = "";
-                                      foodId = subItem["_id"];
-                                    } else {
-                                      foodId = "";
-                                      subFoodId = subItem["_id"];
-                                    }
-                                    print("Test");
-                                    var modifierData = Modifiers(
-                                        subItem['modifiers'][index]["name"],
-                                        subFoodId,
-                                        foodId,
-                                        subItem['modifiers'][index]["price"]
-                                            .toDouble(),
-                                        1,
-                                        subItem['modifiers'][index]["_id"]);
-
-                                    await ModifierDB()
-                                        .insertModifier(modifierData);
-                                  } else {
-                                    var modifierData = Modifiers(
-                                        modifier.name,
-                                        modifier.subFoodId,
-                                        modifier.foodId,
-                                        modifier.price.toDouble() * 2,
-                                        modifier.qty + 1,
-                                        modifier.modifierId);
-                                    await ModifierDB()
-                                        .updateModifier(modifierData);
-                                  }
                                 }
                                 //selectedList.add(subItem['modifiers'][index]);
                               },

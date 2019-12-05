@@ -1,9 +1,5 @@
-import 'package:haweli/DBModels/models/Modifiers.dart';
-
 class Foods {
   final String name;
-  int id;
-  List<Modifiers> modifiers;
   final String foodId;
   final double price;
   final int qty;
@@ -13,7 +9,6 @@ class Foods {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'foodId': foodId,
       'price': price,
@@ -33,11 +28,10 @@ class Foods {
         'price': price,
         'qty': qty,
         'discount': discount,
-        'modifiers': modifiers
       };
 
   @override
   String toString() {
-    return 'Foods{name: $name, foodId: $foodId, price: $price, qty: $qty, discount: $discount, modifier: $modifiers}';
+    return 'Foods{name: $name, foodId: $foodId, price: $price, qty: $qty, discount: $discount}';
   }
 }
