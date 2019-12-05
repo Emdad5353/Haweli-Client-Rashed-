@@ -25,22 +25,28 @@ Widget priceAndAddToCartButton(BuildContext context, String price){
   );
 }
 
-Widget priceAndAddToCartButtonForModifier(BuildContext context, subItem,){
+Widget priceAndAddToCartButtonForModifier(BuildContext context,Map subItem,){
   return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: <Widget>[
-      descriptionText('£'+ subItem['price'].toString()),
-      SizedBox(
-        width: 10,
-      ),
-      GestureDetector(
-        onTap: () {
-          showModifierDialog(context,subItem);
-          print(subItem['modifierLevels']);
-        },
-        child: Icon(
-          Icons.add_circle,
-          size: 27,
-        ),
+      subItemTitleText(subItem['name']),
+      Row(
+        children: <Widget>[
+          descriptionText('£'+ subItem['price'].toString()),
+          SizedBox(
+            width: 10,
+          ),
+          GestureDetector(
+            onTap: () {
+              showModifierDialog(context,subItem);
+              print(subItem['modifierLevels']);
+            },
+            child: Icon(
+              Icons.add_circle,
+              size: 27,
+            ),
+          ),
+        ],
       ),
     ],
   );

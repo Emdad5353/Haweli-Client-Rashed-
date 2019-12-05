@@ -1,15 +1,74 @@
+import 'package:flutter/material.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
+
+class QueryMutation {
+//  String addPerson(String id, String name, String lastName, int age) {
+//    return """
+//      mutation{
+//          addPerson(id: "$id", name: "$name", lastName: "$lastName", age: $age){
+//            id
+//            name
+//            lastName
+//            age
+//          }
+//      }
+//    """;
+//  }
+
+  String drawerQuery() {
+    return r"""
+                    query getMenuGroup{
+                      getAllMenuGroup{
+                        name
+                        _id
+                      }
+                    }
+                  """;
+  }
+
+  String bodyQuery(String groupID) {
+    return r"""
+                    query{
+  getAllItemFromGroup(offset:0, groupId:"5ddbe0820d7b383f3cf64112"){
+    menuItem{
+      _id
+      groupId{
+        _id
+      }
+      name
+      price
+      modifierLevels{
+        levelTitle,
+      }
+      hasSubItem
+      subItem{
+        modifierLevels{
+          levelTitle
+          modifiers{
+            name
+          }
+        }
+      }
+    }
+  }
+}
+                  """;
+  }
+}
+
 //--------------------------------------get All Menu Group----------------------------------------
 final String drawerQuery = r"""
                     query getMenuGroup{
                       getAllMenuGroup{
                         name
+                        _id
                       }
                     }
                   """;
 
 //--------------------------------------Get All Food Item----------------------------------------
 final String bodyQuery = r"""
-                    query getAllItem($offset: Int) {
+                    query getAllItem($offset: Int,) {
     getAllItem(offset: $offset) {
       menuItem {
         _id
@@ -17,7 +76,7 @@ final String bodyQuery = r"""
         allergyInfo
         description
         excludeDiscount
-        groupId {
+        groupId{
           _id
           name
         }

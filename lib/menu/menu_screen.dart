@@ -32,17 +32,18 @@ class HomeScreen extends StatelessWidget {
         body: StreamBuilder(
             stream: manageStatesBloc.currentMenuGroupStream$,
             builder: (BuildContext context, AsyncSnapshot snap) {
-              return bodyWidget();
+              return bodyWidget(snap.data);
             }));
   }
 
-  Widget bodyWidget() {
+  Widget bodyWidget(String currentMenuGroupID) {
     return Query(
       options: QueryOptions(
         document: bodyQuery,
       ),
       builder: (QueryResult result,
           {VoidCallback refetch, FetchMore fetchMore}) {
+        print('result ${result.data}');
         if (result.errors != null) {
           return Text(result.errors.toString());
         }
@@ -103,11 +104,11 @@ class HomeScreen extends StatelessWidget {
       subItemsWidgets.add(Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              subItemTitleText(subItem['name']),
-              if (subItem['modifierLevels'].length == 0)
+          if (subItem['modifierLevels'].length == 0)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                subItemTitleText(subItem['name']),
                 Row(
                   children: <Widget>[
                     descriptionText('£' + subItem['price'].toString()),
@@ -121,7 +122,7 @@ class HomeScreen extends StatelessWidget {
                           onTap: () async {
                             print("Test");
                             var subFood =
-                                await SubFoodDB().fetchFood(subItem["_id"]);
+                            await SubFoodDB().fetchFood(subItem["_id"]);
                             print(subFood);
                             var discount = subItem["discount"].toDouble();
                             print("Discount $discount");
@@ -175,10 +176,10 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              if (subItem['modifierLevels'].length > 0)
-                priceAndAddToCartButtonForModifier(context, subItem)
-            ],
-          ),
+              ],
+            ),
+          if (subItem['modifierLevels'].length > 0)
+            priceAndAddToCartButtonForModifier(context, subItem),
           //subItemTitleText(subItem['name']),
           if (subItem['description'].length != 0)
             descriptionText(subItem['description'])

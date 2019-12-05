@@ -7,7 +7,7 @@ import 'package:haweli/ui/forgotPassword.dart';
 import 'package:haweli/ui/refund_policy.dart';
 import 'package:haweli/ui/reservation.dart';
 import 'package:haweli/ui/terms_and_condition.dart';
-import 'package:haweli/menu/home_screen.dart';
+import 'package:haweli/menu/menu_screen.dart';
 import 'package:haweli/auth/models/user.dart' as userUtils;
 
 Widget mainView(BuildContext context, data) {

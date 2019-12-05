@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 final HttpLink httpLink = HttpLink(
-  uri: 'http://192.168.16.113:3003/',
+  uri: 'https://rashedapi.consoleit.io/',
 );
 
 final AuthLink authLink = AuthLink(

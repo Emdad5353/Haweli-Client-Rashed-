@@ -12,14 +12,14 @@ class ManageStatesBloc {
 
 
   //------------------------------Menu Group States-----------------------------
-  BehaviorSubject _currentMenuGroup = BehaviorSubject.seeded('j');
+  BehaviorSubject _currentMenuGroup = BehaviorSubject.seeded('5ddbe0820d7b383f3cf64112');
   Observable get currentMenuGroupStream$ => _currentMenuGroup.stream;
 
   changeCurrentMenuGroup(String val){
     _currentMenuGroup.add(val);
   }
 
-  //------------------------------Menu Group States-----------------------------
+  //------------------------------Current Login States-----------------------------
   BehaviorSubject _loginStatus = BehaviorSubject.seeded(false);
   Observable get currentLoginStatusStream$ => _loginStatus.stream;
 

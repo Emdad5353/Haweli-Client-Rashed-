@@ -12,7 +12,7 @@ Widget mainDrawer() {
   return Drawer(
     child: Query(
       options: QueryOptions(
-        document: drawerQuery,
+        document: QueryMutation().drawerQuery(),
       ),
       builder: (QueryResult result,
           {VoidCallback refetch, FetchMore fetchMore}) {
@@ -29,7 +29,7 @@ Widget mainDrawer() {
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: (){
-                manageStatesBloc.changeCurrentMenuGroup(result.data['getAllMenuGroup'][index]['name']);
+                manageStatesBloc.changeCurrentMenuGroup(result.data['getAllMenuGroup'][index]['_id']);
                 Navigator.pop(context);
               },
               child: drawerCardsWithFoodTypeName(
