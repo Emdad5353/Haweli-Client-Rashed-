@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/drawer.dart';
 import 'package:haweli/main.dart';
-import 'package:haweli/resources/graphql_client.dart';
-import 'package:haweli/resources/graphql_queries.dart';
-import 'package:haweli/utils/validator.dart';
-import 'package:haweli/auth/models/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:haweli/graphQL_resources/graphql_client.dart';
+import 'package:haweli/graphQL_resources/graphql_queries.dart';
+import 'package:haweli/authentication/validator.dart';
+import 'package:haweli/authentication/models/user.dart';
 
 class SignInForm extends StatefulWidget {
   final UserPageState userPageState;

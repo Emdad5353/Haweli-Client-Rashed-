@@ -3,6 +3,7 @@ import 'package:haweli/menu/commonWidgets.dart';
 
 List<Map> selectedList = [];
 showModifierDialog(BuildContext context, subItem) {
+  print('fromModifier ${subItem}');
   AlertDialog alert = AlertDialog(
       //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),

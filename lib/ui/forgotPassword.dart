@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:haweli/drawer.dart';
+import 'package:haweli/drawers/mainDrawer.dart';
 
 class ForgotPassword extends StatelessWidget{
   String _email;

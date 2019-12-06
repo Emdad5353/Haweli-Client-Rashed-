@@ -26,6 +26,7 @@ Widget priceAndAddToCartButton(BuildContext context, String price){
 }
 
 Widget priceAndAddToCartButtonForModifier(BuildContext context,Map subItem,){
+  print('priceAndAddToCartButtonForModifier ${subItem}');
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: <Widget>[

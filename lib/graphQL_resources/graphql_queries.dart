@@ -68,7 +68,7 @@ final String drawerQuery = r"""
 
 //--------------------------------------Get All Food Item----------------------------------------
 final String bodyQuery = r"""
-                    query getAllItem($offset: Int,) {
+                   query getAllItem($offset: Int,) {
     getAllItem(offset: $offset) {
       menuItem {
         _id

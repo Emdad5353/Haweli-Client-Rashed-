@@ -5,10 +5,10 @@ import 'package:haweli/DBModels/SubFoodDB.dart';
 import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/DBModels/models/SubFood.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/drawer.dart';
+import 'package:haweli/drawers/mainDrawer.dart';
 import 'package:haweli/menu/commonWidgets.dart';
 import 'package:haweli/menu/modifier_dialog.dart';
-import 'package:haweli/resources/graphql_queries.dart';
+import 'package:haweli/graphQL_resources/graphql_queries.dart';
 
 class HomeScreen extends StatelessWidget {
   @override

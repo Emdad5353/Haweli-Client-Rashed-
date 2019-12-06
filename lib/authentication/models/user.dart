@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:haweli/auth/models/user.dart';
+import 'package:haweli/authentication/models/user.dart';
 import 'package:localstorage/localstorage.dart';
 
 class User {

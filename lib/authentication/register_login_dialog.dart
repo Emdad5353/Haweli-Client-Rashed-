@@ -1,14 +1,6 @@
-import 'package:flushbar/flushbar.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/main.dart';
-import 'package:haweli/resources/graphql_queries.dart';
-import 'package:haweli/ui/signUp.dart';
-import 'package:haweli/ui/sign_in.dart';
-import 'package:haweli/utils/validator.dart';
-
+import 'package:haweli/authentication/signUp.dart';
+import 'package:haweli/authentication/sign_in.dart';
 
 showLoginAndRegisterDialog(BuildContext context) {
   AlertDialog alert = AlertDialog(
@@ -115,20 +107,5 @@ class ProfileDialogState extends State<ProfileDialog> {
         ],
       ),
     );
-  }
-
-  void showFlushbar(BuildContext context,String message) {
-    Flushbar(
-      message: message,
-      mainButton: FlatButton(
-        child: Text(
-          'Click Me',
-          style: TextStyle(color: Theme.of(context).accentColor),
-        ),
-        onPressed: () {},
-      ),
-      duration: Duration(seconds: 1),
-      // Show it with a cascading operator
-    )..show(context);
   }
 }

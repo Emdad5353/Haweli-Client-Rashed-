@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:haweli/resources/graphql_client.dart';
+import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/testsqlite/DataModel.dart';
 import 'package:haweli/ui/main_view.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/drawer.dart';
-import 'package:haweli/ui/register_login_dialog.dart';
+import 'package:haweli/drawers/mainDrawer.dart';
+import 'package:haweli/authentication/register_login_dialog.dart';
 import 'package:haweli/testsqlite/DBOpener.dart';
 
 void main() => runApp(Home());

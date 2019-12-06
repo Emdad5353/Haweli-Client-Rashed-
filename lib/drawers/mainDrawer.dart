@@ -2,10 +2,10 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/resources/graphql_queries.dart';
+import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/testsqlite/DBOpener.dart';
 import 'package:haweli/testsqlite/DataModel.dart';
-import 'package:haweli/ui/cart.dart';
+import 'package:haweli/drawers/endDrawer/cart.dart';
 
 
 Widget mainDrawer() {
