@@ -4,8 +4,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBConnector {
-  Future<Database> database(String tableFormat) async {
-    print(tableFormat);
+  Future<Database> database() async {
     return openDatabase(
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
@@ -15,9 +14,9 @@ class DBConnector {
       onCreate: (db, version) async {
         Batch batch = db.batch();
         batch.execute(
-            "CREATE TABLE foodItem(id INTEGER PRIMARY KEY, foodId STRING, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)");
+            "CREATE TABLE foodItem(id INTEGER PRIMARY KEY, foodId STRING, name TEXT, price FLOAT, qty INTEGER, foodType TEXT, discount FLOAT)");
         batch.execute(
-            "CREATE TABLE modifiers(id INTEGER PRIMARY KEY, foodId INTEGER, modifierId INTEGER, subFoodId INTEGER, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)");
+            "CREATE TABLE modifiers(id INTEGER PRIMARY KEY, foodId String, modifierId String, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)");
         batch.execute(
             "CREATE TABLE subFoodItem(id INTEGER PRIMARY KEY, subFoodId INTEGER, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)");
         List<dynamic> res = await batch.commit();

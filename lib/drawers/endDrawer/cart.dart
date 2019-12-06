@@ -1,4 +1,11 @@
+import 'dart:core' as prefix0;
+import 'dart:core';
+
 import 'package:flutter/material.dart';
+import 'package:haweli/DBModels/CartDB.dart';
+import 'package:haweli/DBModels/models/Foods.dart';
+import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
+import 'package:haweli/testsqlite/DataModel.dart';
 
 class Cart extends StatefulWidget{
   @override
@@ -8,40 +15,137 @@ class Cart extends StatefulWidget{
 }
 
 class CartState extends State<Cart>{
+
+  var cart;
+  @override
+  initState(){
+    super.initState();
+    print("from init");
+    myfunc();
+  }
+
+   myfunc()async{
+    var cartData = await CartDB().allCart();
+    setState(() {
+      cart =  cartData;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    var itemsWidgets = List<Widget>();
+    double total = 0;
+    int count = 0;
+    var foodItem = [];
+    var subFoodItem = [];
+    for (var item in cart) {
+      if(item.foodType == "MainItem"){
+        var foodItemId = item.foodId;
+        var modifiers =  item.modifiers;
+
+        var foodItemForCart = {
+          "foodItem": item.foodId,
+          "modifiers": item.modifiers,
+          "qty": item.qty
+        };
+        foodItem.add(foodItemForCart);
+
+      }else{
+        var subFoodItemForCart = {
+          "subFoodItem": item.foodId,
+          "modifiers": item.modifiers,
+          "qty": item.qty
+        };
+        subFoodItem.add(subFoodItemForCart);
+      }
+      total += item.price;
+      for(var modifier in item.modifiers){
+        total+= modifier.price;
+      }
+
+      print(item.modifiers.length);
+      // ignore: unused_local_variable
+      var subItemWidgets = List<Widget>();
+      itemsWidgets.add(
+        Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Text(item.qty.toString()),
+                      SizedBox(width: 10,),
+                      Text(item.name,),
+                    ],
+                  ),),
+                Row(
+                  children: <Widget>[
+                    Text(item.price.toString()),
+                    SizedBox(width: 10,),
+                    IconButton(icon: Icon(Icons.delete), onPressed: (){})
+                  ],
+                ),
+              ],
+            ),
+            if(item.modifiers.length>0)
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: item.modifiers==null?0:item.modifiers.length,
+                itemBuilder: (BuildContext context,int index){
+                  print("Total====> $total");
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            SizedBox(width: 40,),
+                            Text(item.modifiers[index].name,),
+                          ],
+                        ),),
+                      Row(
+                        children: <Widget>[
+                          Text(item.modifiers[index].price.toString()),
+                          SizedBox(width: 10,),
+                          IconButton(icon: Icon(Icons.delete), onPressed: (){})
+                        ],
+                      ),
+                    ],
+                  );
+                }
+            )
+          ],
+        ),
+      );
+    }
+
+    print(total);
+
+    print("Cart: ${cart.length.toString()}");
     return Column(
       children: <Widget>[
-       Row(
-         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-         children: <Widget>[
-           Row(
-             children: <Widget>[
-               Text('1'),
-               SizedBox(width: 10,),
-               Text('name of dish'),
-             ],
-           ),
-           Row(
-             children: <Widget>[
-               Text('£10'),
-               SizedBox(width: 10,),
-               IconButton(icon: Icon(Icons.delete), onPressed: (){})
-             ],
-           ),
-         ],
-       ),
+        Column(
+          children: itemsWidgets,
+        ),
         Divider(thickness: 2,),
         Align(
           alignment: Alignment.centerRight,
-          child: Text('Total: £340.76',style: TextStyle(fontWeight: FontWeight.bold),),
+          child: Text('Total: £$total',style: TextStyle(fontWeight: FontWeight.bold),),
         ),
         SizedBox(height: 20,),
         RaisedButton(
-          color: Theme.of(context).primaryColor,
-          child: Text('CHECKOUT £340.76',style: TextStyle(color: Colors.white),),
+            color: Theme.of(context).primaryColor,
+            child: Text('CHECKOUT £$total',style: TextStyle(color: Colors.white),),
             onPressed: (){
-
+              deliveryAddressDialog(context);
+              var orderInput = {
+                "foodItem": foodItem,
+                "subFoodItem": subFoodItem,
+                "finalTotal": total
+              };
+              print(orderInput);
             }
         ),
         SizedBox(height: 20,),

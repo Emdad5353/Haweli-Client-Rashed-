@@ -19,7 +19,12 @@ final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   ),
 );
 
-
+GraphQLClient clientToQuery(){
+  return GraphQLClient(
+    cache: InMemoryCache(),
+    link: link
+  );
+}
 
 
 

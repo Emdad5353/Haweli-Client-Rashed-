@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:haweli/menu/commonWidgets.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/FoodDB.dart';
+import 'package:haweli/DBModels/ModifierDB.dart';
+import 'package:haweli/DBModels/models/Foods.dart';
+import 'package:haweli/DBModels/models/Modifiers.dart';
+import 'package:haweli/graphQL_resources//graphql_client.dart';
+import 'package:haweli/graphQL_resources//graphql_queries.dart';
+
+import 'commonWidgets.dart';
 
 List<Map> selectedList = [];
-showModifierDialog(BuildContext context, subItem) {
-  print('fromModifier ${subItem}');
+List<String> modifiersId = [];
+
+showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
   AlertDialog alert = AlertDialog(
-      //backgroundColor: Theme.of(context).primaryColor,
+    //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
       contentPadding: EdgeInsets.all(0),
       title: Container(
@@ -31,13 +40,57 @@ showModifierDialog(BuildContext context, subItem) {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          ModifierDialog(subItem),
-          RaisedButton(
-              child: Text('DONE'),
-              onPressed: () {
-                selectedList.clear();
-                Navigator.pop(context);
-              })
+          ModifierDialog(subItem, itemType),
+          GraphQLProvider(
+            client: client,
+            child: CacheProvider(
+              child: Mutation(
+                options: MutationOptions(document: mutationCartCreate),
+                builder: (RunMutation row, QueryResult result) {
+                  return RaisedButton(
+                      child: Text('DONE'),
+                      onPressed: () async {
+                        var discount = subItem["discount"].toDouble();
+                        print("Discount $discount");
+                        print(selectedList);
+                        print(modifiersId);
+                        print(itemObject);
+
+                        if (itemType == "mainItem") {
+                          var foodData = Foods(subItem['name'], subItem['_id'],
+                              subItem['price'].toDouble(), 1, discount, 'MainType');
+
+                          var lastId = await FoodDB().insertFood(foodData);
+                          for (var modifers in selectedList) {
+                            var modifierData = Modifiers(modifers["name"], lastId,
+                                modifers["price"].toDouble(), 1, modifers["_id"]);
+                            ModifierDB().insertModifier(modifierData);
+                          }
+                          itemObject["foodItem"]["modifiers"] = modifiersId;
+                          print("ItemObject ===> $itemObject");
+                        } else {
+                          var foodData = Foods(subItem['name'], subItem['_id'],
+                              subItem['price'].toDouble(), 1, discount, 'SubItem');
+
+                          var lastId = await FoodDB().insertFood(foodData);
+                          for (var modifers in selectedList) {
+                            var modifierData = Modifiers(modifers["name"], lastId,
+                                modifers["price"].toDouble(), 1, modifers["_id"]);
+                            ModifierDB().insertModifier(modifierData);
+                          }
+                          itemObject["subFoodItem"]["modifiers"] = modifiersId;
+                          print("ItemObject ===> $itemObject");
+                        }
+                        row(<String, dynamic>{"cartInput": itemObject});
+                      });
+                },
+                onCompleted: (result) {
+                  print("On Complete =====>");
+                  print(result.toString());
+                },
+              ),
+            ),
+          )
         ],
       ));
 
@@ -50,9 +103,12 @@ showModifierDialog(BuildContext context, subItem) {
   );
 }
 
+
 class ModifierDialog extends StatefulWidget {
   final Map subItem;
-  ModifierDialog(this.subItem);
+  final String itemType;
+
+  ModifierDialog(this.subItem, this.itemType);
 
   @override
   State<StatefulWidget> createState() {
@@ -61,6 +117,8 @@ class ModifierDialog extends StatefulWidget {
 }
 
 class ModifierDialogState extends State<ModifierDialog> {
+
+
   @override
   Widget build(BuildContext context) {
     var tabWidgets = List<Widget>();
@@ -76,7 +134,6 @@ class ModifierDialogState extends State<ModifierDialog> {
           itemCount: subItem['modifiers'].length,
           padding: EdgeInsets.only(top: 10, left: 10, right: 10),
           itemBuilder: (BuildContext context, int index) {
-            bool isChecked = false;
             return Column(
               children: <Widget>[
                 Container(
@@ -93,7 +150,27 @@ class ModifierDialogState extends State<ModifierDialog> {
                             SizedBox(
                               width: 10,
                             ),
-                            AddModifiersToCart(subItem['modifiers'][index]),
+                            GestureDetector(
+                              onTap: () async {
+                                if (selectedList
+                                    .contains(subItem['modifiers'][index])) {
+                                  selectedList
+                                      .remove(subItem['modifiers'][index]);
+                                  modifiersId.remove(
+                                      subItem['modifiers'][index]["_id"]);
+                                } else {
+                                  modifiersId
+                                      .add(subItem['modifiers'][index]["_id"]);
+                                  selectedList.add(subItem['modifiers'][index]);
+                                }
+                                //selectedList.add(subItem['modifiers'][index]);
+                              },
+                              child: Icon(
+                                Icons.add_circle,
+                                size: 27,
+                              ),
+                            ),
+                            //priceAndAddToCartButton(context, subItem['modifiers'][index]['price'].toString())
                           ],
                         )
                       ],
@@ -107,6 +184,8 @@ class ModifierDialogState extends State<ModifierDialog> {
         ),
       ));
     }
+
+
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,

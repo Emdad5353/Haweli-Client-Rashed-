@@ -29,3 +29,13 @@ Widget mainView(BuildContext context, data) {
 
   return HomeScreen();
 }
+
+
+class M extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return null;
+  }
+
+}

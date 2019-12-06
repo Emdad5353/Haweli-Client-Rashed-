@@ -170,3 +170,12 @@ final String mutationCartCreate = r"""
                       }
                     }
                   """;
+
+
+final String locationVerify = r"""
+                    query validateLocation($postcode: String){
+                      validateLocation(postcode: $postcode){
+                        msg
+                      }
+                    }
+                  """;

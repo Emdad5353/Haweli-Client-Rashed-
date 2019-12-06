@@ -71,7 +71,7 @@ Widget endDrawer(BuildContext context) {
 
             print("hello");
 //            await DBOpener().insertFood(fido);
-            print(await DBOpener().foods());
+//            print(await DBOpener().foods());
             showFlushbar(context, 'YOUR ORDER BUTTON PRESSED');
           },
         ),

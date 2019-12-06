@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
-import 'package:haweli/DBModels/SubFoodDB.dart';
 import 'package:haweli/DBModels/models/Foods.dart';
-import 'package:haweli/DBModels/models/SubFood.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawers/mainDrawer.dart';
-import 'package:haweli/menu/commonWidgets.dart';
-import 'package:haweli/menu/modifier_dialog.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
+import 'package:haweli/menu/commonWidgets.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -72,10 +69,19 @@ class HomeScreen extends StatelessWidget {
                               result.data['getAllItem']['menuItem'][index]
                                   ['subItem'])
                         else if (result
-                            .data['getAllItem']['menuItem'][index]['modifierLevels']
-                            .length > 0)
-                          priceAndAddToCartButtonForModifier(context,result
-                              .data['getAllItem']['menuItem'][index])
+                                .data['getAllItem']['menuItem'][index]
+                                    ['modifierLevels']
+                                .length >
+                            0)
+                          priceAndAddToCartButtonForModifier(
+                              context,
+                              result.data['getAllItem']['menuItem'][index],
+                              "mainItem", {
+                            "foodItem": {
+                              "foodItemId": result.data['getAllItem']
+                                  ['menuItem'][index]["_id"]
+                            }
+                          })
                         else if (result
                                 .data['getAllItem']['menuItem'][index]
                                     ['modifierLevels']
@@ -122,21 +128,22 @@ class HomeScreen extends StatelessWidget {
                           onTap: () async {
                             print("Test");
                             var subFood =
-                            await SubFoodDB().fetchFood(subItem["_id"]);
+                                await FoodDB().fetchFood(subItem["_id"]);
                             print(subFood);
                             var discount = subItem["discount"].toDouble();
                             print("Discount $discount");
 
                             if (subFood == null) {
                               print("Test");
-                              var subFoodData = SubFoods(
+                              var subFoodData = Foods(
                                   subItem['name'],
                                   subItem['_id'],
                                   subItem['price'].toDouble(),
                                   1,
-                                  discount);
+                                  discount,
+                                  'SubItem');
 
-                              await SubFoodDB().insertSubFood(subFoodData);
+                              await FoodDB().insertFood(subFoodData);
 
                               var cartInput = {
                                 "subFoodItem": {
@@ -146,18 +153,18 @@ class HomeScreen extends StatelessWidget {
                               print("FoodItem: ,$cartInput");
                               row(<String, dynamic>{"cartInput": cartInput});
                             } else {
-                              var subFoodData = SubFoods(
+                              var subFoodData = Foods(
                                   subFood.name,
-                                  subFood.subFoodId,
-                                  subFood.price * 2,
+                                  subFood.foodId,
+                                  subFood.price + subItem['price'].toDouble(),
                                   subFood.qty + 1,
-                                  subFood.discount * 2);
-
-                              await SubFoodDB().updateSubFood(subFoodData);
+                                  subFood.discount + discount,
+                                  'subItem');
+                              subFoodData.id = subFood.id;
+                              print(subFoodData);
+                              await FoodDB().updateFood(subFoodData);
                               var cartInput = {
-                                "subFoodItem": {
-                                  "subFoodItemId": mainItems["_id"]
-                                }
+                                "subFoodItem": {"subFoodItemId": subItem["_id"]}
                               };
                               print(cartInput);
                               row(<String, dynamic>{"cartInput": cartInput});
@@ -176,10 +183,13 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              ],
-            ),
-          if (subItem['modifierLevels'].length > 0)
-            priceAndAddToCartButtonForModifier(context, subItem),
+              if (subItem['modifierLevels'].length > 0)
+                priceAndAddToCartButtonForModifier(
+                    context, subItem, "subItem", {
+                  "subFoodItem": {"subFoodItemId": mainItems["_id"]}
+                })
+            ],
+          ),
           //subItemTitleText(subItem['name']),
           if (subItem['description'].length != 0)
             descriptionText(subItem['description'])
@@ -238,7 +248,7 @@ class HomeScreen extends StatelessWidget {
                     if (food == null) {
                       print("Test");
                       var foodData = Foods(mainItems['name'], mainItems['_id'],
-                          mainItems['price'].toDouble(), 1, discount);
+                          mainItems['price'].toDouble(), 1, discount, 'MainItem');
 
                       await FoodDB().insertFood(foodData);
 
@@ -249,8 +259,11 @@ class HomeScreen extends StatelessWidget {
                       row(<String, dynamic>{"cartInput": cartInput});
                     } else {
                       var foodData = Foods(food.name, food.foodId,
-                          food.price * 2, food.qty + 1, food.discount * 2);
-
+                          food.price + mainItems['price'].toDouble(),
+                          food.qty + 1,
+                          food.discount + discount,
+                          'MainItem');
+                      print("Fooods: $foodData");
                       await FoodDB().updateFood(foodData);
                       var cartInput = {
                         "foodItem": {"foodItemId": mainItems["_id"]}
