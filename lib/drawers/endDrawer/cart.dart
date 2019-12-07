@@ -1,11 +1,7 @@
-import 'dart:core' as prefix0;
 import 'dart:core';
-
 import 'package:flutter/material.dart';
 import 'package:haweli/DBModels/CartDB.dart';
-import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
-import 'package:haweli/testsqlite/DataModel.dart';
 
 class Cart extends StatefulWidget{
   @override
@@ -20,7 +16,6 @@ class CartState extends State<Cart>{
   @override
   initState(){
     super.initState();
-    print("from init");
     myfunc();
   }
 
@@ -35,13 +30,10 @@ class CartState extends State<Cart>{
   Widget build(BuildContext context) {
     var itemsWidgets = List<Widget>();
     double total = 0;
-    int count = 0;
     var foodItem = [];
     var subFoodItem = [];
     for (var item in cart) {
       if(item.foodType == "MainItem"){
-        var foodItemId = item.foodId;
-        var modifiers =  item.modifiers;
 
         var foodItemForCart = {
           "foodItem": item.foodId,
@@ -63,28 +55,19 @@ class CartState extends State<Cart>{
         total+= modifier.price;
       }
 
-      print(item.modifiers.length);
-      // ignore: unused_local_variable
-      var subItemWidgets = List<Widget>();
       itemsWidgets.add(
         Column(
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                Text(item.qty.toString(),),
+                SizedBox(width: 8,),
+                Expanded(child: Text(item.name,)),
                 Row(
                   children: <Widget>[
-                    Text(item.qty.toString()),
                     SizedBox(width: 10,),
-                    Container(
-                        child: Text(item.name,)
-                    )
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
                     Text(item.price.toString()),
-                    SizedBox(width: 10,),
                     IconButton(icon: Icon(Icons.delete), onPressed: (){})
                   ],
                 ),
@@ -95,22 +78,17 @@ class CartState extends State<Cart>{
                 shrinkWrap: true,
                 itemCount: item.modifiers==null?0:item.modifiers.length,
                 itemBuilder: (BuildContext context,int index){
-                  print("Total====> $total");
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
+                      SizedBox(width: 20,),
                       Expanded(
-                        child: Row(
-                          children: <Widget>[
-                            SizedBox(width: 40,),
-                            Text(item.modifiers[index].name,),
-                          ],
-                        ),),
+                        child: Text(item.modifiers[index].name,),
+                      ),
                       Row(
                         children: <Widget>[
                           Text(item.modifiers[index].price.toString()),
-                          SizedBox(width: 10,),
-                          IconButton(icon: Icon(Icons.delete), onPressed: (){})
+                          IconButton(icon: Icon(Icons.delete),padding: EdgeInsets.all(0), onPressed: (){})
                         ],
                       ),
                     ],
@@ -121,36 +99,37 @@ class CartState extends State<Cart>{
         ),
       );
     }
-
-    print(total);
-
-    print("Cart: ${cart.length.toString()}");
-    return Column(
-      children: <Widget>[
-        Column(
-          children: itemsWidgets,
-        ),
-        Divider(thickness: 2,),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text('Total: £$total',style: TextStyle(fontWeight: FontWeight.bold),),
-        ),
-        SizedBox(height: 20,),
-        RaisedButton(
-            color: Theme.of(context).primaryColor,
-            child: Text('CHECKOUT £$total',style: TextStyle(color: Colors.white),),
-            onPressed: (){
-              deliveryAddressDialog(context);
-              var orderInput = {
-                "foodItem": foodItem,
-                "subFoodItem": subFoodItem,
-                "finalTotal": total
-              };
-              print(orderInput);
-            }
-        ),
-        SizedBox(height: 20,),
-      ],
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        children: <Widget>[
+          Column(
+            children: itemsWidgets,
+          ),
+          Divider(thickness: 2,),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              padding: EdgeInsets.only(right: 15),
+                child: Text('Total: £$total',style: TextStyle(fontWeight: FontWeight.bold),)),
+          ),
+          SizedBox(height: 20,),
+          RaisedButton(
+              color: Theme.of(context).primaryColor,
+              child: Text('CHECKOUT £$total',style: TextStyle(color: Colors.white),),
+              onPressed: (){
+                deliveryAddressDialog(context);
+                var orderInput = {
+                  "foodItem": foodItem,
+                  "subFoodItem": subFoodItem,
+                  "finalTotal": total
+                };
+                print(orderInput);
+              }
+          ),
+          SizedBox(height: 20,),
+        ],
+      ),
     );
   }
 }

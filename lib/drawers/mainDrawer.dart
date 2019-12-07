@@ -44,59 +44,59 @@ Widget mainDrawer() {
 }
 Widget endDrawer(BuildContext context) {
   return SafeArea(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        GestureDetector(
-          child: Card(
-            margin: EdgeInsets.all(6),
-            color: Theme.of(context).primaryColor,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Center(
-                child: Text(
-                  'YOUR ORDER',
-                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+    child:SingleChildScrollView(
+      child:  Column(
+        children: <Widget>[
+          GestureDetector(
+            child: Card(
+              margin: EdgeInsets.all(6),
+              color: Theme.of(context).primaryColor,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Center(
+                  child: Text(
+                    'YOUR ORDER',
+                    style: TextStyle(color: Colors.white, fontSize: 20.0),
+                  ),
                 ),
               ),
             ),
-          ),
-          onTap: () async{
+            onTap: () async{
 
-            print("hello");
+              print("hello");
 //            await DBOpener().insertFood(fido);
 //            print(await DBOpener().foods());
-            showFlushbar(context, 'YOUR ORDER BUTTON PRESSED');
-          },
-        ),
-        EndDrawerRadioButton(),
-        Divider(
-          color: Colors.grey,
-        ),
-        //Cart
-        Cart(),
-        Container(
-          width: double.infinity,
-          height: 60,
-          child: Row(
-            children: <Widget>[
-              paymentMethodCards('assets/visa.png'),
-              paymentMethodCards('assets/Mastercard.png'),
-              paymentMethodCards('assets/Maestro.png'),
-              paymentMethodCards('assets/american_express.png'),
-            ],
+              showFlushbar(context, 'YOUR ORDER BUTTON PRESSED');
+            },
           ),
-        ),
-        FlatButton(
-            onPressed: () => _showDialog(context),
-            child: Center(
-              child: Text(
-                'ALLERGY AWARENESS',
-                style: TextStyle(
-                    fontSize: 16, color: Theme.of(context).primaryColor),
-              ),
-            ))
-      ],
+          EndDrawerRadioButton(),
+          Divider(
+            color: Colors.grey,
+          ),
+          Cart(),
+          Container(
+            width: double.infinity,
+            height: 60,
+            child: Row(
+              children: <Widget>[
+                paymentMethodCards('assets/visa.png'),
+                paymentMethodCards('assets/Mastercard.png'),
+                paymentMethodCards('assets/Maestro.png'),
+                paymentMethodCards('assets/american_express.png'),
+              ],
+            ),
+          ),
+          FlatButton(
+              onPressed: () => _showDialog(context),
+              child: Center(
+                child: Text(
+                  'ALLERGY AWARENESS',
+                  style: TextStyle(
+                      fontSize: 16, color: Theme.of(context).primaryColor),
+                ),
+              ))
+        ],
+      ),
     ),
   );
 }
@@ -197,8 +197,6 @@ class _EndDrawerRadioButtonState extends State<EndDrawerRadioButton> {
 
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(
           child: RadioListTile(

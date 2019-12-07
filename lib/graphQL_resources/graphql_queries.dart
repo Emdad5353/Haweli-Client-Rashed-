@@ -136,6 +136,7 @@ final String mutationSignInQuery = r"""
                         lastName
                         name
                         email
+                        phoneno
                       }
                     }
                   """;

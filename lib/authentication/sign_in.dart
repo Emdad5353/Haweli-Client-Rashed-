@@ -6,6 +6,8 @@ import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/authentication/validator.dart';
 import 'package:haweli/authentication/models/user.dart';
+import 'package:haweli/main_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInForm extends StatefulWidget {
   final UserPageState userPageState;
@@ -47,9 +49,19 @@ class _SignInFormState extends State<SignInForm> {
               ),
             );
           },
-          onCompleted: (result) {
-            //SharedPreferences preferences = await SharedPreferences.getInstance();
+          onCompleted: (result) async {
+
             manageStatesBloc.changeCurrentLoginStatus(true);
+
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setString('id', result['userLogin']['id']);
+            prefs.setString('jwt', result['userLogin']['jwt']);
+            prefs.setString('firstName', result['userLogin']['firstName']);
+            prefs.setString('lastName', result['userLogin']['lastName']);
+            prefs.setString('name', result['userLogin']['name']);
+            prefs.setString('email', result['userLogin']['email']);
+            prefs.setString('phoneno', result['userLogin']['phoneno']);
+
             setState(() {
 //              widget.userPageState.addItem(
 //                result['userLogin']['id'],
@@ -60,10 +72,10 @@ class _SignInFormState extends State<SignInForm> {
 //                result['userLogin']['email'],
 //                result['userLogin']['phoneno'],
 //              );
-
+              HomePageState().isLoggedIn=true;
               Navigator.of(context).pop();
             });
-            print(result['userLogin']['jwt']);
+            print(result['userLogin']);
           },
         ),
       ),

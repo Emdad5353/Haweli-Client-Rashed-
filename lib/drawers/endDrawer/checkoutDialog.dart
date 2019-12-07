@@ -4,6 +4,7 @@ import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/main.dart';
+import 'package:haweli/main_ui.dart';
 
 deliveryAddressDialog(BuildContext context){
   AlertDialog alert = AlertDialog(

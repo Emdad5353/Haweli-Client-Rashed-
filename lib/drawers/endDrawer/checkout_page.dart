@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Checkout extends StatefulWidget {
   @override
@@ -10,6 +11,25 @@ class Checkout extends StatefulWidget {
 }
 
 class CheckoutState extends State<Checkout> {
+  String name = '';
+  String email = '';
+  String phoneno = '';
+
+  _setSavedValues() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = (prefs.getString('name') ?? '');
+      email = (prefs.getString('email') ?? '');
+      phoneno = (prefs.getString('phoneno') ?? '');
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _setSavedValues();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,6 +91,9 @@ class CheckoutState extends State<Checkout> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Divider(thickness: 1,),
+          Text(name,style: TextStyle(fontWeight: FontWeight.bold),),
+          Text(email,style: TextStyle(fontWeight: FontWeight.bold),),
+          Text(phoneno,style: TextStyle(fontWeight: FontWeight.bold),),
           //--------------------------Put user Info here------------------------
           SizedBox(height: 30),
           Text(
