@@ -43,12 +43,6 @@ Widget mainDrawer() {
   );
 }
 Widget endDrawer(BuildContext context) {
-  var fido = Food(
-      id: 0,
-      name: 'Food1',
-      price: 35,
-      qty: 1
-  );
   return SafeArea(
     child: ListView(
       padding: EdgeInsets.zero,

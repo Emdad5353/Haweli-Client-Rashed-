@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
+import 'package:haweli/drawers/endDrawer/checkout_page.dart';
 import 'package:haweli/drawers/mainDrawer.dart';
 import 'package:haweli/main.dart';
 import 'package:haweli/ui/contact_us.dart';
@@ -25,6 +26,8 @@ Widget mainView(BuildContext context, data) {
       return RefundPolicy();
     case WidgetMarker.forgotPassword:
       return ForgotPassword();
+    case WidgetMarker.checkout:
+      return Checkout();
   }
 
   return HomeScreen();

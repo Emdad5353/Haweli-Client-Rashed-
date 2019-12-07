@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
+import 'package:haweli/main.dart';
 
-deliveryAddressDialog(
-  BuildContext context,
-) {
+deliveryAddressDialog(BuildContext context){
   AlertDialog alert = AlertDialog(
       //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
@@ -222,6 +222,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
           }
+          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+          Navigator.of(context).pop();
         }
         )
     );

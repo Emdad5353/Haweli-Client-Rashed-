@@ -53,7 +53,8 @@ enum WidgetMarker {
   contact,
   termsAndCondition,
   refundPolicy,
-  forgotPassword
+  forgotPassword,
+  checkout
 }
 
 class BodyWidget extends StatefulWidget {
