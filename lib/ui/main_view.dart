@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:haweli/authentication/models/user.dart' as userUtils;
 import 'package:haweli/drawers/endDrawer/checkout_page.dart';
 import 'package:haweli/main.dart';
-import 'package:haweli/menu/menu_screen.dart';
+import 'package:haweli/main_ui.dart';
 import 'package:haweli/ui/contact_us.dart';
 import 'package:haweli/ui/forgotPassword.dart';
 import 'package:haweli/ui/refund_policy.dart';
@@ -14,7 +14,7 @@ Widget mainView(BuildContext context, data) {
       return HomeScreen();
     case WidgetMarker.reservation:
       //return Reservation();
-      return userUtils.UserPage();
+      return userUtils.User();
     case WidgetMarker.contact:
       return ContactWidget();
     case WidgetMarker.termsAndCondition:

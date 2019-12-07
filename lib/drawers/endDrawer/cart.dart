@@ -1,4 +1,3 @@
-import 'dart:core' as prefix0;
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:haweli/DBModels/models/FoodItemModel.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/DBModels/models/SubFoodItemModel.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
+import 'package:haweli/testsqlite/DataModel.dart';
 
 class Cart extends StatefulWidget {
   @override
@@ -22,7 +22,6 @@ class CartState extends State<Cart> {
   @override
   initState() {
     super.initState();
-    print("from init");
     myfunc();
   }
 
@@ -42,7 +41,6 @@ class CartState extends State<Cart> {
 
     var itemsWidgets = List<Widget>();
     double total = 0;
-    int count = 0;
     var foodItem = [];
     var subFoodItem = [];
     for (var item in cart) {
@@ -69,73 +67,46 @@ class CartState extends State<Cart> {
         total += modifier.price;
       }
 
-      print(item.modifiers.length);
-      // ignore: unused_local_variable
-      var subItemWidgets = List<Widget>();
       itemsWidgets.add(
         Column(
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Expanded(
-                  child: Row(
-                    children: <Widget>[
-                      Text(item.qty.toString()),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        item.name,
-                      ),
-                    ],
-                  ),
-                ),
+                Text(item.qty.toString(),),
+                SizedBox(width: 8,),
+                Expanded(child: Text(item.name,)),
                 Row(
                   children: <Widget>[
+                    SizedBox(width: 10,),
                     Text(item.price.toString()),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    IconButton(icon: Icon(Icons.delete), onPressed: () {})
+                    IconButton(icon: Icon(Icons.delete), onPressed: (){})
                   ],
                 ),
               ],
             ),
             if (item.modifiers.length > 0)
               ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: item.modifiers == null ? 0 : item.modifiers.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    print("Total====> $total");
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          child: Row(
-                            children: <Widget>[
-                              SizedBox(
-                                width: 40,
-                              ),
-                              Text(
-                                item.modifiers[index].name,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Text(item.modifiers[index].price.toString()),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            IconButton(
-                                icon: Icon(Icons.delete), onPressed: () {})
-                          ],
-                        ),
-                      ],
-                    );
-                  })
+                shrinkWrap: true,
+                itemCount: item.modifiers==null?0:item.modifiers.length,
+                itemBuilder: (BuildContext context,int index){
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      SizedBox(width: 20,),
+                      Expanded(
+                        child: Text(item.modifiers[index].name,),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(item.modifiers[index].price.toString()),
+                          IconButton(icon: Icon(Icons.delete),padding: EdgeInsets.all(0), onPressed: (){})
+                        ],
+                      ),
+                    ],
+                  );
+                }
+            )
           ],
         ),
       );
