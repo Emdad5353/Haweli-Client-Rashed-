@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/models/AddressModel.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
-import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 
@@ -214,7 +213,6 @@ class CheckoutDialogState extends State<CheckoutDialog> {
 //          print(widget.orderModel.toString());
           QueryMutation queryMutation = QueryMutation();
 
-          print(widget.orderModel.toJson());
           QueryResult createOrderMutation = await clientToQuery().mutate(
               MutationOptions(
                   document: queryMutation.createOrder(),
@@ -248,8 +246,6 @@ class CheckoutDialogState extends State<CheckoutDialog> {
             onPressedSubmit(postCode);
             Navigator.pop(context);
           }
-          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
-          Navigator.of(context).pop();
         }));
 
     return formWidget;

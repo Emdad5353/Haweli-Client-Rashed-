@@ -10,7 +10,8 @@ class Foods {
   final String foodType;
   final double discount;
 
-  Foods(this.name, this.foodId, this.price, this.qty, this.discount, this.foodType);
+  Foods(this.name, this.foodId, this.price, this.qty, this.discount,
+      this.foodType);
 
   Map<String, dynamic> toMap() {
     return {
@@ -36,8 +37,13 @@ class Foods {
   }
 
   factory Foods.fromJson(Map<String, dynamic> json) {
-    return Foods(json["name"], json["foodId"], double.parse(json["price"]),
-        int.parse(json["qty"]), double.parse(json["discount"]), json['foodType']);
+    return Foods(
+        json["name"],
+        json["foodId"],
+        double.parse(json["price"]),
+        int.parse(json["qty"]),
+        double.parse(json["discount"]),
+        json['foodType']);
   }
 
   Map<String, dynamic> toJson() => {

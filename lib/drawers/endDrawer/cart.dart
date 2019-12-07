@@ -78,17 +78,18 @@ class CartState extends State<Cart> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text(item.qty.toString()),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                        child: Text(
-                      item.name,
-                    ))
-                  ],
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Text(item.qty.toString()),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        item.name,
+                      ),
+                    ],
+                  ),
                 ),
                 Row(
                   children: <Widget>[
