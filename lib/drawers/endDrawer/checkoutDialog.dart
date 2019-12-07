@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/models/AddressModel.dart';
+import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
-import 'package:haweli/main.dart';
 
-deliveryAddressDialog(BuildContext context){
+deliveryAddressDialog(BuildContext context, orderModel) {
   AlertDialog alert = AlertDialog(
       //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
@@ -30,7 +31,7 @@ deliveryAddressDialog(BuildContext context){
           ],
         ),
       ),
-      content: CheckoutDialog());
+      content: CheckoutDialog(orderModel));
 
   // show the dialog
   showDialog(
@@ -42,6 +43,10 @@ deliveryAddressDialog(BuildContext context){
 }
 
 class CheckoutDialog extends StatefulWidget {
+  final OrderModel orderModel;
+
+  CheckoutDialog(this.orderModel);
+
   @override
   State<StatefulWidget> createState() {
     return CheckoutDialogState();
@@ -50,7 +55,7 @@ class CheckoutDialog extends StatefulWidget {
 
 class CheckoutDialogState extends State<CheckoutDialog> {
   final _formKey = GlobalKey<FormState>();
-
+//  orderModel orderModel;
   String houseNo = '';
   String flatNo = '';
   String buildingName = '';
@@ -60,18 +65,15 @@ class CheckoutDialogState extends State<CheckoutDialog> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.orderModel.subFoodItem);
     return Container(
         height: MediaQuery.of(context).size.height * 0.6,
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child:  Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-                children: getFormWidget()
-            ),
-          )
-        )
-    );
+        child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(children: getFormWidget()),
+            )));
   }
 
   List<Widget> getFormWidget() {
@@ -81,7 +83,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     formWidget.add(SizedBox(
       height: height,
     ));
-    
+
     formWidget.add(TextFormField(
       decoration: InputDecoration(
           isDense: true, labelText: 'HouseNo/Name', hintText: 'HouseNo/Name'),
@@ -196,37 +198,59 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       height: height,
     ));
 
-    void onPressedSubmit() async {
+    void onPressedSubmit(String postCode) async {
       print('postcode ${postCode.toString()}');
-      QueryResult result = await clientToQuery().query(
-        QueryOptions(
-          document: locationVerify,
-          variables: {
-            "postcode": "n236sy"
+      QueryResult result = await clientToQuery().query(QueryOptions(
+          document: locationVerify, variables: {"postcode": postCode}));
+      if (!result.hasErrors) {
+        print(result.data["validateLocation"]["msg"]);
+        if (result.data["validateLocation"]["msg"] != "Invalid") {
+          widget.orderModel.location = result.data["validateLocation"]["id"];
+          widget.orderModel.deliveryCost =
+              result.data["validateLocation"]["deliveryCharge"].toDouble();
+          widget.orderModel.postcode = postCode;
+
+          widget.orderModel.toJson();
+//          print(widget.orderModel.toString());
+          QueryMutation queryMutation = QueryMutation();
+
+          print(widget.orderModel.toJson());
+          QueryResult createOrderMutation = await clientToQuery().mutate(
+              MutationOptions(
+                  document: queryMutation.createOrder(),
+                  variables: {"OrderModel": widget.orderModel.toJson()}));
+          if (!createOrderMutation.hasErrors) {
+            print(createOrderMutation.data);
+          } else {
+            print(createOrderMutation.errors);
           }
-        )
-      );
-      if(!result.hasErrors){
-        print(result.data);
+        } else {
+          print("Invalid");
+        }
       }
       print(result.errors);
       print(result.data);
     }
 
-    formWidget.add(
-        RaisedButton(
+    formWidget.add(RaisedButton(
         color: Theme.of(context).primaryColor,
         textColor: Colors.white,
         child: new Text('SAVE'),
-        onPressed:(){
+        onPressed: () {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
+            Map<String, dynamic> address = AddressModel(
+                    houseNo, flatNo, buildingName, roadName, town, postCode)
+                .toJson();
+
+            print(address);
+            widget.orderModel.address = address;
+            onPressedSubmit(postCode);
+            Navigator.pop(context);
           }
           manageStatesBloc.changeViewSection(WidgetMarker.checkout);
           Navigator.of(context).pop();
-        }
-        )
-    );
+        }));
 
     return formWidget;
   }
