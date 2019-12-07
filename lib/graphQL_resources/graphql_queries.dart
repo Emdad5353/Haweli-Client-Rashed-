@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:haweli/bloc/manage_states_bloc.dart';
-
 class QueryMutation {
 //  String addPerson(String id, String name, String lastName, int age) {
 //    return """
@@ -14,6 +11,17 @@ class QueryMutation {
 //      }
 //    """;
 //  }
+  String createOrder() {
+    return r"""
+                    mutation CreateOrder($OrderModel: OrderInput){
+                      CreateOrder(orderInput: $OrderModel){
+                     
+                        id
+                        status
+                      }
+                    }
+                  """;
+  }
 
   String drawerQuery() {
     return r"""
@@ -171,11 +179,12 @@ final String mutationCartCreate = r"""
                     }
                   """;
 
-
 final String locationVerify = r"""
                     query validateLocation($postcode: String){
                       validateLocation(postcode: $postcode){
                         msg
+                        id
+                        deliveryCharge
                       }
                     }
                   """;
