@@ -49,9 +49,7 @@ class CheckoutState extends State<Checkout> {
                     ),
                   ),
                 ),
-                onTap: () async{
-
-                },
+                onTap: () async {},
               ),
             ],
           ),
@@ -70,16 +68,22 @@ class CheckoutState extends State<Checkout> {
             'Customer Details',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Divider(thickness: 1,),
+          Divider(
+            thickness: 1,
+          ),
           //--------------------------Put user Info here------------------------
           SizedBox(height: 30),
           Text(
             'Delivery Address',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Divider(thickness: 1,),
-        //----------------------Put delivery address here-----------------------
-          SizedBox(height: 20,),
+          Divider(
+            thickness: 1,
+          ),
+          //----------------------Put delivery address here-----------------------
+          SizedBox(
+            height: 20,
+          ),
           FlatButton(
               onPressed: () => deliveryAddressDialog(context),
               child: Center(
@@ -95,18 +99,13 @@ class CheckoutState extends State<Checkout> {
   }
 }
 
-
-
-
-
-
-
 //----------------------------- Drawer Radio Button---------------------------------------
 enum PaymentMethod { Cash, Card }
 
 class PaymentMethodRadioButton extends StatefulWidget {
   @override
-  _PaymentMethodRadioButtonState createState() => _PaymentMethodRadioButtonState();
+  _PaymentMethodRadioButtonState createState() =>
+      _PaymentMethodRadioButtonState();
 }
 
 class _PaymentMethodRadioButtonState extends State<PaymentMethodRadioButton> {
@@ -138,15 +137,15 @@ class _PaymentMethodRadioButtonState extends State<PaymentMethodRadioButton> {
         ),
         Expanded(
             child: RadioListTile(
-              title: const Text('Card'),
-              value: PaymentMethod.Card,
-              groupValue: _PaymentMethodValue,
-              onChanged: (PaymentMethod value) {
-                setState(() {
-                  _PaymentMethodValue = value;
-                });
-              },
-            )),
+          title: const Text('Card'),
+          value: PaymentMethod.Card,
+          groupValue: _PaymentMethodValue,
+          onChanged: (PaymentMethod value) {
+            setState(() {
+              _PaymentMethodValue = value;
+            });
+          },
+        )),
       ],
     );
   }
