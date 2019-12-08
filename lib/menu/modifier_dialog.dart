@@ -14,7 +14,7 @@ List<String> modifiersId = [];
 
 showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
   AlertDialog alert = AlertDialog(
-    //backgroundColor: Theme.of(context).primaryColor,
+      //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
       contentPadding: EdgeInsets.all(0),
       title: Container(
@@ -57,27 +57,49 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                         print(itemObject);
 
                         if (itemType == "mainItem") {
-                          var foodData = Foods(subItem['name'], subItem['_id'],
-                              subItem['price'].toDouble(), 1, discount, 'MainType');
+                          var foodData = Foods(
+                              subItem['name'],
+                              subItem['_id'],
+                              subItem['price'].toDouble(),
+                              1,
+                              discount,
+                              'MainType');
 
                           var lastId = await FoodDB().insertFood(foodData);
+                          print("MainItemSelect=============> $selectedList");
                           for (var modifers in selectedList) {
-                            var modifierData = Modifiers(modifers["name"], lastId,
-                                modifers["price"].toDouble(), 1, modifers["_id"]);
+                            var modifierData = Modifiers(
+                                modifers["name"],
+                                lastId,
+                                modifers["price"].toDouble(),
+                                1,
+                                modifers["_id"]);
                             ModifierDB().insertModifier(modifierData);
                           }
+                          selectedList.clear();
                           itemObject["foodItem"]["modifiers"] = modifiersId;
                           print("ItemObject ===> $itemObject");
                         } else {
-                          var foodData = Foods(subItem['name'], subItem['_id'],
-                              subItem['price'].toDouble(), 1, discount, 'SubItem');
+                          var foodData = Foods(
+                              subItem['name'],
+                              subItem['_id'],
+                              subItem['price'].toDouble(),
+                              1,
+                              discount,
+                              'SubItem');
 
                           var lastId = await FoodDB().insertFood(foodData);
+                          print("SubItemSelect=============> $selectedList");
                           for (var modifers in selectedList) {
-                            var modifierData = Modifiers(modifers["name"], lastId,
-                                modifers["price"].toDouble(), 1, modifers["_id"]);
+                            var modifierData = Modifiers(
+                                modifers["name"],
+                                lastId,
+                                modifers["price"].toDouble(),
+                                1,
+                                modifers["_id"]);
                             ModifierDB().insertModifier(modifierData);
                           }
+                          selectedList.clear();
                           itemObject["subFoodItem"]["modifiers"] = modifiersId;
                           print("ItemObject ===> $itemObject");
                         }
@@ -103,7 +125,6 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
   );
 }
 
-
 class ModifierDialog extends StatefulWidget {
   final Map subItem;
   final String itemType;
@@ -117,8 +138,6 @@ class ModifierDialog extends StatefulWidget {
 }
 
 class ModifierDialogState extends State<ModifierDialog> {
-
-
   @override
   Widget build(BuildContext context) {
     var tabWidgets = List<Widget>();
@@ -152,6 +171,8 @@ class ModifierDialogState extends State<ModifierDialog> {
                             ),
                             GestureDetector(
                               onTap: () async {
+                                print(subItem['modifiers'][index]);
+                                print(selectedList);
                                 if (selectedList
                                     .contains(subItem['modifiers'][index])) {
                                   selectedList
@@ -185,8 +206,6 @@ class ModifierDialogState extends State<ModifierDialog> {
       ));
     }
 
-
-
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       padding: EdgeInsets.symmetric(horizontal: 10),
@@ -219,7 +238,6 @@ class ModifierDialogState extends State<ModifierDialog> {
   }
 }
 
-
 class AddModifiersToCart extends StatefulWidget {
   final Map subItem;
   AddModifiersToCart(this.subItem);
@@ -235,8 +253,8 @@ class AddModifiersToCartState extends State<AddModifiersToCart> {
       value: isChecked,
       onChanged: (value) {
         if (selectedList.contains(widget.subItem)) {
-          selectedList.remove(widget.subItem);}
-        else {
+          selectedList.remove(widget.subItem);
+        } else {
           selectedList.add(widget.subItem);
         }
         setState(() {

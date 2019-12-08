@@ -89,10 +89,21 @@ class CheckoutState extends State<Checkout> {
             'Customer Details',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Divider(thickness: 1,),
-          Text(name,style: TextStyle(fontWeight: FontWeight.bold),),
-          Text(email,style: TextStyle(fontWeight: FontWeight.bold),),
-          Text(phoneno,style: TextStyle(fontWeight: FontWeight.bold),),
+          Divider(
+            thickness: 1,
+          ),
+          Text(
+            name,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            email,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            phoneno,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           //--------------------------Put user Info here------------------------
           SizedBox(height: 30),
           Text(

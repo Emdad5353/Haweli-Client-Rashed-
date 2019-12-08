@@ -2,12 +2,13 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:haweli/DBModels/CartDB.dart';
+import 'package:haweli/DBModels/FoodDB.dart';
+import 'package:haweli/DBModels/ModifierDB.dart';
 import 'package:haweli/DBModels/models/AddressModel.dart';
 import 'package:haweli/DBModels/models/FoodItemModel.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/DBModels/models/SubFoodItemModel.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
-import 'package:haweli/testsqlite/DataModel.dart';
 
 class Cart extends StatefulWidget {
   @override
@@ -73,40 +74,70 @@ class CartState extends State<Cart> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(item.qty.toString(),),
-                SizedBox(width: 8,),
-                Expanded(child: Text(item.name,)),
+                Text(
+                  item.qty.toString(),
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                Expanded(
+                    child: Text(
+                  item.name,
+                )),
                 Row(
                   children: <Widget>[
-                    SizedBox(width: 10,),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Text(item.price.toString()),
-                    IconButton(icon: Icon(Icons.delete), onPressed: (){})
+                    IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          FoodDB().deleteFood(item.id);
+                          print("Hello");
+                          setState(() {
+                            myfunc();
+                          });
+                        })
                   ],
                 ),
               ],
             ),
             if (item.modifiers.length > 0)
               ListView.builder(
-                shrinkWrap: true,
-                itemCount: item.modifiers==null?0:item.modifiers.length,
-                itemBuilder: (BuildContext context,int index){
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      SizedBox(width: 20,),
-                      Expanded(
-                        child: Text(item.modifiers[index].name,),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text(item.modifiers[index].price.toString()),
-                          IconButton(icon: Icon(Icons.delete),padding: EdgeInsets.all(0), onPressed: (){})
-                        ],
-                      ),
-                    ],
-                  );
-                }
-            )
+                  shrinkWrap: true,
+                  itemCount: item.modifiers == null ? 0 : item.modifiers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Expanded(
+                          child: Text(
+                            item.modifiers[index].name,
+                          ),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Text(item.modifiers[index].price.toString()),
+                            IconButton(
+                                icon: Icon(Icons.delete),
+                                padding: EdgeInsets.all(0),
+                                onPressed: () {
+                                  print(item.modifiers[index]);
+                                  ModifierDB().deleteModifierOfFood(
+                                      item.modifiers[index].id);
+                                  setState(() {
+                                    myfunc();
+                                  });
+                                })
+                          ],
+                        ),
+                      ],
+                    );
+                  })
           ],
         ),
       );

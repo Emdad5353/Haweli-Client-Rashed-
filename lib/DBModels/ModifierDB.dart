@@ -50,9 +50,11 @@ class ModifierDB {
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
+      print("Maps=======> $maps[i]");
       var modifier = Modifiers(maps[i]['name'], maps[i]['foodId'],
           maps[i]['price'], maps[i]['qty'], maps[i]['modifierId']);
 
+      modifier.id = maps[i]["id"];
       return modifier;
     });
   }
@@ -85,6 +87,22 @@ class ModifierDB {
       'modifiers',
       // Use a `where` clause to delete a specific dog.
       where: "modifierId = ?",
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    );
+  }
+//endregion
+
+  //region DeleteModifier
+  Future<void> deleteModifierOfFood(int id) async {
+    // Get a reference to the database.
+    final Database db = await DBConnector().database();
+
+    // Remove the Dog from the database.
+    await db.delete(
+      'modifiers',
+      // Use a `where` clause to delete a specific dog.
+      where: "id = ?",
       // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     );

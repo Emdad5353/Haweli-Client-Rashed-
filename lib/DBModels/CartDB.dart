@@ -15,7 +15,9 @@ class CartDB {
     print(foodData);
     for (var food in foodData) {
       var modifier = await ModifierDB().modifiersOfFood(food.id);
+
       food.modifiers = modifier;
+      print("Food=============> $food");
       cart.add(food);
     }
     return cart;

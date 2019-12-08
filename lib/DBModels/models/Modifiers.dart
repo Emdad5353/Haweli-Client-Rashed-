@@ -4,6 +4,7 @@ class Modifiers {
   final String modifierId;
   final double price;
   final int qty;
+  int id;
 
   Modifiers(this.name, this.foodId, this.price, this.qty, this.modifierId);
 
@@ -17,8 +18,19 @@ class Modifiers {
     };
   }
 
+  Map<String, dynamic> toGetMap() {
+    return {
+      'id': id,
+      'name': name,
+      'foodId': foodId,
+      'price': price,
+      'qty': qty,
+      'modifierId': modifierId
+    };
+  }
+
   @override
   String toString() {
-    return 'name: $name, foodId: $foodId, modifierId: $modifierId, price: $price, qty: $qty}';
+    return 'id: $id, name: $name, foodId: $foodId, modifierId: $modifierId, price: $price, qty: $qty}';
   }
 }
