@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:haweli/DBModels/models/OrderModel.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,103 +35,121 @@ class CheckoutState extends State<Checkout> {
   @override
   Widget build(BuildContext context) {
     print("Data Here");
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Checkout'),
-        centerTitle: true,
-        actions: <Widget>[
-          Builder(
-            builder: (context) => IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-            ),
-          ),
-        ],
-      ),
-      endDrawer: Drawer(
-        child: endDrawer(context),
-      ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              PaymentMethodRadioButton(),
-              GestureDetector(
-                child: Card(
-                  margin: EdgeInsets.all(6),
-                  color: Theme.of(context).primaryColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Center(
-                      child: Text(
-                        'PLACE ORDER',
-                        style: TextStyle(color: Colors.white, fontSize: 20.0),
-                      ),
-                    ),
+    return StreamBuilder<Object>(
+        stream: manageStatesBloc.currentOrderModel$,
+        builder: (context, snapshot) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Checkout'),
+              centerTitle: true,
+              actions: <Widget>[
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    tooltip:
+                        MaterialLocalizations.of(context).openAppDrawerTooltip,
                   ),
                 ),
-                onTap: () async {},
+              ],
+            ),
+            endDrawer: Drawer(
+              child: endDrawer(context),
+            ),
+            body: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    PaymentMethodRadioButton(),
+                    GestureDetector(
+                      child: Card(
+                        margin: EdgeInsets.all(6),
+                        color: Theme.of(context).primaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Center(
+                            child: Text(
+                              'PLACE ORDER',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 20.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                      onTap: () async {
+                        print(manageStatesBloc.changeOrderModel());
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
+        });
   }
 
   Widget endDrawer(BuildContext context) {
     print(name);
     return SafeArea(
-        child: Container(
-      padding: EdgeInsets.all(10),
-      child: ListView(
-        children: <Widget>[
-          Text(
-            'Customer Details',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Divider(
-            thickness: 1,
-          ),
-          Text(
-            name,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            email,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            phoneno,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          //--------------------------Put user Info here------------------------
-          SizedBox(height: 30),
-          Text(
-            'Delivery Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Divider(
-            thickness: 1,
-          ),
-          //----------------------Put delivery address here-----------------------
-          SizedBox(
-            height: 20,
-          ),
-          FlatButton(
-              onPressed: () => deliveryAddressDialog(context, ""),
-              child: Center(
-                child: Text(
-                  'CHANGE DELIVERY ADDRESS',
-                  style: TextStyle(
-                      fontSize: 16, color: Theme.of(context).primaryColor),
+        child: StreamBuilder<Object>(
+            stream: manageStatesBloc.currentOrderModel$,
+            builder: (context, snapshot) {
+              return Container(
+                padding: EdgeInsets.all(10),
+                child: ListView(
+                  children: <Widget>[
+                    Text(
+                      'Customer Details',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Divider(
+                      thickness: 1,
+                    ),
+                    Text(
+                      name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      email,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      phoneno,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    //--------------------------Put user Info here------------------------
+                    SizedBox(height: 30),
+                    Text(
+                      'Delivery Address',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Divider(
+                      thickness: 1,
+                    ),
+                    //----------------------Put delivery address here-----------------------
+                    SizedBox(
+                      height: 20,
+                    ),
+                    FlatButton(
+                        onPressed: () {
+                          OrderModel orderModel =
+                              manageStatesBloc.changeOrderModel();
+                          print(orderModel);
+                          deliveryAddressDialog(context, orderModel);
+                        },
+                        child: Center(
+                          child: Text(
+                            'CHANGE DELIVERY ADDRESS',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ))
+                  ],
                 ),
-              ))
-        ],
-      ),
-    ));
+              );
+            }));
   }
 }
 

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/models/AddressModel.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
-import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/main_ui.dart';
 
 deliveryAddressDialog(BuildContext context, orderModel) {
@@ -221,6 +221,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                   variables: {"OrderModel": widget.orderModel.toJson()}));
           if (!createOrderMutation.hasErrors) {
             print(createOrderMutation.data);
+            manageStatesBloc.setModel(widget.orderModel);
 
             manageStatesBloc.changeViewSection(WidgetMarker.checkout);
           } else {

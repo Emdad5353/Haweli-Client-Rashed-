@@ -171,8 +171,7 @@ class CartState extends State<Cart> {
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-              int foodGetterTest = subFoodItemModel["qty"];
-              print("Getter========>$foodGetterTest");
+              print("Hello");
               var orderInput = {
                 "foodItem": foodItem,
                 "subFoodItem": subFoodItem,
