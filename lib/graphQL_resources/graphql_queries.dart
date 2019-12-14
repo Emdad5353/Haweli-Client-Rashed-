@@ -11,6 +11,30 @@ class QueryMutation {
 //      }
 //    """;
 //  }
+
+  String paymentIntent() {
+    return r"""
+                    mutation paymentIntent(
+                        $payment_method_types: [String],
+                        $payment_method: String,
+                        $amount: Float,
+                        $currency: String
+                        
+                      ){
+                    paymentIntent(
+                      payment_method_types: $payment_method_types,
+                      payment_method: $payment_method,
+                      amount: $amount,
+                      currency: $currency
+                      
+                    ){
+                      msg,
+                      clientSecret
+                    }
+}
+                  """;
+  }
+
   String createOrder() {
     return r"""
                     mutation CreateOrder($OrderModel: OrderInput){

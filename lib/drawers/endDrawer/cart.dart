@@ -181,7 +181,7 @@ class CartState extends State<Cart> {
               Map<String, dynamic> addressModel =
                   AddressModel("", "", "", "", "", "").toJson();
               OrderModel orderModel = OrderModel(foodItemList, subFoodItemList,
-                  addressModel, total, 0, "", "");
+                  addressModel, total, 0, "", "", false, false);
               print(orderModel);
               deliveryAddressDialog(context, orderModel);
 

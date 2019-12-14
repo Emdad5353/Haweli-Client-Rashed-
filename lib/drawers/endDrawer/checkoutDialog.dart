@@ -212,21 +212,12 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           widget.orderModel.postcode = postCode;
 
           widget.orderModel.toJson();
+
+          manageStatesBloc.setModel(widget.orderModel);
+
+          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
 //          print(widget.orderModel.toString());
-          QueryMutation queryMutation = QueryMutation();
 
-          QueryResult createOrderMutation = await clientToQuery().mutate(
-              MutationOptions(
-                  document: queryMutation.createOrder(),
-                  variables: {"OrderModel": widget.orderModel.toJson()}));
-          if (!createOrderMutation.hasErrors) {
-            print(createOrderMutation.data);
-            manageStatesBloc.setModel(widget.orderModel);
-
-            manageStatesBloc.changeViewSection(WidgetMarker.checkout);
-          } else {
-            print(createOrderMutation.errors);
-          }
         } else {
           print("Invalid");
         }
