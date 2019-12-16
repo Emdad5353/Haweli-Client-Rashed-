@@ -44,6 +44,9 @@ class CartState extends State<Cart> {
     double total = 0;
     var foodItem = [];
     var subFoodItem = [];
+    if (cart == null) {
+      return Container();
+    }
     for (var item in cart) {
       if (item.foodType == "MainItem") {
         List<String> modifierId = [];
@@ -94,6 +97,9 @@ class CartState extends State<Cart> {
                         icon: Icon(Icons.delete),
                         onPressed: () {
                           FoodDB().deleteFood(item.id);
+                          for (var modifier in item.modifiers) {
+                            ModifierDB().deleteModifierOfFood(item.id);
+                          }
                           print("Hello");
                           setState(() {
                             myfunc();
