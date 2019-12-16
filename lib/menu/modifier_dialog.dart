@@ -104,7 +104,9 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                           print("ItemObject ===> $itemObject");
                         }
                         row(<String, dynamic>{"cartInput": itemObject});
-                      });
+                        Navigator.pop(context);
+                      }
+                      );
                 },
                 onCompleted: (result) {
                   print("On Complete =====>");
@@ -169,29 +171,29 @@ class ModifierDialogState extends State<ModifierDialog> {
                             SizedBox(
                               width: 10,
                             ),
-                            GestureDetector(
-                              onTap: () async {
-                                print(subItem['modifiers'][index]);
-                                print(selectedList);
-                                if (selectedList
-                                    .contains(subItem['modifiers'][index])) {
-                                  selectedList
-                                      .remove(subItem['modifiers'][index]);
-                                  modifiersId.remove(
-                                      subItem['modifiers'][index]["_id"]);
-                                } else {
-                                  modifiersId
-                                      .add(subItem['modifiers'][index]["_id"]);
-                                  selectedList.add(subItem['modifiers'][index]);
-                                }
-                                //selectedList.add(subItem['modifiers'][index]);
-                              },
-                              child: Icon(
-                                Icons.add_circle,
-                                size: 27,
-                              ),
-                            ),
-                            //priceAndAddToCartButton(context, subItem['modifiers'][index]['price'].toString())
+//                            GestureDetector(
+//                              onTap: () async {
+//                                print(subItem['modifiers'][index]);
+//                                print(selectedList);
+//                                if (selectedList
+//                                    .contains(subItem['modifiers'][index])) {
+//                                  selectedList
+//                                      .remove(subItem['modifiers'][index]);
+//                                  modifiersId.remove(
+//                                      subItem['modifiers'][index]["_id"]);
+//                                } else {
+//                                  modifiersId
+//                                      .add(subItem['modifiers'][index]["_id"]);
+//                                  selectedList.add(subItem['modifiers'][index]);
+//                                }
+//                                //selectedList.add(subItem['modifiers'][index]);
+//                              },
+//                              child: Icon(
+//                                Icons.add_circle,
+//                                size: 27,
+//                              ),
+//                            ),
+                            AddModifiersToCart(subItem['modifiers'][index])
                           ],
                         )
                       ],

@@ -80,7 +80,6 @@ class CheckoutState extends State<Checkout> {
   }
 
   Widget endDrawer(BuildContext context) {
-    print(name);
     return SafeArea(
         child: Container(
       padding: EdgeInsets.all(10),

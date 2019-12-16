@@ -148,8 +148,12 @@ class CartState extends State<Cart> {
     print("Cart: ${cart.length.toString()}");
     return Column(
       children: <Widget>[
-        Column(
-          children: itemsWidgets,
+        Padding(
+          padding: EdgeInsets.only(left: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: itemsWidgets,
+          ),
         ),
         Divider(
           thickness: 2,
@@ -192,16 +196,16 @@ class CartState extends State<Cart> {
         SizedBox(
           height: 20,
         ),
-        RaisedButton(
-          color: Theme.of(context).primaryColor,
-          child: Text(
-            'CHECKOUT £$total',
-            style: TextStyle(color: Colors.white),
-          ),
-          onPressed: () {
-            print(CheckoutDialogState().postCode);
-          },
-        )
+//        RaisedButton(
+//          color: Theme.of(context).primaryColor,
+//          child: Text(
+//            'CHECKOUT £$total',
+//            style: TextStyle(color: Colors.white),
+//          ),
+//          onPressed: () {
+//            print(CheckoutDialogState().postCode);
+//          },
+//        )
       ],
     );
   }

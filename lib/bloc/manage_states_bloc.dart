@@ -28,6 +28,43 @@ class ManageStatesBloc {
     _loginStatus.add(val);
   }
 
+//  //------------------------------Delivery Address-----------------------------
+//  BehaviorSubject _houseNo = BehaviorSubject.seeded('');
+//  Observable get currentHouseNoStream$ => _houseNo.stream;
+//  changeCurrentHouseNo(String val){
+//    _houseNo.add(val);
+//  }
+//
+//  BehaviorSubject _flatNo = BehaviorSubject.seeded('');
+//  Observable get currentFlatNoStream$ => _flatNo.stream;
+//  changeCurrentFlatNo(String val){
+//    _flatNo.add(val);
+//  }
+//
+//  BehaviorSubject _buildingName = BehaviorSubject.seeded('');
+//  Observable get currentBuildingNameStream$ => _buildingName.stream;
+//  changeCurrentBuildingName(String val){
+//    _buildingName.add(val);
+//  }
+//
+//  BehaviorSubject _roadName = BehaviorSubject.seeded('');
+//  Observable get currentRoadNameStream$ => _roadName.stream;
+//  changeCurrentRoadName(String val){
+//    _roadName.add(val);
+//  }
+//
+//  BehaviorSubject _town = BehaviorSubject.seeded('');
+//  Observable get currentTownStream$ => _town.stream;
+//  changeCurrentTown(String val){
+//    _town.add(val);
+//  }
+//
+//  BehaviorSubject _postCode = BehaviorSubject.seeded('');
+//  Observable get currentPostCodeStream$ => _postCode.stream;
+//  changeCurrentPostCode(String val){
+//    _postCode.add(val);
+//  }
+
 }
 
 ManageStatesBloc manageStatesBloc=ManageStatesBloc();

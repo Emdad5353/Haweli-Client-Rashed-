@@ -219,6 +219,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
               MutationOptions(
                   document: queryMutation.createOrder(),
                   variables: {"OrderModel": widget.orderModel.toJson()}));
+          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+          Navigator.pop(context);
           if (!createOrderMutation.hasErrors) {
             print(createOrderMutation.data);
 
@@ -248,7 +250,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
             print(address);
             widget.orderModel.address = address;
             onPressedSubmit(postCode);
-            Navigator.pop(context);
+            //Navigator.pop(context);
           }
         }));
 
