@@ -26,80 +26,142 @@ class HomeScreen extends StatelessWidget {
         endDrawer: Drawer(
           child: endDrawer(context),
         ),
-        body: StreamBuilder(
-            stream: manageStatesBloc.currentMenuGroupStream$,
-            builder: (BuildContext context, AsyncSnapshot snap) {
-              return bodyWidget(snap.data);
-            }));
+        body:bodyWidget()
+    );
   }
 
-  Widget bodyWidget(String currentMenuGroupID) {
-    return Query(
-      options: QueryOptions(
-        document: bodyQuery,
-      ),
-      builder: (QueryResult result,
-          {VoidCallback refetch, FetchMore fetchMore}) {
-        print('result ${result.data}');
-        if (result.errors != null) {
-          return Text(result.errors.toString());
-        }
-        if (result.loading) {
-          return Center(child: CircularProgressIndicator());
-        }
-        if (result.data == null) {
-          return Text("No Data Found !");
-        }
-        return ListView.builder(
-          padding: EdgeInsets.only(top: 15, left: 15, right: 15),
-          itemBuilder: (BuildContext context, int index) {
-            return Column(
-              children: <Widget>[
-                Container(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        if (result.data['getAllItem']['menuItem'][index]
-                            ['hasSubItem'])
-                          mainItemWithSubItem(
-                              context,
-                              result.data['getAllItem']['menuItem'][index],
-                              result.data['getAllItem']['menuItem'][index]
-                                  ['subItem'])
-                        else if (result
-                                .data['getAllItem']['menuItem'][index]
-                                    ['modifierLevels']
-                                .length >
-                            0)
-                          priceAndAddToCartButtonForModifier(
-                              context,
-                              result.data['getAllItem']['menuItem'][index],
-                              "mainItem", {
-                            "foodItem": {
-                              "foodItemId": result.data['getAllItem']
-                                  ['menuItem'][index]["_id"]
-                            }
-                          })
-                        else if (result
-                                .data['getAllItem']['menuItem'][index]
-                                    ['modifierLevels']
-                                .length ==
-                            0)
-                          mainItemWithNoSubItemNoModifier(context,
-                              result.data['getAllItem']['menuItem'][index])
-                      ],
-                    )),
-                Divider(
-                  thickness: 1,
-                )
-              ],
-            );
-          },
-          itemCount: result.data['getAllItem']['menuItem'].length,
-        );
-      },
-    );
+  Widget bodyWidget() {
+    return  StreamBuilder(
+        stream: manageStatesBloc.currentMenuGroupStream$,
+        builder: (BuildContext context, AsyncSnapshot snap) {
+          print('current ============================================================>${snap.data}');
+          return Query(
+            options: QueryOptions(
+              document: bodyQuery,
+            ),
+            builder: (QueryResult result,
+                {VoidCallback refetch, FetchMore fetchMore}) {
+              print('result ${result.data}');
+              if (result.errors != null) {
+                return Text(result.errors.toString());
+              }
+              if (result.loading) {
+                return Center(child: CircularProgressIndicator());
+              }
+              if (result.data == null) {
+                return Text("No Data Found !");
+              }
+              return ListView.builder(
+                padding: EdgeInsets.only(top: 15, left: 15, right: 15),
+                itemBuilder: (BuildContext context, int index) {
+                  print(
+                      'rsult========================================>${result.data['getAllItem']['menuItem']}');
+                  return result.data['getAllItem']['menuItem'][index]['groupId']
+                  ['_id'] ==snap.data
+                  //------------------------------------------------------------------------------
+                      ? Column(
+                    children: <Widget>[
+                      Container(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              if (result.data['getAllItem']['menuItem'][index]
+                              ['hasSubItem'])
+                                mainItemWithSubItem(
+                                    context,
+                                    result.data['getAllItem']['menuItem']
+                                    [index],
+                                    result.data['getAllItem']['menuItem'][index]
+                                    ['subItem'])
+                              else if (result
+                                  .data['getAllItem']['menuItem'][index]
+                              ['modifierLevels']
+                                  .length >
+                                  0)
+                                priceAndAddToCartButtonForModifier(
+                                    context,
+                                    result.data['getAllItem']['menuItem']
+                                    [index],
+                                    "mainItem",
+                                    {
+                                      "foodItem": {
+                                        "foodItemId": result.data['getAllItem']
+                                        ['menuItem'][index]["_id"]
+                                      }
+                                    })
+                              else if (result
+                                    .data['getAllItem']['menuItem'][index]
+                                ['modifierLevels']
+                                    .length ==
+                                    0)
+                                  mainItemWithNoSubItemNoModifier(
+                                      context,
+                                      result.data['getAllItem']['menuItem']
+                                      [index])
+                            ],
+                          )),
+                      Divider(
+                        thickness: 1,
+                      )
+                    ],
+                  )
+                  //-----------------------------------------------------------------------------------
+                      : Column(
+                    children: <Widget>[
+                      Container(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              if (result.data['getAllItem']['menuItem'][index]
+                              ['hasSubItem'])
+                                mainItemWithSubItem(
+                                    context,
+                                    result.data['getAllItem']['menuItem']
+                                    [index],
+                                    result.data['getAllItem']['menuItem'][index]
+                                    ['subItem'])
+                              else if (result
+                                  .data['getAllItem']['menuItem'][index]
+                              ['modifierLevels']
+                                  .length >
+                                  0)
+                                priceAndAddToCartButtonForModifier(
+                                    context,
+                                    result.data['getAllItem']['menuItem']
+                                    [index],
+                                    "mainItem",
+                                    {
+                                      "foodItem": {
+                                        "foodItemId": result.data['getAllItem']
+                                        ['menuItem'][index]["_id"]
+                                      }
+                                    })
+                              else if (result
+                                    .data['getAllItem']['menuItem'][index]
+                                ['modifierLevels']
+                                    .length ==
+                                    0)
+                                  mainItemWithNoSubItemNoModifier(
+                                      context,
+                                      result.data['getAllItem']['menuItem']
+                                      [index])
+                            ],
+                          )),
+                      Divider(
+                        thickness: 1,
+                      )
+                    ],
+                  );
+                },
+                itemCount: result.data['getAllItem']['menuItem'].length,
+              );
+            },
+          );
+        });
+
   }
 }

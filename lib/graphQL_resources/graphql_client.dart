@@ -1,13 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final HttpLink httpLink = HttpLink(
-  uri: 'http://18.141.25.176:3003/',
+  uri: 'http://27.147.231.42:3003/',
 );
 
+Future<String> getjwt() async{
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //  await storageUser.ready;
+  //  Map<String ,dynamic> user=await storageUser.getItem('userData');
+  if(prefs.getString('jwt')==null){
+    // get guest user token
+    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb25zb2xlSVQiLCJ1c2VyVHlwZSI6IlVzZXIiLCJpZCI6IjVkZjc4OWFjM2YxNjNmNWZmOTlhYzU2YyIsImlhdCI6MTU3NjUwMzcyNDg2MywiZXhwIjoxNTc2NTkwMTI0ODYzfQ.EJZ0mjWmbq9F20Lfz2vCi5cTfL6Kojh-EYddcwtDOyw";
+  }
+  else{
+    return "Bearer "+prefs.getString('jwt');
+  }
+}
+
 final AuthLink authLink = AuthLink(
-  getToken: () async =>
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb25zb2xlSVQiLCJ1c2VyVHlwZSI6IlVzZXIiLCJpZCI6IjVkZjIwNTAwYTVkZmYxMzg5ZTI4MDk3NSIsImlhdCI6MTU3NjQxNjQ0Mzg5NywiZXhwIjoxNTc2NTAyODQzODk3fQ.CuvuHs7XSU0QfBWAfw5kswb0MhIPC7IOv4RSAwbwqZI",
+    getToken: () async =>
+    await getjwt()
 );
 
 final Link link = authLink.concat(httpLink);

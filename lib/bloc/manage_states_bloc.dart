@@ -5,7 +5,8 @@ import 'package:rxdart/rxdart.dart';
 class ManageStatesBloc {
   OrderModel orderModel;
   // ignore: close_sinks
-  BehaviorSubject<OrderModel> _changeOrderModel;
+  BehaviorSubject<OrderModel> _changeOrderModel = new BehaviorSubject.seeded(
+      OrderModel([], [], {}, 0, 0, "", "", false, false));
 
   setModel(OrderModel orderModel) {
     print("OrderModel==============================> $orderModel");

@@ -14,7 +14,7 @@ Widget mainView(BuildContext context, data) {
       return HomeScreen();
     case WidgetMarker.reservation:
       //return Reservation();
-      return userUtils.User();
+      return RefundPolicy();
     case WidgetMarker.contact:
       return ContactWidget();
     case WidgetMarker.termsAndCondition:

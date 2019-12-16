@@ -233,8 +233,7 @@ class CheckoutState extends State<Checkout> {
                                   variables: {
                                 "payment_method_types": ["card"],
                                 "payment_method": paymentMethodId,
-                                "amount": orderData.finalTotal,
-                                "currency": "GBP"
+                                "amount": orderData.finalTotal
                               }));
 
                           if (!paymentIntent.hasErrors) {
@@ -306,10 +305,13 @@ class CheckoutState extends State<Checkout> {
   }
 
   Widget endDrawer(BuildContext context) {
+
     return SafeArea(
         child: StreamBuilder<Object>(
             stream: manageStatesBloc.currentOrderModel$,
             builder: (context, snapshot) {
+              OrderModel orderModel=snapshot.data;
+              print(orderModel.address);
               return Container(
                 padding: EdgeInsets.all(10),
                 child: ListView(
@@ -321,6 +323,12 @@ class CheckoutState extends State<Checkout> {
                     Divider(
                       thickness: 1,
                     ),
+
+                    name!=null?Text(name):Container(),
+                    email!=null?Text(email):Container(),
+                    phoneno!=null?Text(phoneno):Container(),
+
+
                     Text(
                       name,
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -342,6 +350,10 @@ class CheckoutState extends State<Checkout> {
                     Divider(
                       thickness: 1,
                     ),
+
+                    Text(orderModel.address['houseNo']+','+orderModel.address['flatNo']),
+                    Text(orderModel.address['buildingName']+','+orderModel.address['roadNo']),
+                    Text(orderModel.address['town']+','+orderModel.address['postCode']),
                     //----------------------Put delivery address here-----------------------
                     SizedBox(
                       height: 20,

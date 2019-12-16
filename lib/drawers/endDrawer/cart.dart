@@ -44,7 +44,11 @@ class CartState extends State<Cart> {
     double total = 0;
     var foodItem = [];
     var subFoodItem = [];
+    if (cart == null) {
+      return Container();
+    }
     for (var item in cart) {
+
       if (item.foodType == "MainItem") {
         List<String> modifierId = [];
         for (var modifiersId in item.modifiers) {

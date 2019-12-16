@@ -214,14 +214,6 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           widget.orderModel.toJson();
 
           manageStatesBloc.setModel(widget.orderModel);
-          QueryResult createOrderMutation = await clientToQuery().mutate(
-              MutationOptions(
-                  document: queryMutation.createOrder(),
-                  variables: {"OrderModel": widget.orderModel.toJson()}));
-          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
-          Navigator.pop(context);
-          if (!createOrderMutation.hasErrors) {
-            print(createOrderMutation.data);
 
           manageStatesBloc.changeViewSection(WidgetMarker.checkout);
 //          print(widget.orderModel.toString());
@@ -242,7 +234,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
             Map<String, dynamic> address = AddressModel(
-                    houseNo, flatNo, buildingName, roadName, town, postCode)
+                houseNo, flatNo, buildingName, roadName, town, postCode)
                 .toJson();
 
             print(address);
