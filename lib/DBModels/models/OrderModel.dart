@@ -6,9 +6,19 @@ class OrderModel {
   double deliveryCost;
   String postcode;
   String location;
+  bool deliveryStatus;
+  bool collectionStatus;
 
-  OrderModel(this.foodItem, this.subFoodItem, this.address, this.finalTotal,
-      this.deliveryCost, this.postcode, this.location);
+  OrderModel(
+      this.foodItem,
+      this.subFoodItem,
+      this.address,
+      this.finalTotal,
+      this.deliveryCost,
+      this.postcode,
+      this.location,
+      this.deliveryStatus,
+      this.collectionStatus);
 
   Map<String, dynamic> toJson() {
     return {
@@ -24,6 +34,9 @@ class OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel{foodItem: $foodItem, subFoodItem: $subFoodItem, address: $address, finalTotal: $finalTotal, deliverCoast: $deliveryCost, postcode: $postcode, location: $location}';
+    return 'OrderModel{foodItem: $foodItem, subFoodItem: $subFoodItem, '
+        'address: $address, finalTotal: $finalTotal, deliveryCost: $deliveryCost, '
+        'postcode: $postcode, location: $location, deliveryStatus: $deliveryStatus, '
+        'collectionStatus: $collectionStatus}';
   }
 }

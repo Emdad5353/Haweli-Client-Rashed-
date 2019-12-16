@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/models/AddressModel.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
-import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/main_ui.dart';
 
 deliveryAddressDialog(BuildContext context, orderModel) {
@@ -212,9 +212,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           widget.orderModel.postcode = postCode;
 
           widget.orderModel.toJson();
-//          print(widget.orderModel.toString());
-          QueryMutation queryMutation = QueryMutation();
 
+          manageStatesBloc.setModel(widget.orderModel);
           QueryResult createOrderMutation = await clientToQuery().mutate(
               MutationOptions(
                   document: queryMutation.createOrder(),
@@ -224,10 +223,9 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           if (!createOrderMutation.hasErrors) {
             print(createOrderMutation.data);
 
-            manageStatesBloc.changeViewSection(WidgetMarker.checkout);
-          } else {
-            print(createOrderMutation.errors);
-          }
+          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+//          print(widget.orderModel.toString());
+
         } else {
           print("Invalid");
         }
@@ -250,7 +248,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
             print(address);
             widget.orderModel.address = address;
             onPressedSubmit(postCode);
-            //Navigator.pop(context);
+            Navigator.pop(context);
           }
         }));
 
