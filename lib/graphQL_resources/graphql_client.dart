@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 final HttpLink httpLink = HttpLink(
-  uri: 'http://192.168.16.110:3003/',
+  uri: 'http://18.141.25.176:3003/',
 );
 
 final AuthLink authLink = AuthLink(
