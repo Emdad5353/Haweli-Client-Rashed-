@@ -3,7 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final HttpLink httpLink = HttpLink(
-  uri: 'http://27.147.231.42:3003/',
+  uri: 'http://18.141.25.176:3003/',
 );
 
 Future<String> getjwt() async{
