@@ -1,10 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/menu/commonWidgets.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
-import 'package:quiver/strings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../main_ui.dart';
+
+
+showRegisterDialog(BuildContext context, [OrderModel orderModel]) {
+  AlertDialog alert = AlertDialog(
+    //backgroundColor: Theme.of(context).primaryColor,
+      titlePadding: EdgeInsets.all(0),
+      contentPadding: EdgeInsets.all(0),
+      title: Container(
+        padding: EdgeInsets.only(left: 10),
+        color: Theme.of(context).primaryColor ,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text('Registration',style: TextStyle(color: Colors.white70),),
+            IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(context),)
+          ],
+        ),
+      ),
+      content: SignUpForm()
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -16,40 +49,46 @@ class _SignUpFormState extends State<SignUpForm> {
   var _passKey = GlobalKey<FormFieldState>();
   bool _termsChecked = true;
 
-  String _firstName = '';
-  String _lastName = '';
+  String _name = '';
   String _password = '';
   String _phoneno = '';
   String _email = '';
 
   @override
   Widget build(BuildContext context) {
-    return GraphQLProvider(
-      client: client,
-      child: CacheProvider(
-        child: Mutation(
-          options: MutationOptions(
-            document: mutationQuery,
-          ),
-          builder: (RunMutation insert,QueryResult result,{ VoidCallback refetch, FetchMore fetchMore }){
-            if (result.errors != null) {
-              return Text(result.errors.toString());
-            }
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: GraphQLProvider(
+        client: client,
+        child: CacheProvider(
+          child: Mutation(
+            options: MutationOptions(
+              document: mutationQuery,
+            ),
+            builder: (RunMutation insert,QueryResult result,{ VoidCallback refetch, FetchMore fetchMore }){
+              if (result.errors != null) {
+                return Text(result.errors.toString());
+              }
 
-            return Form(
-              key: _formKey,
-                child: Column(
-                  children: getFormWidget(insert),
-                )
-            );
-          },
-          onCompleted: (result){
-            Scaffold.of(context).showSnackBar(SnackBar(content: Text('Sucessfully SignedUp')));
-            manageStatesBloc.changeCurrentLoginStatus(true);
-            print(result);
-            print(result['userSignUp']['email']);
-            Navigator.of(context).pop();
-          },
+              return Form(
+                  key: _formKey,
+                  child: Column(
+                    children: getFormWidget(insert),
+                  )
+              );
+            },
+            onCompleted: (result) async {
+              final SharedPreferences prefs = await SharedPreferences.getInstance();
+              Scaffold.of(context).showSnackBar(SnackBar(content: Text('Sucessfully SignedUp')));
+              manageStatesBloc.changeCurrentLoginStatus(true);
+              print(result);
+              print(result['userSignUp']['email']);
+              if(await prefs.get("checkoutButtonPressed") =='pressed'){
+                manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+              }
+              Navigator.of(context).pop();
+            },
+          ),
         ),
       ),
     );
@@ -60,31 +99,15 @@ class _SignUpFormState extends State<SignUpForm> {
     double height=10;
 
     formWidget.add( TextFormField(
-      decoration: InputDecoration(isDense: true,labelText: 'Firstname', hintText: 'Enter FirstName'),
+      decoration: InputDecoration(isDense: true,labelText: 'Name', hintText: 'Enter Name'),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Enter Firstname';
+          return 'Enter Name';
         }
       },
       onSaved: (value) {
         setState(() {
-          _firstName = value;
-        });
-      },
-    ));
-
-    formWidget.add(SizedBox(height: height,));
-
-    formWidget.add(new TextFormField(
-      decoration: InputDecoration(isDense: true,labelText: 'Lastname', hintText: 'Enter LastName'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Lastname';
-        }
-      },
-      onSaved: (value) {
-        setState(() {
-          _lastName = value;
+          _name = value;
         });
       },
     ));
@@ -112,32 +135,32 @@ class _SignUpFormState extends State<SignUpForm> {
               hintText: 'Enter Password', labelText: 'Password'),
           validator: (value) {
             if (value.isEmpty) return 'Enter password';
-            if (value.length < 8)
-              return 'Password should be more than 8 characters';
+            if (value.length < 6)
+              return 'Password should be more than 6 characters';
           }),
     );
 
-    formWidget.add(SizedBox(height: height,));
-
-    formWidget.add(
-       TextFormField(
-          obscureText: true,
-          decoration: InputDecoration(
-            isDense: true,
-              hintText: 'Confirm Password',
-              labelText: 'Confirm Password'),
-          validator: (confirmPassword) {
-            if (confirmPassword.isEmpty) return 'Confirm password';
-            var password = _passKey.currentState.value;
-            if (!equalsIgnoreCase(confirmPassword, password))
-              return 'Confirm Password invalid';
-          },
-          onSaved: (value) {
-            setState(() {
-              _password = value;
-            });
-          }),
-    );
+//    formWidget.add(SizedBox(height: height,));
+//
+//    formWidget.add(
+//       TextFormField(
+//          obscureText: true,
+//          decoration: InputDecoration(
+//            isDense: true,
+//              hintText: 'Confirm Password',
+//              labelText: 'Confirm Password'),
+//          validator: (confirmPassword) {
+//            if (confirmPassword.isEmpty) return 'Confirm password';
+//            var password = _passKey.currentState.value;
+//            if (!equalsIgnoreCase(confirmPassword, password))
+//              return 'Confirm Password invalid';
+//          },
+//          onSaved: (value) {
+//            setState(() {
+//              _password = value;
+//            });
+//          }),
+//    );
 
     formWidget.add(SizedBox(height: height,));
 
@@ -181,9 +204,7 @@ class _SignUpFormState extends State<SignUpForm> {
       if (_formKey.currentState.validate() && _termsChecked) {
         _formKey.currentState.save();
         insert(<String,dynamic>{
-          "name": "$_firstName $_lastName",
-          "firstName": _firstName,
-          "lastName": _lastName,
+          "name": "$_name",
           "email": _email,
           "password": _password,
           "phoneno": _phoneno

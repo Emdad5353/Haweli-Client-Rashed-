@@ -3,18 +3,23 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final HttpLink httpLink = HttpLink(
-  uri: 'http://18.141.25.176:3003/',
+  uri: 'https://rashedapi.consoleit.io/',
+  //uri: http://18.141.25.176:3003/',
 );
 
 Future<String> getjwt() async{
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   //  await storageUser.ready;
   //  Map<String ,dynamic> user=await storageUser.getItem('userData');
-  if(prefs.getString('jwt')==null){
+//  if(prefs.getString('jwt')==null){
+//    // get guest user token
+//    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb25zb2xlSVQiLCJ1c2VyVHlwZSI6IkFkbWluIiwiaWQiOiI1ZGY3ZWIwZmQyNDdlMTQzNzQwY2Q2YzIiLCJpYXQiOjE1NzY1Mjg4NTcxNjIsImV4cCI6MTU3NjYxNTI1NzE2Mn0.mXdDLpx-EoNp9VZjDSt7EsePsL1XDj4wwrpUyWWZICY";
+//  }
+//  else{
+//    return "Bearer "+prefs.getString('jwt');
+//  }
+  if(prefs.getString('jwt')!=null){
     // get guest user token
-    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb25zb2xlSVQiLCJ1c2VyVHlwZSI6IlVzZXIiLCJpZCI6IjVkZjc4OWFjM2YxNjNmNWZmOTlhYzU2YyIsImlhdCI6MTU3NjUwMzcyNDg2MywiZXhwIjoxNTc2NTkwMTI0ODYzfQ.EJZ0mjWmbq9F20Lfz2vCi5cTfL6Kojh-EYddcwtDOyw";
-  }
-  else{
     return "Bearer "+prefs.getString('jwt');
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
@@ -6,12 +8,16 @@ import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/DBModels/models/Modifiers.dart';
 import 'package:haweli/graphQL_resources//graphql_client.dart';
 import 'package:haweli/graphQL_resources//graphql_queries.dart';
+import 'package:oktoast/oktoast.dart';
 
 import 'commonWidgets.dart';
 
 List<Map> selectedList = [];
 List<String> modifiersId = [];
-
+int modifierCount = 0;
+int maxModifier = 0;
+List testList = [];
+//int modifierCount = 0;
 showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
   AlertDialog alert = AlertDialog(
       //backgroundColor: Theme.of(context).primaryColor,
@@ -47,6 +53,7 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
               child: Mutation(
                 options: MutationOptions(document: mutationCartCreate),
                 builder: (RunMutation row, QueryResult result) {
+                  print("MaxAllowed ================. $subItem");
                   return RaisedButton(
                       child: Text('DONE'),
                       onPressed: () async {
@@ -54,6 +61,7 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                         print("Discount $discount");
                         print(selectedList);
                         print(modifiersId);
+
                         print(itemObject);
 
                         if (itemType == "mainItem") {
@@ -104,6 +112,7 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                           print("ItemObject ===> $itemObject");
                         }
                         row(<String, dynamic>{"cartInput": itemObject});
+                        showDefaultSnackbar(context, 'Item Added');
                         Navigator.pop(context);
                       }
                       );
@@ -139,9 +148,11 @@ class ModifierDialog extends StatefulWidget {
   }
 }
 
-class ModifierDialogState extends State<ModifierDialog> {
+class ModifierDialogState extends State<ModifierDialog> with AutomaticKeepAliveClientMixin<ModifierDialog>{
   @override
   Widget build(BuildContext context) {
+
+    selectedList.clear();
     var tabWidgets = List<Widget>();
     var tabBodyWidgets = List<Widget>();
     for (var subItem in widget.subItem['modifierLevels']) {
@@ -150,11 +161,28 @@ class ModifierDialogState extends State<ModifierDialog> {
       ));
     }
     for (var subItem in widget.subItem['modifierLevels']) {
+      modifierCount = 0;
+      print("MaxAllowedNumber=======> ${subItem["maxAllowed"]}");
+
       tabBodyWidgets.add(Tab(
+
         child: ListView.builder(
           itemCount: subItem['modifiers'].length,
           padding: EdgeInsets.only(top: 10, left: 10, right: 10),
           itemBuilder: (BuildContext context, int index) {
+            maxModifier = subItem["maxAllowed"];
+            if (index == 0) {
+              testList.clear();
+            }
+
+            print("Count");
+            print(index);
+            bool isCheck = false;
+            print('index--------------->${DefaultTabController.of(context).index.toString()}');
+            if(selectedList.contains(subItem['modifiers'][index])){
+              isCheck = true;
+              testList.add("Is Here${subItem['modifiers'][index]}");
+            }
             return Column(
               children: <Widget>[
                 Container(
@@ -193,7 +221,7 @@ class ModifierDialogState extends State<ModifierDialog> {
 //                                size: 27,
 //                              ),
 //                            ),
-                            AddModifiersToCart(subItem['modifiers'][index])
+                            AddModifiersToCart(subItem['modifiers'][index], maxModifier, modifierCount, DefaultTabController.of(context).index, isCheck)
                           ],
                         )
                       ],
@@ -238,11 +266,18 @@ class ModifierDialogState extends State<ModifierDialog> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class AddModifiersToCart extends StatefulWidget {
   final Map subItem;
-  AddModifiersToCart(this.subItem);
+  final int maxModifier;
+  final int modifierCount;
+  final int index;
+  final bool checkStatus;
+  AddModifiersToCart(this.subItem, this.maxModifier, this.modifierCount, this.index, this.checkStatus);
 
   createState() => AddModifiersToCartState();
 }
@@ -251,13 +286,37 @@ class AddModifiersToCartState extends State<AddModifiersToCart> {
   bool isChecked = false;
   @override
   Widget build(BuildContext context) {
+
+    if(selectedList.contains(widget.subItem)){
+      isChecked = true;
+    }
+//    print(widget.index);
+//    print(maxModifier);
     return Checkbox(
       value: isChecked,
       onChanged: (value) {
+
+
+        print("Max: ${maxModifier.toString()}, ${testList.length.toString()}");
+        print("$selectedList");
+        print("$testList");
         if (selectedList.contains(widget.subItem)) {
+          testList.remove(widget.subItem);
           selectedList.remove(widget.subItem);
         } else {
-          selectedList.add(widget.subItem);
+          if (maxModifier <= testList.length) {
+            print(value);
+            showToast("Max Modifier");
+            setState(() {
+              value = false;
+            });
+          } else {
+            print(testList.length);
+            selectedList.add(widget.subItem);
+            testList.add(widget.subItem);
+
+          }
+
         }
         setState(() {
           isChecked = value;

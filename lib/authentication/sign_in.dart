@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/authentication/signUp.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/main.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
@@ -11,7 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInForm extends StatefulWidget {
   final UserPageState userPageState;
-  const SignInForm({Key key, this.userPageState}) : super(key: key);
+  final Map restaurantInfo;
+  const SignInForm(this.restaurantInfo, {Key key, this.userPageState}) : super(key: key);
 
   @override
   _SignInFormState createState() => new _SignInFormState();
@@ -62,6 +65,11 @@ class _SignInFormState extends State<SignInForm> {
             prefs.setString('email', result['userLogin']['email']);
             prefs.setString('phoneno', result['userLogin']['phoneno']);
 
+
+            if(await prefs.get("checkoutButtonPressed") =='pressed'){
+              manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+            }
+
             setState(() {
 //              widget.userPageState.addItem(
 //                result['userLogin']['id'],
@@ -105,13 +113,17 @@ class _SignInFormState extends State<SignInForm> {
             onSaved: (String val) {
               signInPasswordController.text = val;
             }),
-        SizedBox(height: 20.0),
-        FlatButton(
-            onPressed: (){
-              manageStatesBloc.changeViewSection(WidgetMarker.forgotPassword);
-              Navigator.of(context).pop();
-            },
-            child: Text('FORGOT PASSWORD?',style: TextStyle(color: Colors.black),)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            FlatButton(
+                onPressed: (){
+                  manageStatesBloc.changeViewSection(WidgetMarker.forgotPassword);
+                  Navigator.of(context).pop();
+                },
+                child: Text('FORGOT PASSWORD?',style: TextStyle(color: Colors.black54),)
+            ),
+          ],
         ),
         SizedBox(height: 10.0),
         RaisedButton(
@@ -125,7 +137,39 @@ class _SignInFormState extends State<SignInForm> {
               });
              }
            },
-          child: Text('LOGIN',style: TextStyle(color: Colors.white70),),
+          child: Text('SIGN IN',style: TextStyle(color: Colors.white),),
+        ),
+        SizedBox(height: 15.0),
+        widget.restaurantInfo['socialLogin']==false
+        ?Container()
+        :Column(
+          children: <Widget>[
+            SignInButton(
+              Buttons.GoogleDark,
+              text: "Sign up with Google",
+              onPressed: () {},
+            ),
+            SignInButton(
+              Buttons.Facebook,
+              //text: "Sign up with Facebook",
+              onPressed: () {},
+            ),
+            SizedBox(height: 10,),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Don'+"'"+'t have an account?'),
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+                showRegisterDialog(context,);
+              },
+              child: Text("SignUp",
+                style: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).primaryColor),
+              ),)
+          ],
         ),
       ],
     );

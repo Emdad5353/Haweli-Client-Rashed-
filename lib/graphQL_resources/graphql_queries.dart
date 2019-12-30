@@ -158,6 +158,27 @@ final String bodyQuery = r"""
   }
                   """;
 
+
+//--------------------------------------Mutation Guest Info----------------------------------------
+final String guestInfoQuery =r"""
+      mutation guestInfoAdd($name:String!,$email:String!,$phoneno:String!){
+                          guestInfoAdd(
+                            userSignUpData:{
+                              name: $name,
+                              email: $email,
+                              phoneno: $phoneno
+                            }
+                          ){
+                            id,
+                            name,
+                            email,
+                            jwt,
+                            phoneno,
+                            userType
+                          }
+                        }
+     """;
+
 //--------------------------------------Mutation SignIn Group----------------------------------------
 final String mutationSignInQuery = r"""
                     mutation insert ($email:String!,$password:String!){
@@ -175,12 +196,10 @@ final String mutationSignInQuery = r"""
 
 //--------------------------------------Mutation register Group----------------------------------------
 final String mutationQuery = r"""
-                    mutation insert($name:String!,$firstName:String!,$lastName:String!,$email:String!,$password:String!,$phoneno:String!){
+                    mutation insert($name:String,$email:String!,$password:String!,$phoneno:String!){
                           userSignUp(
                             userSignUpData:{
-                              name: $name
-                              firstName: $firstName,
-                              lastName: $lastName,
+                              name: $name,
                               email: $email,
                               password:$password,
                               phoneno: $phoneno

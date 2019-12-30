@@ -3,10 +3,10 @@ import 'package:haweli/main_ui.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ManageStatesBloc {
-  OrderModel orderModel = OrderModel([], [], {}, 0, 0, "", "", false, false);
+  OrderModel orderModel = OrderModel([], [], {}, 0, 0, false, false);
   // ignore: close_sinks
   BehaviorSubject<OrderModel> _changeOrderModel = new BehaviorSubject.seeded(
-      OrderModel([], [], {}, 0, 0, "", "", false, false));
+      OrderModel([], [], {}, 0, 0, false, false));
 
   setModel(OrderModel orderModel) {
     print("OrderModel==============================> $orderModel");
@@ -34,7 +34,7 @@ class ManageStatesBloc {
 
   //------------------------------Menu Group States-----------------------------
   BehaviorSubject _currentMenuGroup =
-      BehaviorSubject.seeded('5ddbe0820d7b383f3cf64112');
+      BehaviorSubject.seeded('');
   Observable get currentMenuGroupStream$ => _currentMenuGroup.stream;
 
   changeCurrentMenuGroup(String val) {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:haweli/authentication/models/user.dart' as userUtils;
 import 'package:haweli/drawers/endDrawer/checkout_page.dart';
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/menu/menu_screen.dart';
@@ -8,15 +7,15 @@ import 'package:haweli/ui/forgotPassword.dart';
 import 'package:haweli/ui/refund_policy.dart';
 import 'package:haweli/ui/terms_and_condition.dart';
 
-Widget mainView(BuildContext context, data) {
+Widget mainView(BuildContext context, data,Map restaurantInfo) {
   switch (data) {
     case WidgetMarker.menu:
-      return HomeScreen();
+      return homeScreenNetworkCall(restaurantInfo);
     case WidgetMarker.reservation:
       //return Reservation();
       return RefundPolicy();
     case WidgetMarker.contact:
-      return ContactWidget();
+      return ContactWidget(restaurantInfo);
     case WidgetMarker.termsAndCondition:
       return TermsAndCondition();
     case WidgetMarker.refundPolicy:
@@ -27,7 +26,7 @@ Widget mainView(BuildContext context, data) {
       return Checkout();
   }
 
-  return HomeScreen();
+  return homeScreenNetworkCall(restaurantInfo);
 }
 
 class M extends StatelessWidget {

@@ -12,6 +12,26 @@ Widget myText(String text,double size,Color color){
   );
 }
 
+Widget checkoutEndDrawerDetailsText(String text) {
+  return Text(
+    text,
+    style: TextStyle(
+        //fontFamily: "Roboto-Medium",
+        fontWeight: FontWeight.w400),
+  );
+}
+
+Widget toastText(String text) {
+  return Text(
+    text,
+    style: TextStyle(
+        fontFamily: "Roboto-Medium",
+        color: Colors.red,
+        fontSize: 15,
+        fontWeight: FontWeight.w700),
+  );
+}
+
 Widget myTextWithCenterAlign(String text,double size,Color color){
   return Text(
     text,

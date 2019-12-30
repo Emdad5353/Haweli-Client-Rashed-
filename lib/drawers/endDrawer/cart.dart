@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'dart:core';
-
 import 'package:flutter/material.dart';
 import 'package:haweli/DBModels/CartDB.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
@@ -8,9 +8,21 @@ import 'package:haweli/DBModels/models/AddressModel.dart';
 import 'package:haweli/DBModels/models/FoodItemModel.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/DBModels/models/SubFoodItemModel.dart';
+import 'package:haweli/authentication/register_login_dialog.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
+import 'package:haweli/drawers/endDrawer/post_code_verify_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../main_ui.dart';
+import 'end_drawer.dart';
+
+WayToServe wayToServeValue = WayToServe.COLLECTION;
 
 class Cart extends StatefulWidget {
+  Map restaurantInfo;
+  Cart(this.restaurantInfo);
+
   @override
   State<StatefulWidget> createState() {
     return CartState();
@@ -48,7 +60,6 @@ class CartState extends State<Cart> {
       return Container();
     }
     for (var item in cart) {
-
       if (item.foodType == "MainItem") {
         List<String> modifierId = [];
         for (var modifiersId in item.modifiers) {
@@ -93,7 +104,8 @@ class CartState extends State<Cart> {
                     SizedBox(
                       width: 10,
                     ),
-                    Text(item.price.toString()),
+                    Text(
+                        '£${num.parse(item.price.toStringAsFixed(2)).toString()}'),
                     IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () {
@@ -115,6 +127,10 @@ class CartState extends State<Cart> {
                   shrinkWrap: true,
                   itemCount: item.modifiers == null ? 0 : item.modifiers.length,
                   itemBuilder: (BuildContext context, int index) {
+                    var price = item.modifiers[index].price;
+                    price = num.parse(price.toStringAsFixed(2));
+                    // num.parse(n.toStringAsFixed(2))
+
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -128,7 +144,7 @@ class CartState extends State<Cart> {
                         ),
                         Row(
                           children: <Widget>[
-                            Text(item.modifiers[index].price.toString()),
+                            Text('£${price.toString()}'),
                             IconButton(
                                 icon: Icon(Icons.delete),
                                 padding: EdgeInsets.all(0),
@@ -149,8 +165,7 @@ class CartState extends State<Cart> {
         ),
       );
     }
-
-    print(total);
+    total = num.parse(total.toStringAsFixed(2));
 
     print("Cart: ${cart.length.toString()}");
     return Column(
@@ -162,16 +177,26 @@ class CartState extends State<Cart> {
             children: itemsWidgets,
           ),
         ),
-        Divider(
-          thickness: 2,
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            'Total: £$total',
-            style: TextStyle(fontWeight: FontWeight.bold),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            thickness: 1,
           ),
         ),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Total: £$total',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 20,
+                )
+              ],
+            )),
         SizedBox(
           height: 20,
         ),
@@ -181,24 +206,63 @@ class CartState extends State<Cart> {
               'CHECKOUT £$total',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () {
-              print("Hello");
-              var orderInput = {
-                "foodItem": foodItem,
-                "subFoodItem": subFoodItem,
-                "finalTotal": total
-              };
-              print(orderInput);
-              Map<String, dynamic> addressModel =
-                  AddressModel("", "", "", "", "", "").toJson();
-              OrderModel orderModel = OrderModel(foodItemList, subFoodItemList,
-                  addressModel, total, 0, "", "", false, false);
-              print(orderModel);
-              deliveryAddressDialog(context, orderModel);
+            onPressed: total < widget.restaurantInfo['minimumOrderPrice']
+                ? null
+                : () async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    var orderInput = {
+                      "foodItem": foodItem,
+                      "subFoodItem": subFoodItem,
+                      "finalTotal": total
+                    };
+                    print(orderInput);
+                    Map<String, dynamic> addressModel =
+                        AddressModel("", "", "", "", "", "").toJson();
+                    SharedPreferences AddPrefs = await SharedPreferences.getInstance();
+                    Map<String, dynamic> addressJson = {};
+                    var addStr = await AddPrefs.get("address");
+                    if(addStr == null){
+                      await AddPrefs.setString("address", jsonEncode(addressModel));
+                      addStr = await AddPrefs.getString("address");
+                      addressJson = jsonDecode(addStr);
+                    }
+                    print("Saved Data==================================>$addressJson");
+                    OrderModel orderModel = OrderModel(
+                        foodItemList,
+                        subFoodItemList,
+                        addressJson,
+                        total,
+                        0,
+                        false,
+                        false);
+                    print("OrderModelFinal+========================================>$orderModel");
+                    //deliveryAddressDialog(context, orderModel);
 
-              var dataTest = CheckoutDialogState().postCode;
-              print("CheckOut=>>>>>,$dataTest");
-            }),
+                    if(wayToServeValue == WayToServe.COLLECTION){
+                      manageStatesBloc.setModel(orderModel);
+                    }
+                    var dataTest = CheckoutDialogState().postCode;
+                    print("CheckOut=>>>>>,$dataTest");
+
+                    await prefs.setString("checkoutButtonPressed",'pressed');
+
+                    if (wayToServeValue == WayToServe.COLLECTION &&
+                        prefs.getString('jwt') != null) {
+                      manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+                      //Navigator.of(context).pop();
+
+                    } else if (wayToServeValue == WayToServe.COLLECTION &&
+                        prefs.getString('jwt') == null)
+                      showLoginAndRegisterDialog(context, widget.restaurantInfo,orderModel);
+                    else if (wayToServeValue == WayToServe.DELIVERY)
+                      showPostCodeVerifyDialog(context, widget.restaurantInfo,orderModel);
+                  }),
+        SizedBox(
+          height: 10,
+        ),
+        Text('Minimum delivery order £' +
+            widget.restaurantInfo['minimumOrderPrice'].toString()),
         SizedBox(
           height: 20,
         ),

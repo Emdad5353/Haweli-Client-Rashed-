@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/authentication/signUp.dart';
 import 'package:haweli/authentication/sign_in.dart';
 
-showLoginAndRegisterDialog(BuildContext context) {
+import 'guest_login.dart';
+
+showLoginAndRegisterDialog(BuildContext context,Map restaurantInfo, [OrderModel orderModel]) {
   AlertDialog alert = AlertDialog(
     //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
@@ -14,12 +17,12 @@ showLoginAndRegisterDialog(BuildContext context) {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Login/Registration',style: TextStyle(color: Colors.white70),),
+            Text('Login',style: TextStyle(color: Colors.white70),),
             IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(context),)
           ],
         ),
       ),
-      content: ProfileDialog()
+      content: ProfileDialog(restaurantInfo)
   );
 
   // show the dialog
@@ -36,6 +39,9 @@ showLoginAndRegisterDialog(BuildContext context) {
 
 
 class ProfileDialog extends StatefulWidget {
+  Map restaurantInfo;
+  ProfileDialog(this.restaurantInfo);
+
   @override
   State<StatefulWidget> createState() {
     return ProfileDialogState();
@@ -68,14 +74,16 @@ class ProfileDialogState extends State<ProfileDialog> {
             unselectedLabelColor: Colors.black54,
             indicatorColor: Colors.redAccent,
             tabs: [
-              Tab(text: 'LOGIN',),
-              Tab(text: 'REGISTER',),
+              Tab(text: 'GUEST',),
+              Tab(text: 'SIGN IN',),
+              //Tab(text: 'REGISTER',),
             ],
           ),
           body: TabBarView(
             children: [
-              signIn(),
-              register(),
+              guestLogIn(),
+              signIn(widget.restaurantInfo),
+              //register(),
             ],
           ),
         ),
@@ -83,26 +91,39 @@ class ProfileDialogState extends State<ProfileDialog> {
     );
   }
 
-  Widget signIn(){
+  Widget signIn(Map restaurantInfo){
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
           Divider(height: 2,),
           Container(
-            child:  SignInForm()
+            child:  SignInForm(restaurantInfo)
           ),
         ],
       ),
     );
   }
 
-  Widget register(){
+//  Widget register(){
+//    return SingleChildScrollView(
+//      child: Column(
+//        children: <Widget>[
+//          Divider(height: 2,),
+//          Container(
+//            child: SignUpForm(),
+//          )
+//        ],
+//      ),
+//    );
+//  }
+
+  Widget guestLogIn(){
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
           Divider(height: 2,),
           Container(
-            child: SignUpForm(),
+            child: GuestLogInForm(),
           )
         ],
       ),

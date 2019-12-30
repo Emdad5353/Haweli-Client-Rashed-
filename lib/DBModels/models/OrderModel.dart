@@ -5,7 +5,7 @@ class OrderModel {
   double finalTotal;
   double deliveryCost;
   String postcode;
-  String location;
+
   bool deliveryStatus;
   bool collectionStatus;
 
@@ -15,8 +15,6 @@ class OrderModel {
       this.address,
       this.finalTotal,
       this.deliveryCost,
-      this.postcode,
-      this.location,
       this.deliveryStatus,
       this.collectionStatus);
 
@@ -27,8 +25,8 @@ class OrderModel {
       "address": this.address,
       "finalTotal": this.finalTotal,
       "deliveryCost": this.deliveryCost,
-      "postcode": this.postcode,
-      "location": this.location,
+      "deliveryStatus": this.deliveryStatus,
+      "collectionStatus": this.collectionStatus
     };
   }
 
@@ -36,7 +34,7 @@ class OrderModel {
   String toString() {
     return 'OrderModel{foodItem: $foodItem, subFoodItem: $subFoodItem, '
         'address: $address, finalTotal: $finalTotal, deliveryCost: $deliveryCost, '
-        'postcode: $postcode, location: $location, deliveryStatus: $deliveryStatus, '
+        'postCode: $postcode,  deliveryStatus: $deliveryStatus, '
         'collectionStatus: $collectionStatus}';
   }
 }

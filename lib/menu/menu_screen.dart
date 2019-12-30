@@ -1,18 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:haweli/DBModels/FoodDB.dart';
-import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
+import 'package:haweli/drawers/endDrawer/end_drawer.dart';
 import 'package:haweli/drawers/mainDrawer.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/menu/commonWidgets.dart';
 
-class HomeScreen extends StatelessWidget {
+Widget homeScreenNetworkCall(Map restaurantInfo) {
+  return Query(
+    options: QueryOptions(
+      document: bodyQuery,
+    ),
+    builder: (QueryResult menuListQueryResult,
+        {VoidCallback refetch, FetchMore fetchMore}) {
+      if (menuListQueryResult.errors != null) {
+        return Text(menuListQueryResult.errors.toString());
+      }
+      if (menuListQueryResult.loading) {
+        return Center(child: CircularProgressIndicator());
+      }
+      if (menuListQueryResult.data == null) {
+        return Container(
+          child: Center(
+            child: Text("No Data Found !"),
+          ),
+        );
+      }
+      if (menuListQueryResult.data != null) {
+        return MenuScreen(
+            restaurantInfo, menuListQueryResult.data['getAllItem']['menuItem']);
+      }
+      return Container();
+    },
+  );
+}
+
+class MenuScreen extends StatefulWidget {
+  final Map restaurantInfo;
+  final List<dynamic> menuList;
+  MenuScreen(this.restaurantInfo, this.menuList);
+  @override
+  _MenuScreenState createState() => new _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  TextEditingController editingController = TextEditingController();
+  var items = List();
+  Icon _searchIcon = Icon(Icons.search);
+
+  @override
+  void initState() {
+    items.clear();
+    items.addAll(widget.menuList);
+    super.initState();
+  }
+
+  void _searchPressed() {
+    setState(() {
+      if (this._searchIcon.icon == Icons.search) {
+        this._searchIcon = new Icon(Icons.close);
+      } else {
+        this._searchIcon = new Icon(Icons.search);
+        items.clear();
+        items.addAll(widget.menuList);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          title: this._searchIcon.icon == Icons.search
+              ? null
+              : Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.white,
+                    child: TextField(
+                      onChanged: (value) {
+                        filterSearchResults(value);
+                      },
+                      controller: editingController,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: "Search",
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    ),
+                  ),
+                ),
           actions: [
+            IconButton(
+              icon: _searchIcon,
+              onPressed: _searchPressed,
+            ),
             Builder(
               builder: (context) => IconButton(
                 icon: Icon(Icons.shopping_cart),
@@ -24,144 +107,125 @@ class HomeScreen extends StatelessWidget {
         ),
         drawer: mainDrawer(),
         endDrawer: Drawer(
-          child: endDrawer(context),
+          child: endDrawer(context, widget.restaurantInfo),
         ),
-        body:bodyWidget()
-    );
+        body: Container(
+          child: Column(
+            children: <Widget>[
+//              Padding(
+//                padding: const EdgeInsets.all(8.0),
+//                child: TextField(
+//                  onChanged: (value) {
+//                    filterSearchResults(value);
+//                  },
+//                  controller: editingController,
+//                  decoration: InputDecoration(
+//                      labelText: "Search",
+//                      hintText: "Search",
+//                      prefixIcon: Icon(Icons.search),
+//                      border: OutlineInputBorder(
+//                          borderRadius: BorderRadius.all(Radius.circular(25.0)))),
+//                ),
+//              ),
+              Expanded(child: bodyWidget()),
+            ],
+          ),
+        ));
+  }
+
+  void filterSearchResults(String query) {
+    List dummySearchList = List();
+    dummySearchList.addAll(widget.menuList);
+    if (query.isNotEmpty) {
+      List dummyListData = List();
+      dummySearchList.forEach((item) {
+        String itemName=item['name'];
+        //if (item['name'].contains(query)) {
+        if (itemName.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      });
+      setState(() {
+        items.clear();
+        items.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        items.clear();
+        items.addAll(widget.menuList);
+      });
+    }
   }
 
   Widget bodyWidget() {
-    return  StreamBuilder(
+    manageStatesBloc.changeCurrentMenuGroup('');
+    return StreamBuilder(
         stream: manageStatesBloc.currentMenuGroupStream$,
         builder: (BuildContext context, AsyncSnapshot snap) {
-          print('current ============================================================>${snap.data}');
-          return Query(
-            options: QueryOptions(
-              document: bodyQuery,
-            ),
-            builder: (QueryResult result,
-                {VoidCallback refetch, FetchMore fetchMore}) {
-              print('result ${result.data}');
-              if (result.errors != null) {
-                return Text(result.errors.toString());
+          return ListView.builder(
+            padding: EdgeInsets.only(top: 15, left: 15, right: 15),
+            itemBuilder: (BuildContext context, int index) {
+              if (items[index]['groupId']['_id'] == snap.data) {
+                return Column(
+                  children: <Widget>[
+                    Container(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            if (items[index]['hasSubItem'])
+                              mainItemWithSubItem(context, items[index],
+                                  items[index]['subItem'])
+                            else if (items[index]['modifierLevels'].length > 0)
+                              priceAndAddToCartButtonForModifier(
+                                  context, items[index], "mainItem", {
+                                "foodItem": {"foodItemId": items[index]["_id"]}
+                              })
+                            else if (items[index]['modifierLevels'].length == 0)
+                              mainItemWithNoSubItemNoModifier(
+                                  context, items[index])
+                          ],
+                        )),
+                    Divider(
+                      thickness: 1,
+                    )
+                  ],
+                );
+              } else if (snap.data == '') {
+                return Column(
+                  children: <Widget>[
+                    Container(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            if (items[index]['hasSubItem'])
+                              mainItemWithSubItem(context, items[index],
+                                  items[index]['subItem'])
+                            else if (items[index]['modifierLevels'].length > 0)
+                              priceAndAddToCartButtonForModifier(
+                                  context, items[index], "mainItem", {
+                                "foodItem": {"foodItemId": items[index]["_id"]}
+                              })
+                            else if (items[index]['modifierLevels'].length == 0)
+                              mainItemWithNoSubItemNoModifier(
+                                  context, items[index])
+                          ],
+                        )),
+                    Divider(
+                      thickness: 1,
+                    )
+                  ],
+                );
+              } else {
+                return Container();
               }
-              if (result.loading) {
-                return Center(child: CircularProgressIndicator());
-              }
-              if (result.data == null) {
-                return Text("No Data Found !");
-              }
-              return ListView.builder(
-                padding: EdgeInsets.only(top: 15, left: 15, right: 15),
-                itemBuilder: (BuildContext context, int index) {
-                  print(
-                      'rsult========================================>${result.data['getAllItem']['menuItem']}');
-                  return result.data['getAllItem']['menuItem'][index]['groupId']
-                  ['_id'] ==snap.data
-                  //------------------------------------------------------------------------------
-                      ? Column(
-                    children: <Widget>[
-                      Container(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              if (result.data['getAllItem']['menuItem'][index]
-                              ['hasSubItem'])
-                                mainItemWithSubItem(
-                                    context,
-                                    result.data['getAllItem']['menuItem']
-                                    [index],
-                                    result.data['getAllItem']['menuItem'][index]
-                                    ['subItem'])
-                              else if (result
-                                  .data['getAllItem']['menuItem'][index]
-                              ['modifierLevels']
-                                  .length >
-                                  0)
-                                priceAndAddToCartButtonForModifier(
-                                    context,
-                                    result.data['getAllItem']['menuItem']
-                                    [index],
-                                    "mainItem",
-                                    {
-                                      "foodItem": {
-                                        "foodItemId": result.data['getAllItem']
-                                        ['menuItem'][index]["_id"]
-                                      }
-                                    })
-                              else if (result
-                                    .data['getAllItem']['menuItem'][index]
-                                ['modifierLevels']
-                                    .length ==
-                                    0)
-                                  mainItemWithNoSubItemNoModifier(
-                                      context,
-                                      result.data['getAllItem']['menuItem']
-                                      [index])
-                            ],
-                          )),
-                      Divider(
-                        thickness: 1,
-                      )
-                    ],
-                  )
-                  //-----------------------------------------------------------------------------------
-                      : Column(
-                    children: <Widget>[
-                      Container(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              if (result.data['getAllItem']['menuItem'][index]
-                              ['hasSubItem'])
-                                mainItemWithSubItem(
-                                    context,
-                                    result.data['getAllItem']['menuItem']
-                                    [index],
-                                    result.data['getAllItem']['menuItem'][index]
-                                    ['subItem'])
-                              else if (result
-                                  .data['getAllItem']['menuItem'][index]
-                              ['modifierLevels']
-                                  .length >
-                                  0)
-                                priceAndAddToCartButtonForModifier(
-                                    context,
-                                    result.data['getAllItem']['menuItem']
-                                    [index],
-                                    "mainItem",
-                                    {
-                                      "foodItem": {
-                                        "foodItemId": result.data['getAllItem']
-                                        ['menuItem'][index]["_id"]
-                                      }
-                                    })
-                              else if (result
-                                    .data['getAllItem']['menuItem'][index]
-                                ['modifierLevels']
-                                    .length ==
-                                    0)
-                                  mainItemWithNoSubItemNoModifier(
-                                      context,
-                                      result.data['getAllItem']['menuItem']
-                                      [index])
-                            ],
-                          )),
-                      Divider(
-                        thickness: 1,
-                      )
-                    ],
-                  );
-                },
-                itemCount: result.data['getAllItem']['menuItem'].length,
-              );
             },
+            itemCount: items.length,
           );
         });
-
   }
 }

@@ -37,6 +37,7 @@ Widget mainItemWithSubItem(
                         builder: (RunMutation row, QueryResult result) {
                           return GestureDetector(
                             onTap: () async {
+                              showDefaultSnackbar(context, 'Item Added');
                               print("Test");
                               var subFood =
                               await FoodDB().fetchFood(subItem["_id"]);
@@ -156,6 +157,7 @@ Widget mainItemWithNoSubItemNoModifier(BuildContext context, Map mainItems) {
                 builder: (RunMutation row, QueryResult result) {
                   return GestureDetector(
                     onTap: () async {
+                      showDefaultSnackbar(context, 'Item Added');
                       var food = await FoodDB().fetchFood(mainItems["_id"]);
                       print(food);
 
@@ -233,6 +235,7 @@ Widget priceAndAddToCartButtonForModifier(
                 onTap: () {
                   showModifierDialog(context, subItem, itemType, itemObject);
                   print(subItem['modifierLevels']);
+
                 },
                 child: Icon(
                   Icons.add_circle,

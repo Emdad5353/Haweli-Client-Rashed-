@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:haweli/ui/main_view.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/authentication/register_login_dialog.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -16,6 +17,9 @@ enum WidgetMarker {
 }
 
 class MainUI extends StatefulWidget {
+  Map restaurantInfo;
+  MainUI(this.restaurantInfo);
+
   @override
   State<StatefulWidget> createState() => MainUIState();
 }
@@ -24,13 +28,35 @@ class MainUIState extends State<MainUI> {
   WidgetMarker selectedWidgetMarker = WidgetMarker.termsAndCondition;
   @override
   Widget build(BuildContext context) {
+    String startTime = widget.restaurantInfo["weekdayOpeningTime"].toString();
+    String closingTime = widget.restaurantInfo["weekdayCloseTime"];
+    print("ResturantData==============> ${widget.restaurantInfo["weekdayOpeningTime"]}");
+    DateTime date= DateFormat.jm().parse(startTime);
+    DateTime now = DateTime.now();
+    date = DateTime(now.year, now.month, now.day, date.hour, date.minute);
+    print("Hour============> $now");
+    print("Hour============> $date");
+    // saveRestaurantId(restaurantInfo.data["id"]);
+    //Where U see a Hello that mean restaurant is open. Where u see a bye that mean restuarant is closed.
+    // Code according that.............
+//    var status = now.isBefore(date);
+//    if(status){
+//      print("OPen");
+//
+//    }else{
+//      //print("Close");
+//      resturantCloseddDialog(context);
+//  //      resturantCloseddDialog(context);
+//    }
     return Scaffold(
       body: StreamBuilder(
         stream: manageStatesBloc.currentViewSectionStream$,
         builder: (BuildContext context, AsyncSnapshot snap) {
-          return Column(
+          var status = now.isBefore(date);
+          if(!status) Future.delayed(Duration.zero, () => restaurantClosedDialog(context));
+              return Column(
             children: <Widget>[
-              Expanded(child: mainView(context, snap.data)),
+              Expanded(child: mainView(context, snap.data,widget.restaurantInfo)),
               //-------------------------------Bottom Nav Bar--------------------
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -77,8 +103,7 @@ class MainUIState extends State<MainUI> {
 
                       Container(
                           child: StreamBuilder(
-                              stream:
-                              manageStatesBloc.currentLoginStatusStream$,
+                              stream: manageStatesBloc.currentLoginStatusStream$,
                               builder:
                                   (BuildContext context, AsyncSnapshot snap) {
                                 if(snap.data==true){
@@ -111,7 +136,7 @@ class MainUIState extends State<MainUI> {
                                 return IconButton(
                                   onPressed: () {
                                     setState(() {
-                                      showLoginAndRegisterDialog(context);
+                                      showLoginAndRegisterDialog(context,widget.restaurantInfo);
                                     });
                                   },
                                   icon: Icon(
@@ -126,6 +151,31 @@ class MainUIState extends State<MainUI> {
           );
         },
       ),
+    );
+  }
+
+
+  void restaurantClosedDialog(BuildContext context) {
+    // flutter defined function
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          //title: new Text("Alert Dialog title"),
+          content: new Text("Restaurant is closed now"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: Text("Pre-order Now",style: TextStyle(color: Theme.of(context).primaryColor),),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
