@@ -43,7 +43,7 @@ class CheckoutState extends State<Checkout> {
 
   _setSavedValues() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("checkoutButtonPressed", null);
+    await prefs.setString("checkoutButtonPressed", '');
     setState(() {
       name = (prefs.getString('name') ?? '');
       email = (prefs.getString('email') ?? '');
@@ -341,6 +341,9 @@ class CheckoutState extends State<Checkout> {
           FoodDB()
               .deleteFood(cartData.id);
         }
+        // region recentEdited_emdad//
+        manageStatesBloc.initialValue(0);
+        // endregion
 //        setState(() {
 //          myfunc();
 //        });
@@ -450,6 +453,10 @@ class CheckoutState extends State<Checkout> {
                   FoodDB().deleteFood(
                       cartData.id);
                 }
+                // region recentEdited_emdad//
+                manageStatesBloc.initialValue(0);
+                // endregion
+
 //                setState(() {
 //                  myfunc();
 //                });
@@ -507,6 +514,7 @@ class CheckoutState extends State<Checkout> {
         child: StreamBuilder<Object>(
             stream: manageStatesBloc.currentOrderModel$,
             builder: (context, snapshot) {
+              print("SnapShotNewOrderModel===========>$snapshot");
               OrderModel orderModel = snapshot.data;
               print(orderModel.address);
               return Container(

@@ -49,6 +49,31 @@ class ManageStatesBloc {
     _loginStatus.add(val);
   }
 
+  //------------------------------Widget Rebuilder States------------------------------
+  BehaviorSubject _counter;
+  Observable get widgetRebuildStream$ => _counter.stream;
+  int get current =>_counter.value;
+
+  rebuildByValue() {
+    _counter.add(current+1);
+    print('print-----------------------------------------------------${_counter.value}');
+  }
+
+  initialValue(val){
+    _counter = new BehaviorSubject.seeded(val);
+  }
+
+  setCartLength(val){
+    _counter.add(val);
+  }
+
+  rebuildByValueDec() {
+    _counter.add(current-1);
+    print('print-----------------------------------------------------${_counter.value}');
+  }
+  changedCartLen(){
+    return _counter.value();
+  }
 }
 
 ManageStatesBloc manageStatesBloc = ManageStatesBloc();

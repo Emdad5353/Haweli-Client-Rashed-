@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/CartDB.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
@@ -10,53 +12,57 @@ import 'drawers/mainDrawer.dart';
 import 'graphQL_resources/common_queries.dart';
 import 'package:haweli/utils/getHexaColor.dart';
 
-void main() => runApp(
-      GraphQLProvider(
-        client: client,
-        child: OKToast(
-            child: FutureBuilder(
-              future: restaurantLogoColorSplashDuration(),
-              builder: (BuildContext context, AsyncSnapshot restaurantInfoSnap) {
-                if (restaurantInfoSnap.data == null) {
-                  return Container();
-                }
-                switch (restaurantInfoSnap.connectionState) {
-                  case ConnectionState.none:
-                    return Text('Press button to start.');
-                  case ConnectionState.active:
-                  case ConnectionState.waiting:
-                    return Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Theme.of(context).primaryColor,
-                      ),
-                    );
-                  case ConnectionState.done:
-                    if (restaurantInfoSnap.hasError)
-                      return Text('Error: ${restaurantInfoSnap.error}');
-                    return MaterialApp(
-                      debugShowCheckedModeBanner: false,
-                      title: restaurantInfoSnap.data['restaurantName'],
-                      theme: ThemeData(
-                        primaryColor: getColorFromHex(restaurantInfoSnap.data['color']),
-                      ),
-                      home: GraphQLProvider(
-                          client: client,
-                          child: Stack(
-                            children: <Widget>[
-                              mainDrawer(),
-                              HomePage(),
-                              SplashScreenPage(restaurantInfoSnap.data)
-                            ],
-                          )
-                      ),
-                    );
-                }
+void main() =>  SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp,DeviceOrientation.portraitDown])
+    .then((_) {
+  runApp(
+    GraphQLProvider(
+      client: client,
+      child: OKToast(
+          child: FutureBuilder(
+            future: restaurantLogoColorSplashDuration(),
+            builder: (BuildContext context, AsyncSnapshot restaurantInfoSnap) {
+              if (restaurantInfoSnap.data == null) {
                 return Container();
-              },
-            )
-        ),
+              }
+              switch (restaurantInfoSnap.connectionState) {
+                case ConnectionState.none:
+                  return Text('Press button to start.');
+                case ConnectionState.active:
+                case ConnectionState.waiting:
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Theme.of(context).primaryColor,
+                    ),
+                  );
+                case ConnectionState.done:
+                  if (restaurantInfoSnap.hasError)
+                    return Text('Error: ${restaurantInfoSnap.error}');
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    title: restaurantInfoSnap.data['restaurantName'],
+                    theme: ThemeData(
+                      primaryColor: getColorFromHex(restaurantInfoSnap.data['color']),
+                    ),
+                    home: GraphQLProvider(
+                        client: client,
+                        child: Stack(
+                          children: <Widget>[
+                            //mainDrawer(),
+                            //HomePage(),
+                            SplashScreenPage(restaurantInfoSnap.data)
+                          ],
+                        )
+                    ),
+                  );
+              }
+              return Container();
+            },
+          )
       ),
-    );
+    ),
+  );
+});
 
 //void main() => runApp(
 //    MaterialApp(
@@ -88,10 +94,21 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   bool isLoggedIn = false;
+  var cart;
   @override
   void initState() {
     super.initState();
     autoLogIn();
+    myfunc();
+  }
+
+  myfunc() async {
+    var cartData = await CartDB().allCart();
+    manageStatesBloc.initialValue(cartData.length);
+    setState(() {
+      cart = cartData;
+
+    });
   }
 
   void autoLogIn() async {

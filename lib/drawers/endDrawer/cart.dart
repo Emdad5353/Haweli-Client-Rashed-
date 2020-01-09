@@ -6,6 +6,7 @@ import 'package:haweli/DBModels/FoodDB.dart';
 import 'package:haweli/DBModels/ModifierDB.dart';
 import 'package:haweli/DBModels/models/AddressModel.dart';
 import 'package:haweli/DBModels/models/FoodItemModel.dart';
+import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/DBModels/models/SubFoodItemModel.dart';
 import 'package:haweli/authentication/register_login_dialog.dart';
@@ -21,6 +22,7 @@ WayToServe wayToServeValue = WayToServe.COLLECTION;
 
 class Cart extends StatefulWidget {
   Map restaurantInfo;
+
   Cart(this.restaurantInfo);
 
   @override
@@ -109,9 +111,21 @@ class CartState extends State<Cart> {
                     IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          FoodDB().deleteFood(item.id);
-                          for (var modifier in item.modifiers) {
-                            ModifierDB().deleteModifierOfFood(item.id);
+                          if (item.qty == 1) {
+                            FoodDB().deleteFood(item.id);
+                            for (var modifier in item.modifiers) {
+                              ModifierDB().deleteModifierOfFood(item.id);
+
+                            }
+                            manageStatesBloc.rebuildByValueDec();
+                          } else {
+                            print(item);
+//                            item.qty = item.qty -1;
+//                            print(item.qty);
+                            var qty = item.qty - 1;
+                            print(qty);
+                            Foods foods = Foods(item.name, item.foodId, item.price - (item.price/(item.qty)), item.qty - 1, item.discount, item.foodType);
+                            FoodDB().updateFood(foods);
                           }
                           print("Hello");
                           setState(() {
@@ -219,33 +233,31 @@ class CartState extends State<Cart> {
                     print(orderInput);
                     Map<String, dynamic> addressModel =
                         AddressModel("", "", "", "", "", "").toJson();
-                    SharedPreferences AddPrefs = await SharedPreferences.getInstance();
+                    SharedPreferences AddPrefs =
+                        await SharedPreferences.getInstance();
                     Map<String, dynamic> addressJson = {};
                     var addStr = await AddPrefs.get("address");
-                    if(addStr == null){
-                      await AddPrefs.setString("address", jsonEncode(addressModel));
+                    if (addStr == null) {
+                      await AddPrefs.setString(
+                          "address", jsonEncode(addressModel));
                       addStr = await AddPrefs.getString("address");
                       addressJson = jsonDecode(addStr);
                     }
-                    print("Saved Data==================================>$addressJson");
-                    OrderModel orderModel = OrderModel(
-                        foodItemList,
-                        subFoodItemList,
-                        addressJson,
-                        total,
-                        0,
-                        false,
-                        false);
-                    print("OrderModelFinal+========================================>$orderModel");
+                    print(
+                        "Saved Data==================================>$addressJson");
+                    OrderModel orderModel = OrderModel(foodItemList,
+                        subFoodItemList, addressJson, total, 0, false, false);
+                    print(
+                        "OrderModelFinal+========================================>$orderModel");
                     //deliveryAddressDialog(context, orderModel);
 
-                    if(wayToServeValue == WayToServe.COLLECTION){
+                    if (wayToServeValue == WayToServe.COLLECTION) {
                       manageStatesBloc.setModel(orderModel);
                     }
                     var dataTest = CheckoutDialogState().postCode;
                     print("CheckOut=>>>>>,$dataTest");
 
-                    await prefs.setString("checkoutButtonPressed",'pressed');
+                    await prefs.setString("checkoutButtonPressed", 'pressed');
 
                     if (wayToServeValue == WayToServe.COLLECTION &&
                         prefs.getString('jwt') != null) {
@@ -254,15 +266,22 @@ class CartState extends State<Cart> {
 
                     } else if (wayToServeValue == WayToServe.COLLECTION &&
                         prefs.getString('jwt') == null)
-                      showLoginAndRegisterDialog(context, widget.restaurantInfo,orderModel);
+                      showLoginAndRegisterDialog(
+                          context, widget.restaurantInfo, orderModel);
                     else if (wayToServeValue == WayToServe.DELIVERY)
-                      showPostCodeVerifyDialog(context, widget.restaurantInfo,orderModel);
+                      showPostCodeVerifyDialog(
+                          context, widget.restaurantInfo, orderModel);
                   }),
         SizedBox(
           height: 10,
         ),
-        Text('Minimum delivery order £' +
-            widget.restaurantInfo['minimumOrderPrice'].toString()),
+        total < widget.restaurantInfo['minimumOrderPrice']
+            ? Text(
+                'Minimum delivery order £' +
+                    widget.restaurantInfo['minimumOrderPrice'].toString(),
+                style: TextStyle(color: Colors.red),
+              )
+            : Container(),
         SizedBox(
           height: 20,
         ),

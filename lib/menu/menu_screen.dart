@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:haweli/DBModels/CartDB.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawers/endDrawer/end_drawer.dart';
 import 'package:haweli/drawers/mainDrawer.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/menu/commonWidgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Widget homeScreenNetworkCall(Map restaurantInfo) {
   return Query(
@@ -47,12 +49,23 @@ class _MenuScreenState extends State<MenuScreen> {
   TextEditingController editingController = TextEditingController();
   var items = List();
   Icon _searchIcon = Icon(Icons.search);
+  var cart;
 
   @override
-  void initState() {
+  initState() {
     items.clear();
     items.addAll(widget.menuList);
+
+    myfunc();
     super.initState();
+  }
+
+  myfunc() async {
+    var cartData = await CartDB().allCart();
+    setState(() {
+      cart = cartData;
+
+    });
   }
 
   void _searchPressed() {
@@ -96,13 +109,54 @@ class _MenuScreenState extends State<MenuScreen> {
               icon: _searchIcon,
               onPressed: _searchPressed,
             ),
-            Builder(
-              builder: (context) => IconButton(
-                icon: Icon(Icons.shopping_cart),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-              ),
-            ),
+            StreamBuilder(
+                stream: manageStatesBloc.widgetRebuildStream$,
+                builder: (context, snap) {
+
+                  return Builder(builder: (context) {
+//                    manageStatesBloc.initialValue(cart.length);
+                    print("Cart========>,$cart");
+                    if (cart == null) {
+                      return Container();
+                    } else {
+                      return Stack(
+                        children: <Widget>[
+                          Center(
+                            child: IconButton(
+                              onPressed: () {
+                                Scaffold.of(context).openEndDrawer();
+                              },
+                              icon: Icon(Icons.shopping_cart),
+                            ),
+                          ),
+                          Center(
+                              child: StreamBuilder(
+
+                                  stream: manageStatesBloc.widgetRebuildStream$,
+                                  builder: (context, snap) {
+
+                                    print("Snap============>$snap");
+                                    print("Cart==============> $cart");
+                                    return Padding(
+                                        padding: EdgeInsets.only(
+                                            bottom: 27, left: 17),
+                                        child: (cart.length >= 0)
+                                            ? Text(snap.data.toString())
+                                            : Container());
+                                  }))
+                        ],
+                      );
+                    }
+                  });
+                })
+
+//            Builder(
+//              builder: (context) => IconButton(
+//                icon: Icon(Icons.shopping_cart),
+//                onPressed: () => Scaffold.of(context).openEndDrawer(),
+//                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+//              ),
+//            ),
           ],
         ),
         drawer: mainDrawer(),
@@ -139,7 +193,7 @@ class _MenuScreenState extends State<MenuScreen> {
     if (query.isNotEmpty) {
       List dummyListData = List();
       dummySearchList.forEach((item) {
-        String itemName=item['name'];
+        String itemName = item['name'];
         //if (item['name'].contains(query)) {
         if (itemName.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);

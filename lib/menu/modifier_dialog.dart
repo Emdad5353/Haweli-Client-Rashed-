@@ -6,6 +6,7 @@ import 'package:haweli/DBModels/FoodDB.dart';
 import 'package:haweli/DBModels/ModifierDB.dart';
 import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/DBModels/models/Modifiers.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources//graphql_client.dart';
 import 'package:haweli/graphQL_resources//graphql_queries.dart';
 import 'package:oktoast/oktoast.dart';
@@ -87,6 +88,8 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                           selectedList.clear();
                           itemObject["foodItem"]["modifiers"] = modifiersId;
                           print("ItemObject ===> $itemObject");
+
+                          manageStatesBloc.rebuildByValue();
                         } else {
                           var foodData = Foods(
                               subItem['name'],
@@ -110,6 +113,8 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                           selectedList.clear();
                           itemObject["subFoodItem"]["modifiers"] = modifiersId;
                           print("ItemObject ===> $itemObject");
+
+                          manageStatesBloc.rebuildByValue();
                         }
                         row(<String, dynamic>{"cartInput": itemObject});
                         showDefaultSnackbar(context, 'Item Added');

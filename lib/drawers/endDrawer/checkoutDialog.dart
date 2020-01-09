@@ -127,8 +127,10 @@ class CheckoutDialogState extends State<CheckoutDialog> {
               child: StreamBuilder<Object>(
                   stream: manageStatesBloc.currentOrderModel$,
                   builder: (context, snapshot) {
+
+                    print("SnapshotAnotherOrderModel=========> $snapshot");
                     OrderModel orderModel=snapshot.data;
-                    print(orderModel.address);
+                    print(orderModel);
                     return Column(children: getFormWidget(orderModel));
                   })
             )));
@@ -138,6 +140,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     List<Widget> formWidget = List();
     double height = 10;
 
+    print("OrderModelAdd=======> ${orderModel.address}");
     formWidget.add(SizedBox(
       height: height,
     ));
@@ -243,7 +246,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     ));
 
     formWidget.add(new TextFormField(
-      initialValue: orderModel.address['postCode'],
+      initialValue: orderModel.address['postcode'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Post Code', hintText: 'Post Code'),
       validator: (value) {
@@ -253,6 +256,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       },
       onSaved: (value) {
         setState(() {
+          value = value.replaceAll(' ', '');
           postCode = value;
         });
       },
@@ -270,6 +274,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       if (!result.hasErrors) {
         showToast(result.data["validateLocation"]["msg"]);
         if (result.data["validateLocation"]["msg"] != "Invalid") {
+          Navigator.of(context, rootNavigator: true).pop('alert');
+          pr.show();
           widget.orderModel.deliveryCost =
               result.data["validateLocation"]["deliveryCharge"].toDouble();
           widget.orderModel.postcode = postCode;
@@ -277,7 +283,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           widget.orderModel.toJson();
 
           manageStatesBloc.setModel(widget.orderModel);
-          Navigator.of(context).pop();
+
           normalOrder(widget.orderModel);
 
 //          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
@@ -294,7 +300,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     formWidget.add(RaisedButton(
         color: Theme.of(context).primaryColor,
         textColor: Colors.white,
-        child: new Text('SAVE'),
+        child: Text('PROCEED'),
         onPressed: () async {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
@@ -359,6 +365,9 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           FoodDB()
               .deleteFood(cartData.id);
         }
+
+        var cartData = await CartDB().allCart();
+        manageStatesBloc.initialValue(cartData.length);
 //        setState(() {
 //          myfunc();
 //        });
@@ -464,6 +473,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                   FoodDB().deleteFood(
                       cartData.id);
                 }
+                var cartData = await CartDB().allCart();
+                manageStatesBloc.initialValue(cartData.length);
 //                setState(() {
 //                  myfunc();
 //                });

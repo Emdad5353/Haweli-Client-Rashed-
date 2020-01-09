@@ -106,6 +106,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                 child: StreamBuilder<Object>(
                     stream: manageStatesBloc.currentOrderModel$,
                     builder: (context, snapshot) {
+
+                      print("SnapShotPostCode=========================>${snapshot.data}");
                       OrderModel orderModel=snapshot.data;
                       print(orderModel.address);
                       return Column(children: getFormWidget(orderModel));
@@ -145,11 +147,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['flatNo'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Flat No', hintText: 'Flat No'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Flat No';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Flat No';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           flatNo = value;
@@ -165,11 +167,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['buildingName'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Building Name', hintText: 'Building Name'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Building Name';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Building Name';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           buildingName = value;
@@ -185,11 +187,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['roadNo'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Road No', hintText: 'Road No'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Road Name';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Road Name';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           roadName = value;
@@ -205,11 +207,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['town'],
       decoration:
       InputDecoration(isDense: true, labelText: 'Town', hintText: 'Town'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Town';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Town';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           town = value;
@@ -232,6 +234,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       },
       onSaved: (value) {
         setState(() {
+          value=value.replaceAll(' ', '');
+          print('postcode without space----------------------------->$value');
           postCode = value;
         });
       },

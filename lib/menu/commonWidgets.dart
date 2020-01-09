@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/menu/modifier_dialog.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
@@ -38,7 +39,7 @@ Widget mainItemWithSubItem(
                           return GestureDetector(
                             onTap: () async {
                               showDefaultSnackbar(context, 'Item Added');
-                              print("Test");
+                              print("Tests");
                               var subFood =
                               await FoodDB().fetchFood(subItem["_id"]);
                               print(subFood);
@@ -46,7 +47,7 @@ Widget mainItemWithSubItem(
                               print("Discount $discount");
 
                               if (subFood == null) {
-                                print("Test");
+                                print("Testin");
                                 var subFoodData = Foods(
                                     subItem['name'],
                                     subItem['_id'],
@@ -63,8 +64,10 @@ Widget mainItemWithSubItem(
                                   }
                                 };
                                 print("FoodItem: ,$cartInput");
-                                row(<String, dynamic>{"cartInput": cartInput});
+                                //row(<String, dynamic>{"cartInput": cartInput});
+                                manageStatesBloc.rebuildByValue();
                               } else {
+                                print('tesout');
                                 var subFoodData = Foods(
                                     subFood.name,
                                     subFood.foodId,
@@ -79,7 +82,9 @@ Widget mainItemWithSubItem(
                                   "subFoodItem": {"subFoodItemId": subItem["_id"]}
                                 };
                                 print(cartInput);
-                                row(<String, dynamic>{"cartInput": cartInput});
+                                //row(<String, dynamic>{"cartInput": cartInput});
+
+//                                manageStatesBloc.rebuildByValue();
                               }
                             },
                             child: Icon(
@@ -175,8 +180,12 @@ Widget mainItemWithNoSubItemNoModifier(BuildContext context, Map mainItems) {
                           "foodItem": {"foodItemId": mainItems["_id"]}
                         };
                         print("FoodItem: ,$cartInput");
-                        row(<String, dynamic>{"cartInput": cartInput});
+                        manageStatesBloc.rebuildByValue();
+                       // row(<String, dynamic>{"cartInput": cartInput});
+
+                       // manageStatesBloc.rebuildByValue();
                       } else {
+                        print('Test2----------------------------');
                         var foodData = Foods(food.name, food.foodId,
                             food.price + mainItems['price'].toDouble(),
                             food.qty + 1,
@@ -188,7 +197,9 @@ Widget mainItemWithNoSubItemNoModifier(BuildContext context, Map mainItems) {
                           "foodItem": {"foodItemId": mainItems["_id"]}
                         };
                         print(cartInput);
-                        row(<String, dynamic>{"cartInput": cartInput});
+                       // row(<String, dynamic>{"cartInput": cartInput});
+
+//                        manageStatesBloc.rebuildByValue();
                       }
                     },
                     child: Icon(
@@ -199,7 +210,8 @@ Widget mainItemWithNoSubItemNoModifier(BuildContext context, Map mainItems) {
                 },
                 onCompleted: (result) {
                   print("On Complete =====>");
-                  print(result.toString());
+                  print(result.toString()
+                  );
                 },
               ),
             ],
@@ -260,7 +272,7 @@ void showDefaultSnackbar(BuildContext context, String message) {
     SnackBar(
       backgroundColor: Colors.red,
       content: Text(message),
-      duration: Duration(seconds: 1),
+      duration: Duration(milliseconds: 500),
       action: SnackBarAction(
         label: 'Click Me',
         onPressed: () {},
