@@ -35,7 +35,7 @@ Widget endDrawer(BuildContext context, Map restaurantInfo) {
                 open = DateTime(open.hour, open.minute);
                 DateTime now = DateTime.now();
                 print("Open: ${now.hour}");
-                if(now.hour == open.hour){
+                if (now.hour == open.hour) {
                   print("Hello");
                 }
                 FlutterStripePayment.setStripeSettings(
@@ -47,7 +47,9 @@ Widget endDrawer(BuildContext context, Map restaurantInfo) {
 //                  print("PaymentData================> $testData");
 //                }
               }),
-          EndDrawerRadioButton(restaurantInfo),
+          (restaurantInfo['deliveryOption']==false && restaurantInfo['collectionOption']==false)
+              ? Container()
+              : EndDrawerRadioButton(restaurantInfo),
           Divider(
             color: Colors.grey,
           ),
@@ -72,7 +74,19 @@ Widget endDrawer(BuildContext context, Map restaurantInfo) {
                   style: TextStyle(
                       fontSize: 16, color: Theme.of(context).primaryColor),
                 ),
-              ))
+              )),
+          StreamBuilder(
+              stream: manageStatesBloc.widgetRebuildStream$,
+              builder: (context, snap) {
+                return wayToServeValue == WayToServe.COLLECTION
+                    ? Text(
+                        "Discount ${restaurantInfo["collectionDiscount"]}% For Buying £"
+                        "${restaurantInfo["collectionMinimumAmountForDiscount"]}")
+                    : Text(
+                        "Discount ${restaurantInfo["deliveryDiscount"]}% For Buying £"
+                        "${restaurantInfo["deliveryMinimumAmountForDiscount"]}");
+              }),
+          SizedBox(height: 30,)
         ],
       ),
     ),
@@ -82,10 +96,10 @@ Widget endDrawer(BuildContext context, Map restaurantInfo) {
 Widget paymentMethodCards(String imgPath) {
   return Expanded(
       child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(image: AssetImage(imgPath), fit: BoxFit.contain),
-        ),
-      ));
+    decoration: BoxDecoration(
+      image: DecorationImage(image: AssetImage(imgPath), fit: BoxFit.contain),
+    ),
+  ));
 }
 
 void _showDialog(BuildContext context) {
@@ -101,14 +115,14 @@ void _showDialog(BuildContext context) {
             children: [
               TextSpan(
                 text:
-                'If you have an allergy that could harm your health or any other dietary requirements,we strongly advise you to ',
+                    'If you have an allergy that could harm your health or any other dietary requirements,we strongly advise you to ',
                 style: TextStyle(color: Colors.black),
               ),
               TextSpan(
                 text:
-                'contact the restaurant directly before you place your order',
+                    'contact the restaurant directly before you place your order',
                 style:
-                TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               TextSpan(
                 text: '.',
@@ -143,51 +157,61 @@ class EndDrawerRadioButton extends StatefulWidget {
 }
 
 class _EndDrawerRadioButtonState extends State<EndDrawerRadioButton> {
-
   Widget build(BuildContext context) {
     return StreamBuilder<Object>(
         stream: manageStatesBloc.currentOrderModel$,
         builder: (context, snapshot) {
           return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Row(
+              widget.restaurantInfo['collectionOption']==true
+                  ?Row(
                 children: <Widget>[
                   Radio(
                     value: WayToServe.COLLECTION,
                     groupValue: wayToServeValue,
                     onChanged: (WayToServe value) {
-                      OrderModel orderModel = manageStatesBloc.changeOrderModel();
+                      OrderModel orderModel =
+                          manageStatesBloc.changeOrderModel();
                       orderModel.deliveryStatus = false;
                       orderModel.collectionStatus = true;
                       manageStatesBloc.setModel(orderModel);
                       setState(() {
                         wayToServeValue = value;
+                        manageStatesBloc.rebuildCart();
                       });
                     },
                   ),
-                  Text(
-                      'Collection\n${widget.restaurantInfo['collectionTime']}',style: TextStyle(fontWeight: FontWeight.w700)),
+                  Text('Collection\n${widget.restaurantInfo ['collectionTime']}',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
                 ],
-              ),
-              Row(
+              )
+              :Container(),
+              widget.restaurantInfo['deliveryOption']==true
+                  ?Row(
                 children: <Widget>[
                   Radio(
                     value: WayToServe.DELIVERY,
                     groupValue: wayToServeValue,
                     onChanged: (WayToServe value) {
-                      OrderModel orderModel = manageStatesBloc.changeOrderModel();
+                      OrderModel orderModel =
+                          manageStatesBloc.changeOrderModel();
                       orderModel.deliveryStatus = true;
                       orderModel.collectionStatus = false;
                       manageStatesBloc.setModel(orderModel);
                       setState(() {
                         wayToServeValue = value;
+                        manageStatesBloc.rebuildCart();
                       });
                     },
                   ),
-                  Text('Delivery\n${widget.restaurantInfo['deliveryTime']}',style: TextStyle(fontWeight: FontWeight.w700),),
+                  Text(
+                    'Delivery\n${widget.restaurantInfo['deliveryTime']}',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ],
               )
+                  :Container()
             ],
           );
         });

@@ -10,7 +10,7 @@ import 'package:haweli/ui/terms_and_condition.dart';
 Widget mainView(BuildContext context, data,Map restaurantInfo) {
   switch (data) {
     case WidgetMarker.menu:
-      return homeScreenNetworkCall(restaurantInfo);
+      return homeScreenNetworkCall(context,restaurantInfo);
     case WidgetMarker.reservation:
       //return Reservation();
       return RefundPolicy();
@@ -23,16 +23,7 @@ Widget mainView(BuildContext context, data,Map restaurantInfo) {
     case WidgetMarker.forgotPassword:
       return ForgotPassword();
     case WidgetMarker.checkout:
-      return Checkout();
+      return Checkout(restaurantInfo);
   }
-
-  return homeScreenNetworkCall(restaurantInfo);
-}
-
-class M extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return null;
-  }
+  return homeScreenNetworkCall(context,restaurantInfo);
 }

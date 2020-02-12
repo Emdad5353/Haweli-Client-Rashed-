@@ -22,7 +22,7 @@ showLoginAndRegisterDialog(BuildContext context,Map restaurantInfo, [OrderModel 
           ],
         ),
       ),
-      content: ProfileDialog(restaurantInfo)
+      content: ProfileDialog(context,restaurantInfo)
   );
 
   // show the dialog
@@ -40,7 +40,8 @@ showLoginAndRegisterDialog(BuildContext context,Map restaurantInfo, [OrderModel 
 
 class ProfileDialog extends StatefulWidget {
   Map restaurantInfo;
-  ProfileDialog(this.restaurantInfo);
+  final BuildContext mainContext;
+  ProfileDialog(this.mainContext,this.restaurantInfo);
 
   @override
   State<StatefulWidget> createState() {
@@ -97,7 +98,7 @@ class ProfileDialogState extends State<ProfileDialog> {
         children: <Widget>[
           Divider(height: 2,),
           Container(
-            child:  SignInForm(restaurantInfo)
+            child:  SignInForm(widget.mainContext,restaurantInfo)
           ),
         ],
       ),

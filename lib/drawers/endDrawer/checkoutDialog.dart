@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe_payment/flutter_stripe_payment.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -169,11 +168,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['flatNo'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Flat No', hintText: 'Flat No'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Flat No';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Flat No';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           flatNo = value;
@@ -189,11 +188,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['buildingName'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Building Name', hintText: 'Building Name'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Building Name';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Building Name';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           buildingName = value;
@@ -209,11 +208,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['roadNo'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Road No', hintText: 'Road No'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Road Name';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Road Name';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           roadName = value;
@@ -229,11 +228,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       initialValue: orderModel.address['town'],
       decoration:
           InputDecoration(isDense: true, labelText: 'Town', hintText: 'Town'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Town';
-        }
-      },
+//      validator: (value) {
+//        if (value.isEmpty) {
+//          return 'Enter Town';
+//        }
+//      },
       onSaved: (value) {
         setState(() {
           town = value;
@@ -246,7 +245,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     ));
 
     formWidget.add(new TextFormField(
-      initialValue: orderModel.address['postcode'],
+      initialValue: orderModel.address['postCode'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Post Code', hintText: 'Post Code'),
       validator: (value) {
@@ -297,11 +296,23 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       print(result.data);
     }
 
-    formWidget.add(RaisedButton(
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        child: Text('PROCEED'),
-        onPressed: () async {
+    formWidget.add(GestureDetector(
+        child: Card(
+          margin: EdgeInsets.only(top: 8,bottom: 15),
+          color: Theme.of(context).primaryColor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Center(
+              child: Text(
+                'PROCEED',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0),
+              ),
+            ),
+          ),
+        ),
+        onTap: () async {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
             Map<String, dynamic> address = AddressModel(
@@ -352,7 +363,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                   .createOrder(),
               variables: {
                 "OrderModel":
-                orderData.toJson()
+                orderData.toJson(),
+                "paymentMethod": "Cash"
               }));
       if (!createOrderMutation
           .hasErrors) {
@@ -367,10 +379,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
         }
 
         var cartData = await CartDB().allCart();
-        manageStatesBloc.initialValue(cartData.length);
 //        setState(() {
 //          myfunc();
 //        });
+        manageStatesBloc.initialValue(cartData.length);
+
       } else {
         var error =
             createOrderMutation.errors;
@@ -378,7 +391,9 @@ class CheckoutDialogState extends State<CheckoutDialog> {
             "Error =============== > $error");
       }
       //endregion
-    } else {
+    }
+    else {
+      print('-----------------------${pr.isShowing()}---------------------------------------------------->');
       FlutterStripePayment.setStripeSettings(
           "pk_test_71kZorZg8l0mwGd2hPGrUAQY00dEMYAZdE");
       var paymentResponse =
@@ -458,7 +473,8 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                           .createOrder(),
                       variables: {
                         "OrderModel":
-                        orderData.toJson()
+                        orderData.toJson(),
+                        "paymentMethod": "Cash"
                       }));
               if (!createOrderMutation
                   .hasErrors) {
@@ -474,10 +490,11 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                       cartData.id);
                 }
                 var cartData = await CartDB().allCart();
-                manageStatesBloc.initialValue(cartData.length);
 //                setState(() {
 //                  myfunc();
 //                });
+                manageStatesBloc.initialValue(cartData.length);
+
               } else {
                 var error =
                     createOrderMutation

@@ -6,9 +6,9 @@ import 'package:haweli/drawers/endDrawer/end_drawer.dart';
 import 'package:haweli/drawers/mainDrawer.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/menu/commonWidgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:haweli/utils/loader_cubeGrid.dart';
 
-Widget homeScreenNetworkCall(Map restaurantInfo) {
+Widget homeScreenNetworkCall(context,Map restaurantInfo) {
   return Query(
     options: QueryOptions(
       document: bodyQuery,
@@ -19,7 +19,7 @@ Widget homeScreenNetworkCall(Map restaurantInfo) {
         return Text(menuListQueryResult.errors.toString());
       }
       if (menuListQueryResult.loading) {
-        return Center(child: CircularProgressIndicator());
+        return Center(child: SpinKitPulse(color: Theme.of(context).primaryColor,));
       }
       if (menuListQueryResult.data == null) {
         return Container(
@@ -137,6 +137,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
                                     print("Snap============>$snap");
                                     print("Cart==============> $cart");
+
                                     return Padding(
                                         padding: EdgeInsets.only(
                                             bottom: 27, left: 17),
@@ -159,9 +160,9 @@ class _MenuScreenState extends State<MenuScreen> {
 //            ),
           ],
         ),
-        drawer: mainDrawer(),
+        drawer: mainDrawer(context),
         endDrawer: Drawer(
-          child: endDrawer(context, widget.restaurantInfo),
+              child: endDrawer(context, widget.restaurantInfo),
         ),
         body: Container(
           child: Column(
@@ -221,6 +222,7 @@ class _MenuScreenState extends State<MenuScreen> {
             padding: EdgeInsets.only(top: 15, left: 15, right: 15),
             itemBuilder: (BuildContext context, int index) {
               if (items[index]['groupId']['_id'] == snap.data) {
+                print('All items===================================>${items.toString()}');
                 return Column(
                   children: <Widget>[
                     Container(
@@ -243,7 +245,8 @@ class _MenuScreenState extends State<MenuScreen> {
                           ],
                         )),
                     Divider(
-                      thickness: 1,
+                      height: 2,
+                      //thickness: 1,
                     )
                   ],
                 );
@@ -270,7 +273,8 @@ class _MenuScreenState extends State<MenuScreen> {
                           ],
                         )),
                     Divider(
-                      thickness: 1,
+                      height: 2,
+                      //thickness: 1,
                     )
                   ],
                 );

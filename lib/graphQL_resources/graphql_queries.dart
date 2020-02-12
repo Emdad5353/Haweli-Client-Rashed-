@@ -37,8 +37,8 @@ class QueryMutation {
 
   String createOrder() {
     return r"""
-                    mutation CreateOrder($OrderModel: OrderInput){
-                      CreateOrder(orderInput: $OrderModel){
+                    mutation CreateOrder($OrderModel: OrderInput, $paymentMethod: String){
+                      CreateOrder(orderInput: $OrderModel, , paymentMethod: $paymentMethod){
                      
                         id
                         status
@@ -69,6 +69,7 @@ class QueryMutation {
       }
       name
       price
+      excludeDiscount
       modifierLevels{
         levelTitle,
       }
@@ -181,7 +182,7 @@ final String guestInfoQuery =r"""
 
 //--------------------------------------Mutation SignIn Group----------------------------------------
 final String mutationSignInQuery = r"""
-                    mutation insert ($email:String!,$password:String!){
+                    mutation userLogin ($email:String!,$password:String!){
                       userLogin(email:$email, password:$password){
                         id
                         jwt
@@ -190,6 +191,7 @@ final String mutationSignInQuery = r"""
                         name
                         email
                         phoneno
+                        msg
                       }
                     }
                   """;
@@ -211,6 +213,7 @@ final String mutationQuery = r"""
                             password,
                             phoneno,
                             jwt
+    												msg
                           }
                         }
                   """;

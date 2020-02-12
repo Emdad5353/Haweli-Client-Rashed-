@@ -9,9 +9,10 @@ class Foods {
   final int qty;
   final String foodType;
   final double discount;
+  final dynamic discountExclude;
 
   Foods(this.name, this.foodId, this.price, this.qty, this.discount,
-      this.foodType);
+      this.foodType, this.discountExclude);
 
   Map<String, dynamic> toMap() {
     return {
@@ -21,7 +22,8 @@ class Foods {
       'price': price,
       'qty': qty,
       'foodType': foodType,
-      'discount': discount
+      'discount': discount,
+      'discountExclude': discountExclude
     };
   }
 
@@ -32,7 +34,8 @@ class Foods {
       'price': price,
       'qty': qty,
       'foodType': foodType,
-      'discount': discount
+      'discount': discount,
+      'discountExclude': discountExclude
     };
   }
 
@@ -43,7 +46,9 @@ class Foods {
         double.parse(json["price"]),
         int.parse(json["qty"]),
         double.parse(json["discount"]),
-        json['foodType']);
+        json['foodType'],
+        json['discountExclude']
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -52,12 +57,14 @@ class Foods {
         'price': price,
         'qty': qty,
         'discount': discount,
-        'modifiers': modifiers
+        'modifiers': modifiers,
+        'discountExclude': discountExclude
+
       };
 
   @override
   String toString() {
     return 'Foods{id: $id, name: $name, foodId: $foodId, price: $price, qty: $qty, discount: $discount,'
-        ' modifier: $modifiers, foodType: $foodType}';
+        ' modifier: $modifiers, foodType: $foodType, discountExclude: $discountExclude  }';
   }
 }

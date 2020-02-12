@@ -54,6 +54,7 @@ class CartState extends State<Cart> {
     List<Map> foodItemList = [];
     List<Map> subFoodItemList = [];
 
+    double excludeDiscountAmount = 0;
     var itemsWidgets = List<Widget>();
     double total = 0;
     var foodItem = [];
@@ -61,7 +62,9 @@ class CartState extends State<Cart> {
     if (cart == null) {
       return Container();
     }
+
     for (var item in cart) {
+      print("Items===================>$item");
       if (item.foodType == "MainItem") {
         List<String> modifierId = [];
         for (var modifiersId in item.modifiers) {
@@ -79,6 +82,10 @@ class CartState extends State<Cart> {
         subFoodItemModel =
             SubFoodItemModel(item.foodId, modifierId, item.qty).toJson();
         subFoodItemList.add(subFoodItemModel);
+      }
+      if(item.discountExclude == 1){
+        excludeDiscountAmount += item.price;
+        print("ExcludedDiscount============> $excludeDiscountAmount");
       }
       total += item.price;
       for (var modifier in item.modifiers) {
@@ -124,7 +131,7 @@ class CartState extends State<Cart> {
 //                            print(item.qty);
                             var qty = item.qty - 1;
                             print(qty);
-                            Foods foods = Foods(item.name, item.foodId, item.price - (item.price/(item.qty)), item.qty - 1, item.discount, item.foodType);
+                            Foods foods = Foods(item.name, item.foodId, item.price - (item.price/(item.qty)), item.qty - 1, item.discount, item.foodType, item.discountExclude);
                             FoodDB().updateFood(foods);
                           }
                           print("Hello");
@@ -181,7 +188,38 @@ class CartState extends State<Cart> {
     }
     total = num.parse(total.toStringAsFixed(2));
 
+    double discountAmount;
+    double minimumAmount;
+    String discountType;
+
+    if(wayToServeValue == WayToServe.COLLECTION){
+      var test = widget.restaurantInfo["collectionDiscount"].toDouble();
+      print(test.runtimeType);
+      print("Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
+      discountAmount = widget.restaurantInfo["collectionDiscount"].toDouble();
+      discountType = "Collection";
+      minimumAmount = widget.restaurantInfo["collectionMinimumAmountForDiscount"].toDouble();
+    }else{
+      discountType = "Collection";
+      discountAmount = widget.restaurantInfo["deliveryDiscount"].toDouble();
+      minimumAmount = widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
+    }
+    bool isDiscount = false;
+    double discount = 0;
+    double discountedTotal = total;
+    if(total >= minimumAmount){
+      isDiscount = true;
+      double discountOnTotal = total - excludeDiscountAmount;
+      discount = (discountOnTotal/100)*discountAmount;
+    }
+    discount = num.parse(discount.toStringAsFixed(2));
+    discountedTotal = total - discount;
+    discountedTotal = num.parse(discountedTotal.toStringAsFixed(2));
+    print(widget.restaurantInfo);
     print("Cart: ${cart.length.toString()}");
+    print("Discount==========>: ${discount.toString()}");
+    print("Discount==========>: $excludeDiscountAmount");
+
     return Column(
       children: <Widget>[
         Padding(
@@ -194,7 +232,8 @@ class CartState extends State<Cart> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
           child: Divider(
-            thickness: 1,
+            height: 2,
+            //thickness: 1,
           ),
         ),
         Align(
@@ -208,7 +247,41 @@ class CartState extends State<Cart> {
                 ),
                 SizedBox(
                   width: 20,
-                )
+                ),
+              ],
+            )),
+        Padding(
+          padding: EdgeInsets.only(bottom: 10.0),
+        ),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Discount: £$discount',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+              ],
+            )),
+        Padding(
+          padding: EdgeInsets.only(bottom: 10.0),
+        ),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Final Total: £$discountedTotal',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
               ],
             )),
         SizedBox(
@@ -245,8 +318,9 @@ class CartState extends State<Cart> {
                     }
                     print(
                         "Saved Data==================================>$addressJson");
+
                     OrderModel orderModel = OrderModel(foodItemList,
-                        subFoodItemList, addressJson, total, 0, false, false);
+                        subFoodItemList, addressJson, total, 0, false, false, isDiscount, discountType, discount);
                     print(
                         "OrderModelFinal+========================================>$orderModel");
                     //deliveryAddressDialog(context, orderModel);
@@ -282,19 +356,7 @@ class CartState extends State<Cart> {
                 style: TextStyle(color: Colors.red),
               )
             : Container(),
-        SizedBox(
-          height: 20,
-        ),
-//        RaisedButton(
-//          color: Theme.of(context).primaryColor,
-//          child: Text(
-//            'CHECKOUT £$total',
-//            style: TextStyle(color: Colors.white),
-//          ),
-//          onPressed: () {
-//            print(CheckoutDialogState().postCode);
-//          },
-//        )
+
       ],
     );
   }

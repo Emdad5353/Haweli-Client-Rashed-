@@ -4,34 +4,35 @@ import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main_ui.dart';
 
 
-showRegisterDialog(BuildContext context, [OrderModel orderModel]) {
+showRegisterDialog(BuildContext mainContext, [OrderModel orderModel]) {
   AlertDialog alert = AlertDialog(
     //backgroundColor: Theme.of(context).primaryColor,
       titlePadding: EdgeInsets.all(0),
       contentPadding: EdgeInsets.all(0),
       title: Container(
         padding: EdgeInsets.only(left: 10),
-        color: Theme.of(context).primaryColor ,
+        color: Theme.of(mainContext).primaryColor ,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text('Registration',style: TextStyle(color: Colors.white70),),
-            IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(context),)
+            IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(mainContext),)
           ],
         ),
       ),
-      content: SignUpForm()
+      content: SignUpForm(mainContext)
   );
 
   // show the dialog
   showDialog(
-    context: context,
+    context: mainContext,
     builder: (BuildContext context) {
       return alert;
     },
@@ -39,12 +40,18 @@ showRegisterDialog(BuildContext context, [OrderModel orderModel]) {
 }
 
 
+
+
 class SignUpForm extends StatefulWidget {
+  final BuildContext mainContext;
+
+  SignUpForm(this.mainContext);
   @override
   _SignUpFormState createState() => new _SignUpFormState();
 }
 
 class _SignUpFormState extends State<SignUpForm> {
+  ProgressDialog pr;
   final _formKey = GlobalKey<FormState>();
   var _passKey = GlobalKey<FormFieldState>();
   bool _termsChecked = true;
@@ -56,6 +63,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
+    pr = new ProgressDialog(context);
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: GraphQLProvider(
@@ -78,15 +86,25 @@ class _SignUpFormState extends State<SignUpForm> {
               );
             },
             onCompleted: (result) async {
-              final SharedPreferences prefs = await SharedPreferences.getInstance();
-              Scaffold.of(context).showSnackBar(SnackBar(content: Text('Sucessfully SignedUp')));
-              manageStatesBloc.changeCurrentLoginStatus(true);
-              print(result);
-              print(result['userSignUp']['email']);
-              if(await prefs.get("checkoutButtonPressed") =='pressed'){
-                manageStatesBloc.changeViewSection(WidgetMarker.checkout);
-              }
-              Navigator.of(context).pop();
+              if(result['userSignUp']['jwt']!=null){
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString('id', result['userSignUp']['id']);
+                prefs.setString('jwt', result['userSignUp']['jwt']);
+                prefs.setString('name', result['userSignUp']['name']);
+                prefs.setString('email', result['userSignUp']['email']);
+                prefs.setString('phoneno', result['userSignUp']['phoneno']);
+
+                Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('Signed up successfully')));
+                manageStatesBloc.changeCurrentLoginStatus(true);
+                print('signUp:------------------------>$result');
+                print(result['userSignUp']['email']);
+                if(await prefs.get("checkoutButtonPressed") =='pressed'){
+                  manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+                }
+                Navigator.of(widget.mainContext, rootNavigator: true).pop();
+              }else {Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('${result['userSignUp']['msg']}')));}
+
+              if(pr.isShowing()) pr.hide();
             },
           ),
         ),
@@ -137,6 +155,11 @@ class _SignUpFormState extends State<SignUpForm> {
             if (value.isEmpty) return 'Enter password';
             if (value.length < 6)
               return 'Password should be more than 6 characters';
+            else {
+              setState(() {
+                _password=value;
+              });
+            }
           }),
     );
 
@@ -203,6 +226,7 @@ class _SignUpFormState extends State<SignUpForm> {
     void onPressedSubmit() {
       if (_formKey.currentState.validate() && _termsChecked) {
         _formKey.currentState.save();
+        pr.show();
         insert(<String,dynamic>{
           "name": "$_name",
           "email": _email,

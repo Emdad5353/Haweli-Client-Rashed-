@@ -16,6 +16,7 @@ Widget mainItemWithSubItem(
     BuildContext context, Map mainItems, List subItems) {
   var subItemsWidgets = List<Widget>();
   for (var subItem in subItems) {
+    print("SubItems===================> $subItem");
     subItemsWidgets.add(Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -47,14 +48,15 @@ Widget mainItemWithSubItem(
                               print("Discount $discount");
 
                               if (subFood == null) {
-                                print("Testin");
+                                print("Testin============> $subItem");
                                 var subFoodData = Foods(
                                     subItem['name'],
                                     subItem['_id'],
                                     subItem['price'].toDouble(),
                                     1,
                                     discount,
-                                    'SubItem');
+                                    'SubItem',
+                                    subItem['excludeDiscount']);
 
                                 await FoodDB().insertFood(subFoodData);
 
@@ -68,13 +70,15 @@ Widget mainItemWithSubItem(
                                 manageStatesBloc.rebuildByValue();
                               } else {
                                 print('tesout');
+                                print("Testin============> $subItem");
                                 var subFoodData = Foods(
                                     subFood.name,
                                     subFood.foodId,
                                     subFood.price + subItem['price'].toDouble(),
                                     subFood.qty + 1,
                                     subFood.discount + discount,
-                                    'subItem');
+                                    'subItem',
+                                    subFood.discountExclude);
                                 subFoodData.id = subFood.id;
                                 print(subFoodData);
                                 await FoodDB().updateFood(subFoodData);
@@ -171,8 +175,9 @@ Widget mainItemWithNoSubItemNoModifier(BuildContext context, Map mainItems) {
 
                       if (food == null) {
                         print("Test");
+                        print("Testin============> $mainItems");
                         var foodData = Foods(mainItems['name'], mainItems['_id'],
-                            mainItems['price'].toDouble(), 1, discount, 'MainItem');
+                            mainItems['price'].toDouble(), 1, discount, 'MainItem', mainItems["excludeDiscount"]);
 
                         await FoodDB().insertFood(foodData);
 
@@ -186,11 +191,13 @@ Widget mainItemWithNoSubItemNoModifier(BuildContext context, Map mainItems) {
                        // manageStatesBloc.rebuildByValue();
                       } else {
                         print('Test2----------------------------');
+                        print("Testin============> $food");
                         var foodData = Foods(food.name, food.foodId,
                             food.price + mainItems['price'].toDouble(),
                             food.qty + 1,
                             food.discount + discount,
-                            'MainItem');
+                            'MainItem',
+                        food.discountExclude);
                         print("Fooods: $foodData");
                         await FoodDB().updateFood(foodData);
                         var cartInput = {

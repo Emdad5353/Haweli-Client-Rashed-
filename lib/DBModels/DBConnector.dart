@@ -14,7 +14,7 @@ class DBConnector {
       onCreate: (db, version) async {
         Batch batch = db.batch();
         batch.execute(
-            "CREATE TABLE foodItem(id INTEGER PRIMARY KEY, foodId STRING, name TEXT, price FLOAT, qty INTEGER, foodType TEXT, discount FLOAT)");
+            "CREATE TABLE foodItem(id INTEGER PRIMARY KEY, foodId STRING, name TEXT, price FLOAT, qty INTEGER, foodType TEXT, discount FLOAT, discountExclude INT)");
         batch.execute(
             "CREATE TABLE modifiers(id INTEGER PRIMARY KEY, foodId String, modifierId String, name TEXT, price FLOAT, qty INTEGER, discount FLOAT)");
         batch.execute(

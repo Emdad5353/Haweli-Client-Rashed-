@@ -1,6 +1,4 @@
-import 'dart:core' as prefix0;
 import 'dart:core';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe_payment/flutter_stripe_payment.dart';
@@ -13,13 +11,11 @@ import 'package:haweli/DBModels/models/SubFoodItemModel.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawers/endDrawer/cart.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
-import 'package:haweli/drawers/endDrawer/end_drawer.dart' as prefix1;
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/utils/commonTextWidgets.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../DBModels/CartDB.dart';
 import '../../graphQL_resources/graphql_client.dart';
 import '../../graphQL_resources/graphql_queries.dart';
@@ -30,6 +26,9 @@ ProgressDialog pr;
 OrderModel orderModel;
 
 class Checkout extends StatefulWidget {
+  Map restaurantInfo;
+  Checkout(this.restaurantInfo);
+
   @override
   State<StatefulWidget> createState() {
     return CheckoutState();
@@ -60,10 +59,18 @@ class CheckoutState extends State<Checkout> {
     _setSavedValues();
   }
 
+  double deliveryCharge = 0;
   myfunc() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     var cartData = await CartDB().allCart();
+    deliveryCharge = prefs.getDouble("deliveryCharge");
     setState(() {
       cart = cartData;
+      if(deliveryCharge != null){
+        deliveryCharge = deliveryCharge;
+      }else{
+        deliveryCharge = 0.0;
+      }
     });
   }
 
@@ -99,6 +106,7 @@ class CheckoutState extends State<Checkout> {
     double total = 0;
     var foodItem = [];
     var subFoodItem = [];
+    double excludeDiscountAmount = 0;
     if (cart == null) {
       return Container();
     }
@@ -120,6 +128,10 @@ class CheckoutState extends State<Checkout> {
         subFoodItemModel =
             SubFoodItemModel(item.foodId, modifierId, item.qty).toJson();
         subFoodItemList.add(subFoodItemModel);
+      }
+      if(item.discountExclude == 1){
+        excludeDiscountAmount += item.price;
+        print("ExcludedDiscount============> $excludeDiscountAmount");
       }
       total += item.price;
       for (var modifier in item.modifiers) {
@@ -154,6 +166,7 @@ class CheckoutState extends State<Checkout> {
                           FoodDB().deleteFood(item.id);
                           print("Hello");
                           setState(() {
+                            manageStatesBloc.rebuildByValueDec();
                             myfunc();
                           });
                         })
@@ -195,19 +208,198 @@ class CheckoutState extends State<Checkout> {
                         ),
                       ],
                     );
-                  })
+                  }),
+
           ],
         ),
+
       );
+
     }
+
+    double discountAmount;
+    double minimumAmount;
+    String discountType;
+
+    if(wayToServeValue == WayToServe.COLLECTION){
+      var test = widget.restaurantInfo["collectionDiscount"].toDouble();
+      print(test.runtimeType);
+      print("Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
+      discountAmount = widget.restaurantInfo["collectionDiscount"].toDouble();
+      discountType = "Collection";
+      minimumAmount = widget.restaurantInfo["collectionMinimumAmountForDiscount"].toDouble();
+    }else{
+      discountType = "Collection";
+      discountAmount = widget.restaurantInfo["deliveryDiscount"].toDouble();
+      minimumAmount = widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
+    }
+    bool isDiscount = false;
+    double discount = 0;
+    if(total >= minimumAmount){
+      isDiscount = true;
+      double discountOnTotal = total - excludeDiscountAmount;
+      discount = (discountOnTotal/100)*discountAmount;
+    }
+    discount = num.parse(discount.toStringAsFixed(2));
+    print(widget.restaurantInfo);
+    print("Cart: ${cart.length.toString()}");
+    print("Discount==========>: ${discount.toString()}");
+    print("Discount==========>: $excludeDiscountAmount");
+
+    total += deliveryCharge;
+    double finalTotal = total - discount;
+    finalTotal = num.parse(finalTotal.toStringAsFixed(2));
+
+    total = num.parse(total.toStringAsFixed(2));
+
+
+    Widget deliveryChargeWidget = Align(
+        alignment: Alignment.centerRight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Text(
+              'Delivery Charge: £$deliveryCharge',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              width: 20,
+            )
+          ],
+        ));
+
+    if(wayToServeValue == WayToServe.DELIVERY){
+      itemsWidgets.add(deliveryChargeWidget);
+    }else{
+      itemsWidgets.add(Container());
+    }
+
+
+    itemsWidgets.add(
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(
+                height: 2,
+                //thickness: 1,
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(
+                height: 2,
+                //thickness: 1,
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(
+                height: 2,
+                //thickness: 1,
+              ),
+            ),
+            Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text(
+                      'Total: £$total',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    )
+                  ],
+                )),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(
+                height: 2,
+                //thickness: 1,
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(
+                height: 2,
+                //thickness: 1,
+              ),
+            ),
+            Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text(
+                      'Discount: £$discount',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    )
+                  ],
+                )),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(
+                height: 2,
+                //thickness: 1,
+              ),
+            ),
+          ],
+        )
+    );
+
+
+
+    itemsWidgets.add(
+      Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Divider(
+              height: 2,
+              //thickness: 1,
+            ),
+          ),
+          Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text(
+                    'Final Total: £$finalTotal',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  )
+                ],
+              )),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Divider(
+              height: 2,
+              //thickness: 1,
+            ),
+          ),
+        ],
+      )
+    );
+
     print("Data Here");
     return StreamBuilder<Object>(
         stream: manageStatesBloc.currentOrderModel$,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text("Waiting");
+            return Container(child: Center(child: CircularProgressIndicator(),),);
           } else if (snapshot.connectionState == ConnectionState.none) {
-            return Container();
+            return Container(child: Center(child: CircularProgressIndicator(),),);;
           } else {
             print(
                 "StreamBuilderOrderModel==============================>${snapshot.data}");
@@ -243,34 +435,43 @@ class CheckoutState extends State<Checkout> {
                           builder: (context, snapshot) {
                             print("SnapShotOrdrModel: ${snapshot.data}");
                             OrderModel orderModel = snapshot.data;
-                            print(orderModel.address);
+//                            print(orderModel.address);
                             return Column(
                               children: <Widget>[
                                 GestureDetector(
                                   child: Card(
                                     margin: EdgeInsets.all(6),
-                                    color: Theme.of(context).primaryColor,
+                                    color: total < widget.restaurantInfo['minimumOrderPrice']
+                                        ?Colors.grey
+                                        :Theme.of(context).primaryColor,
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Center(
                                         child: Text(
                                           'PLACE ORDER',
                                           style: TextStyle(
+                                            fontWeight: FontWeight.w600,
                                               color: Colors.white,
                                               fontSize: 20.0),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  onTap: () async {
+                                  onTap: total < widget.restaurantInfo['minimumOrderPrice']
+                            ? null
+                                : () async {
+                                    if(pr.isShowing()) pr.hide();
                                     if(wayToServeValue == WayToServe.COLLECTION){
                                       normalOrder(snapshot.data);
                                     }else{
-                                      deliveryAddressDialog(context, orderModel);
+                                      deliveryAddressDialog(context, snapshot.data);
                                     }
 
                                   },
                                 ),
+                                total < widget.restaurantInfo['minimumOrderPrice']
+                                ?Text('Minimum delivery order £${widget.restaurantInfo['minimumOrderPrice']}',style: TextStyle(color: Colors.red),)
+                                    :Container()
                               ],
                             );
                           }),
@@ -313,11 +514,11 @@ class CheckoutState extends State<Checkout> {
     OrderModel orderData = orderModel;
     QueryMutation queryMutation =
     QueryMutation();
-    print(
-        "OrderDataBloc=======================> $orderData");
+    print("OrderDataBloc=======================> $orderData");
 
     if (paymentMethodValue ==
         PaymentMethod.Cash) {
+      print('normal order:cash------------------------------------------------->');
       pr.show();
       //region CashOrder
       //Cash Order
@@ -328,7 +529,8 @@ class CheckoutState extends State<Checkout> {
                   .createOrder(),
               variables: {
                 "OrderModel":
-                orderData.toJson()
+                orderData.toJson(),
+                "paymentMethod": "Cash"
               }));
       if (!createOrderMutation
           .hasErrors) {
@@ -344,9 +546,9 @@ class CheckoutState extends State<Checkout> {
         // region recentEdited_emdad//
         manageStatesBloc.initialValue(0);
         // endregion
-//        setState(() {
-//          myfunc();
-//        });
+        setState(() {
+          myfunc();
+        });
       } else {
         var error =
             createOrderMutation.errors;
@@ -355,9 +557,10 @@ class CheckoutState extends State<Checkout> {
       }
       //endregion
     } else {
-      pr.show();
+      print('normal order:card------------------------------------------------->');
+      //pr.show();
       FlutterStripePayment.setStripeSettings(
-          "pk_test_71kZorZg8l0mwGd2hPGrUAQY00dEMYAZdE");
+          widget.restaurantInfo["stripeSetting"]["privateKey"]);
       var paymentResponse =
           await FlutterStripePayment
           .addPaymentMethod();
@@ -399,7 +602,7 @@ class CheckoutState extends State<Checkout> {
               "PaymentData=========>$payment");
 
           if (clientSecret != null) {
-            pr.show();
+            //pr.show();
             var intentResponse =
                 await FlutterStripePayment
                 .confirmPaymentIntent(
@@ -424,7 +627,7 @@ class CheckoutState extends State<Checkout> {
             print(
                 "Intent=======================> $paymentIntentId");
             if (errorMessage == null) {
-              pr.show();
+              //pr.show();
               print("Helloooooooooo");
               print(
                   "OrderData=======================> $orderData");
@@ -437,11 +640,12 @@ class CheckoutState extends State<Checkout> {
                           .createOrder(),
                       variables: {
                         "OrderModel":
-                        orderData.toJson()
+                        orderData.toJson(),
+                        "paymentMethod": "Card"
                       }));
               if (!createOrderMutation
                   .hasErrors) {
-                pr.show();
+                //pr.show();
                 var orderPay =
                     createOrderMutation
                         .data;
@@ -457,9 +661,9 @@ class CheckoutState extends State<Checkout> {
                 manageStatesBloc.initialValue(0);
                 // endregion
 
-//                setState(() {
-//                  myfunc();
-//                });
+                setState(() {
+                  myfunc();
+                });
               } else {
                 var error =
                     createOrderMutation
@@ -480,10 +684,10 @@ class CheckoutState extends State<Checkout> {
         }
       }
     }
-
+    print('uuuuuuuu------------------------------------------------->');
     //Payment
     if (pr.isShowing()) {
-
+      print('normal order:outside------------------------------------------------->');
       manageStatesBloc.changeViewSection(
           WidgetMarker.menu);
       pr.hide();
@@ -526,7 +730,8 @@ class CheckoutState extends State<Checkout> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Divider(
-                      thickness: 1,
+                      height: 2,
+                      //thickness: 1,
                     ),
 
 //                    name!=null?Text(name):Container(),
@@ -554,7 +759,8 @@ class CheckoutState extends State<Checkout> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Divider(
-                                thickness: 1,
+                                height: 2,
+                                //thickness: 1,
                               ),
                               checkoutEndDrawerDetailsText('House no:  ' +
                                       orderModel.address['houseNo'] ??
@@ -612,29 +818,36 @@ class _PaymentMethodRadioButtonState extends State<PaymentMethodRadioButton> {
             textAlign: TextAlign.center,
           ),
         ),
-        Expanded(
-          child: RadioListTile(
-            title: const Text('Cash'),
-            value: PaymentMethod.Cash,
-            groupValue: paymentMethodValue,
-            onChanged: (PaymentMethod value) {
-              setState(() {
-                paymentMethodValue = value;
-              });
-            },
-          ),
+        Row(
+          children: <Widget>[
+            Radio(
+              //title: const Text('Cash'),
+              value: PaymentMethod.Cash,
+              groupValue: paymentMethodValue,
+              onChanged: (PaymentMethod value) {
+                setState(() {
+                  paymentMethodValue = value;
+                });
+              },
+            ),
+            Text('Cash',style: TextStyle(fontWeight: FontWeight.w700),),
+          ],
         ),
-        Expanded(
-            child: RadioListTile(
-          title: const Text('Card'),
-          value: PaymentMethod.Card,
-          groupValue: paymentMethodValue,
-          onChanged: (PaymentMethod value) {
-            setState(() {
-              paymentMethodValue = value;
-            });
-          },
-        )),
+        Row(
+          children: <Widget>[
+            Radio(
+              //title: const Text('Card'),
+              value: PaymentMethod.Card,
+              groupValue: paymentMethodValue,
+              onChanged: (PaymentMethod value) {
+                setState(() {
+                  paymentMethodValue = value;
+                });
+              },
+            ),
+            Text('Card',style: TextStyle(fontWeight: FontWeight.w700),),
+          ],
+        )
       ],
     );
   }

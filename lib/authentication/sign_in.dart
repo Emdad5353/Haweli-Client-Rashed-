@@ -9,19 +9,22 @@ import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/authentication/validator.dart';
 import 'package:haweli/authentication/models/user.dart';
 import 'package:haweli/main_ui.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInForm extends StatefulWidget {
+  final BuildContext mainContext;
   final UserPageState userPageState;
   final Map restaurantInfo;
-  const SignInForm(this.restaurantInfo, {Key key, this.userPageState}) : super(key: key);
+  const SignInForm(this.mainContext,this.restaurantInfo, {Key key, this.userPageState}) : super(key: key);
 
   @override
   _SignInFormState createState() => new _SignInFormState();
 }
 
 class _SignInFormState extends State<SignInForm> {
-
+  ProgressDialog pr;
   GlobalKey<FormState> key = new GlobalKey();
   bool _validate = false;
 
@@ -32,6 +35,7 @@ class _SignInFormState extends State<SignInForm> {
 
   @override
   Widget build(BuildContext context) {
+    pr = new ProgressDialog(context);
     return GraphQLProvider(
       client: client,
       child: CacheProvider(
@@ -39,7 +43,7 @@ class _SignInFormState extends State<SignInForm> {
           options: MutationOptions(
             document: mutationSignInQuery,
           ),
-          builder: (RunMutation insert,QueryResult result){
+          builder: (RunMutation insert,QueryResult result,{ VoidCallback refetch, FetchMore fetchMore }){
             if (result.errors != null) {
               return Text(result.errors.toString());
             }
@@ -53,22 +57,29 @@ class _SignInFormState extends State<SignInForm> {
             );
           },
           onCompleted: (result) async {
+            print('userlogin:$result');
 
-            manageStatesBloc.changeCurrentLoginStatus(true);
+            if(result['userLogin']['jwt']!=null){
+              manageStatesBloc.changeCurrentLoginStatus(true);
 
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
-            prefs.setString('id', result['userLogin']['id']);
-            prefs.setString('jwt', result['userLogin']['jwt']);
-            prefs.setString('firstName', result['userLogin']['firstName']);
-            prefs.setString('lastName', result['userLogin']['lastName']);
-            prefs.setString('name', result['userLogin']['name']);
-            prefs.setString('email', result['userLogin']['email']);
-            prefs.setString('phoneno', result['userLogin']['phoneno']);
+              final SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('id', result['userLogin']['id']);
+              prefs.setString('jwt', result['userLogin']['jwt']);
+              prefs.setString('firstName', result['userLogin']['firstName']);
+              prefs.setString('lastName', result['userLogin']['lastName']);
+              prefs.setString('name', result['userLogin']['name']);
+              prefs.setString('email', result['userLogin']['email']);
+              prefs.setString('phoneno', result['userLogin']['phoneno']);
 
+              Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('Signed in successfully')));
+              if(await prefs.get("checkoutButtonPressed") =='pressed'){
+                manageStatesBloc.changeViewSection(WidgetMarker.checkout);
+              }
 
-            if(await prefs.get("checkoutButtonPressed") =='pressed'){
-              manageStatesBloc.changeViewSection(WidgetMarker.checkout);
-            }
+              Navigator.of(widget.mainContext, rootNavigator: true).pop();
+            }else{showToast('${result['userLogin']['msg']}');}
+
+            //Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('${result['userLogin']['msg']}')));
 
             setState(() {
 //              widget.userPageState.addItem(
@@ -81,8 +92,9 @@ class _SignInFormState extends State<SignInForm> {
 //                result['userLogin']['phoneno'],
 //              );
               HomePageState().isLoggedIn=true;
-              Navigator.of(context).pop();
+              //Navigator.of(context).pop();
             });
+            if(pr.isShowing()) pr.hide();
             print(result['userLogin']);
           },
         ),
@@ -106,7 +118,7 @@ class _SignInFormState extends State<SignInForm> {
         SizedBox(height: 20.0),
         TextFormField(
             decoration: new InputDecoration(icon: Icon(Icons.vpn_key),hintText: 'Password'),
-            keyboardType: TextInputType.visiblePassword,
+            //keyboardType: TextInputType.visiblePassword,
             obscureText: true,
             validator: validatePassword,
             controller: signInPasswordController,
@@ -129,13 +141,11 @@ class _SignInFormState extends State<SignInForm> {
         RaisedButton(
           color: Theme.of(context).primaryColor,
           onPressed: (){
-            if (key.currentState.validate()) {
-              key.currentState.save();
-              insert(<String,dynamic>{
-                "email": signInEmailController.text,
-                "password": signInPasswordController.text,
-              });
-             }
+            pr.show();
+            insert(<String,dynamic>{
+              "email": signInEmailController.text,
+              "password": signInPasswordController.text,
+            });
            },
           child: Text('SIGN IN',style: TextStyle(color: Colors.white),),
         ),
@@ -163,8 +173,9 @@ class _SignInFormState extends State<SignInForm> {
             Text('Don'+"'"+'t have an account?'),
             InkWell(
               onTap: () {
-                Navigator.pop(context);
-                showRegisterDialog(context,);
+                //Navigator.pop(context);
+                Navigator.of(context, rootNavigator: true).pop();
+                showRegisterDialog(widget.mainContext,);
               },
               child: Text("SignUp",
                 style: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).primaryColor),

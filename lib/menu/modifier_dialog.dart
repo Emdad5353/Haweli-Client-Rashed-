@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
@@ -72,7 +70,8 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                               subItem['price'].toDouble(),
                               1,
                               discount,
-                              'MainType');
+                              'MainType',
+                              subItem["excludeDiscount"]);
 
                           var lastId = await FoodDB().insertFood(foodData);
                           print("MainItemSelect=============> $selectedList");
@@ -97,7 +96,7 @@ showModifierDialog(BuildContext context, subItem, String itemType, itemObject) {
                               subItem['price'].toDouble(),
                               1,
                               discount,
-                              'SubItem');
+                              'SubItem', subItem["excludeDiscount"]);
 
                           var lastId = await FoodDB().insertFood(foodData);
                           print("SubItemSelect=============> $selectedList");
@@ -232,7 +231,8 @@ class ModifierDialogState extends State<ModifierDialog> with AutomaticKeepAliveC
                       ],
                     )),
                 Divider(
-                  thickness: 1,
+                   height: 2,
+                  //thickness: 1,
                 )
               ],
             );
@@ -311,7 +311,7 @@ class AddModifiersToCartState extends State<AddModifiersToCart> {
         } else {
           if (maxModifier <= testList.length) {
             print(value);
-            showToast("Max Modifier");
+            showToast("Can't select more than $maxModifier item");
             setState(() {
               value = false;
             });

@@ -38,13 +38,14 @@ class FoodDB {
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db.query('foodItem');
 
+    print(maps);
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
       print(maps[i]["id"]);
 
 
       var food = Foods(maps[i]['name'], maps[i]['foodId'], maps[i]['price'],
-          maps[i]['qty'], maps[i]['discount'], maps[i]['foodType']);
+          maps[i]['qty'], maps[i]['discount'], maps[i]['foodType'], maps[i]['discountExclude']);
       food.id = maps[i]["id"];
       return food;
     });
@@ -93,7 +94,7 @@ class FoodDB {
     var maps = await futureMaps;
     if (maps.length != 0) {
       return Foods(maps.first['name'], maps.first['foodId'],
-          maps.first['price'], maps.first['qty'], maps.first['discount'], maps.first['foodType']);
+          maps.first['price'], maps.first['qty'], maps.first['discount'], maps.first['foodType'], maps.first['discountExclude']);
     }
     return null;
   }

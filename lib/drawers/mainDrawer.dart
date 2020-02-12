@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
+import 'package:haweli/utils/loader_cubeGrid.dart';
 
-Widget mainDrawer() {
+Widget mainDrawer(context) {
   return Drawer(
     child: Query(
       options: QueryOptions(
@@ -19,7 +20,7 @@ Widget mainDrawer() {
           return Text(result.errors.toString());
         }
         if (result.loading) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: SpinKitPulse(color: Theme.of(context).primaryColor,));
         }
         if (result.data == null) {
           return Text("No Data Found !");

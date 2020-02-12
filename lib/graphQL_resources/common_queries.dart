@@ -3,7 +3,7 @@ import 'package:haweli/graphQL_resources/graphql_client.dart';
 
 Future<Map> restaurantInfo() async {
   QueryResult result =
-  await clientToQuery().query(QueryOptions(document: getRestaurantInfo));
+      await clientToQuery().query(QueryOptions(document: getRestaurantInfo));
   if (result.hasErrors) {
     print(result.errors);
   } else {
@@ -25,6 +25,12 @@ final String getRestaurantInfo = r"""
                         weekdayCloseTime,
                         minimumOrderPrice,
                         socialLogin,
+                        deliveryMinimumAmountForDiscount,
+                        collectionMinimumAmountForDiscount,
+                        deliveryOption,
+                        collectionOption,
+                        deliveryDiscount,
+                        collectionDiscount,
                         stripeSetting{
                         privateKey
                         }
@@ -32,10 +38,9 @@ final String getRestaurantInfo = r"""
                     }
                   """;
 
-
 Future<Map> restaurantLogoColorSplashDuration() async {
-  QueryResult result =
-  await clientToQuery().query(QueryOptions(document: getRestaurantLogoColorSplashDuration));
+  QueryResult result = await clientToQuery()
+      .query(QueryOptions(document: getRestaurantLogoColorSplashDuration));
   if (result.hasErrors) {
     print(result.errors);
   } else {

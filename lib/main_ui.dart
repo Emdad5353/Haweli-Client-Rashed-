@@ -4,6 +4,8 @@ import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/authentication/register_login_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'drawers/endDrawer/cart.dart';
+import 'drawers/endDrawer/end_drawer.dart';
 
 
 enum WidgetMarker {
@@ -28,10 +30,21 @@ class MainUIState extends State<MainUI> {
   WidgetMarker selectedWidgetMarker = WidgetMarker.termsAndCondition;
   bool showPreorderOnce=true;
 
+  @override
+  void initState() {
+    print('deliveryOption=${widget.restaurantInfo['deliveryOption']}   collectionOption=${widget.restaurantInfo['collectionOption']}');
+    if(widget.restaurantInfo['deliveryOption']==false && widget.restaurantInfo['collectionOption']==false)
+      wayToServeValue=null;
+    else if(widget.restaurantInfo['deliveryOption']== true && widget.restaurantInfo['collectionOption']==false)
+      wayToServeValue=WayToServe.DELIVERY;
+    else if(widget.restaurantInfo['deliveryOption']==false && widget.restaurantInfo['collectionOption']==true)
+      wayToServeValue=WayToServe.COLLECTION;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     String startTime = widget.restaurantInfo["weekdayOpeningTime"].toString();
     String closingTime = widget.restaurantInfo["weekdayCloseTime"];
     print("ResturantData==============> ${widget.restaurantInfo["weekdayOpeningTime"]}");
@@ -40,19 +53,6 @@ class MainUIState extends State<MainUI> {
     date = DateTime(now.year, now.month, now.day, date.hour, date.minute);
     print("Hour============> $now");
     print("Hour============> $date");
-    // saveRestaurantId(restaurantInfo.data["id"]);
-    //Where U see a Hello that mean restaurant is open. Where u see a bye that mean restuarant is closed.
-    // Code according that.............
-//    var status = now.isBefore(date);
-//    if(status){
-//      print("OPen");
-//
-//    }else{
-//      //print("Close");
-//      resturantCloseddDialog(context);
-//  //      resturantCloseddDialog(context);
-//    }
-
 
     return Scaffold(
 

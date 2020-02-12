@@ -4,15 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final HttpLink httpLink = HttpLink(
   uri: 'https://rashedapi.consoleit.io/',
-  //uri: http://18.141.25.176:3003/',
+  //uri: 'http://27.147.231.42:3003/',
+//  uri: 'http://192.168.16.102:3003/',
 );
 
 Future<String> getjwt() async{
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   //  await storageUser.ready;
   //  Map<String ,dynamic> user=await storageUser.getItem('userData');
-//  if(prefs.getString('jwt')==null){
+//  if(pr efs.getString('jwt')==null){
 //    // get guest user token
+//    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb25zb2xlSVQiLCJ1c2VyVHlwZSI6IkFkbWluIiwiaWQiOiI1ZGY3ZWIwZmQyNDdlMTQzNzQwY2Q2YzIiLCJpYXQiOjE1NzY1Mjg4NTcxNjIsImV4cCI6MTU3NjYxNTI1NzE2Mn0.mXdDLpx-EoNp9VZjDSt7EsePsL1XDj4wwrpUyWWZICY";
 //    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb25zb2xlSVQiLCJ1c2VyVHlwZSI6IkFkbWluIiwiaWQiOiI1ZGY3ZWIwZmQyNDdlMTQzNzQwY2Q2YzIiLCJpYXQiOjE1NzY1Mjg4NTcxNjIsImV4cCI6MTU3NjYxNTI1NzE2Mn0.mXdDLpx-EoNp9VZjDSt7EsePsL1XDj4wwrpUyWWZICY";
 //  }
 //  else{
