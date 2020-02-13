@@ -179,7 +179,8 @@ class _SignInFormState extends State<SignInForm> {
               },
               child: Text("SignUp",
                 style: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).primaryColor),
-              ),)
+              ),),
+            SizedBox(height: 50,)
           ],
         ),
       ],

@@ -290,7 +290,7 @@ class CartState extends State<Cart> {
         RaisedButton(
             color: Theme.of(context).primaryColor,
             child: Text(
-              'CHECKOUT £$total',
+              'CHECKOUT £$discountedTotal',
               style: TextStyle(color: Colors.white),
             ),
             onPressed: total < widget.restaurantInfo['minimumOrderPrice']

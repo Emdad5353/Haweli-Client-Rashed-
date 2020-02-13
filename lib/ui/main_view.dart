@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:haweli/drawers/endDrawer/checkout_page.dart';
+import 'package:haweli/drawers/endDrawer/address_page.dart';
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/menu/menu_screen.dart';
 import 'package:haweli/ui/contact_us.dart';

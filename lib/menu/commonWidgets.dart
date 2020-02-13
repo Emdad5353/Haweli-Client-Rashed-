@@ -277,13 +277,9 @@ Widget priceAndAddToCartButtonForModifier(
 void showDefaultSnackbar(BuildContext context, String message) {
   Scaffold.of(context).showSnackBar(
     SnackBar(
-      backgroundColor: Colors.red,
-      content: Text(message),
+      backgroundColor: Colors.green,
+      content: Text(message,textAlign: TextAlign.center,),
       duration: Duration(milliseconds: 500),
-      action: SnackBarAction(
-        label: 'Click Me',
-        onPressed: () {},
-      ),
     ),
   );
 }

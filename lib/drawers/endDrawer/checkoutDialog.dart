@@ -14,7 +14,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'checkout_page.dart';
+import 'address_page.dart';
 
 ProgressDialog pr;
 
@@ -118,7 +118,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     print('==========address======================>${widget.orderModel.address}<=================================');
     print('==========postcode======================>${widget.orderModel.postcode}<=================================');
     return Container(
-        height: MediaQuery.of(context).size.height * 0.6,
+        height: MediaQuery.of(context).size.height * 0.64,
         padding: EdgeInsets.symmetric(horizontal: 10),
         child: Form(
             key: _formKey,

@@ -512,6 +512,8 @@ class CheckoutState extends State<Checkout> {
     print(manageStatesBloc
         .changeOrderModel());
     OrderModel orderData = orderModel;
+    orderData.address['postCode']='';
+
     QueryMutation queryMutation =
     QueryMutation();
     print("OrderDataBloc=======================> $orderData");
@@ -556,7 +558,8 @@ class CheckoutState extends State<Checkout> {
             "Error =============== > $error");
       }
       //endregion
-    } else {
+    }
+    else {
       print('normal order:card------------------------------------------------->');
       //pr.show();
       FlutterStripePayment.setStripeSettings(
