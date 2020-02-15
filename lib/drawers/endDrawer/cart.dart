@@ -22,8 +22,9 @@ WayToServe wayToServeValue = WayToServe.COLLECTION;
 
 class Cart extends StatefulWidget {
   Map restaurantInfo;
+  WayToServe wayToServe;
 
-  Cart(this.restaurantInfo);
+  Cart(this.restaurantInfo, this.wayToServe);
 
   @override
   State<StatefulWidget> createState() {
@@ -42,6 +43,7 @@ class CartState extends State<Cart> {
 
   myfunc() async {
     var cartData = await CartDB().allCart();
+
     setState(() {
       cart = cartData;
     });
@@ -192,7 +194,7 @@ class CartState extends State<Cart> {
     double minimumAmount;
     String discountType;
 
-    if(wayToServeValue == WayToServe.COLLECTION){
+    if(widget.wayToServe == WayToServe.COLLECTION){
       var test = widget.restaurantInfo["collectionDiscount"].toDouble();
       print(test.runtimeType);
       print("Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
@@ -215,6 +217,7 @@ class CartState extends State<Cart> {
     discount = num.parse(discount.toStringAsFixed(2));
     discountedTotal = total - discount;
     discountedTotal = num.parse(discountedTotal.toStringAsFixed(2));
+
     print(widget.restaurantInfo);
     print("Cart: ${cart.length.toString()}");
     print("Discount==========>: ${discount.toString()}");

@@ -6,6 +6,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
 import 'package:haweli/DBModels/ModifierDB.dart';
 import 'package:haweli/DBModels/models/FoodItemModel.dart';
+import 'package:haweli/DBModels/models/Foods.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/DBModels/models/SubFoodItemModel.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
@@ -163,10 +164,25 @@ class CheckoutState extends State<Checkout> {
                     IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          FoodDB().deleteFood(item.id);
+                          if (item.qty == 1) {
+                            FoodDB().deleteFood(item.id);
+                            for (var modifier in item.modifiers) {
+                              ModifierDB().deleteModifierOfFood(item.id);
+
+                            }
+                            manageStatesBloc.rebuildByValueDec();
+                          } else {
+                            print(item);
+//                            item.qty = item.qty -1;
+//                            print(item.qty);
+                            var qty = item.qty - 1;
+                            print(qty);
+                            Foods foods = Foods(item.name, item.foodId, item.price - (item.price/(item.qty)), item.qty - 1, item.discount, item.foodType, item.discountExclude);
+                            FoodDB().updateFood(foods);
+                          }
                           print("Hello");
                           setState(() {
-                            manageStatesBloc.rebuildByValueDec();
+
                             myfunc();
                           });
                         })
