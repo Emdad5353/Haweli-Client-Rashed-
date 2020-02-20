@@ -14,8 +14,8 @@ String validateMobile(String value) {
   RegExp regExp = new RegExp(patttern);
   if (value.length == 0) {
     return "Phone Number is Required";
-  } else if(value.length <= 10){
-    return "Phone number must be at least 10 digits";
+  } else if(value.length < 11){
+    return "Phone number must be at least 11 digits";
   }else if (!regExp.hasMatch(value)) {
     return "Phone Number must be digits";
   }

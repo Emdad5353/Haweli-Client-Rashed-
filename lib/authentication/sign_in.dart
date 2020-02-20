@@ -71,16 +71,16 @@ class _SignInFormState extends State<SignInForm> {
               prefs.setString('email', result['userLogin']['email']);
               prefs.setString('phoneno', result['userLogin']['phoneno']);
 
-              Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('Signed in successfully')));
+              showToast('Signed in successfully',backgroundColor: Colors.green);
+              //Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('Signed in successfully')));
+              if(pr.isShowing()) pr.hide();
+              Navigator.of(context, rootNavigator: true).pop();
               if(await prefs.get("checkoutButtonPressed") =='pressed'){
                 manageStatesBloc.changeViewSection(WidgetMarker.checkout);
               }
-
-              Navigator.of(widget.mainContext, rootNavigator: true).pop();
-            }else{showToast('${result['userLogin']['msg']}');}
+            }else{showToast('${result['userLogin']['msg']}',backgroundColor: Colors.red);}
 
             //Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('${result['userLogin']['msg']}')));
-
             setState(() {
 //              widget.userPageState.addItem(
 //                result['userLogin']['id'],
@@ -175,7 +175,7 @@ class _SignInFormState extends State<SignInForm> {
               onTap: () {
                 //Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop();
-                showRegisterDialog(widget.mainContext,);
+                showRegisterDialog(context,);
               },
               child: Text("SignUp",
                 style: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).primaryColor),

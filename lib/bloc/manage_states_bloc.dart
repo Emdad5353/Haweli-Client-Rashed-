@@ -3,10 +3,10 @@ import 'package:haweli/main_ui.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ManageStatesBloc {
-  OrderModel orderModel = OrderModel([], [], {}, 0, 0, false, false,false,"",0);
+  OrderModel orderModel = OrderModel([], [], {}, 0, 0, false, false,false,"",0, "", "");
   // ignore: close_sinks
   BehaviorSubject<OrderModel> _changeOrderModel = new BehaviorSubject.seeded(
-      OrderModel([], [], {}, 0, 0, false, false,false,"",0));
+      OrderModel([], [], {}, 0, 0, false, false,false,"",0, "", ""));
 
   setModel(OrderModel orderModel) {
     print("OrderModel==============================> $orderModel");

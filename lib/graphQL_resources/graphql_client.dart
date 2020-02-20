@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final HttpLink httpLink = HttpLink(
   uri: 'https://rashedapi.consoleit.io/',
   //uri: 'http://27.147.231.42:3003/',
-//  uri: 'http://192.168.16.102:3003/',
+  //uri: 'http://192.168.16.113:3003/',
 );
 
 Future<String> getjwt() async{

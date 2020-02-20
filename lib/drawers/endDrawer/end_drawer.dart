@@ -12,89 +12,90 @@ var _currentSecret =
 Widget endDrawer(BuildContext context, Map restaurantInfo) {
   return SafeArea(
     child: SingleChildScrollView(
-      child: StreamBuilder<Object>(
-        stream: manageStatesBloc.widgetRebuildStream$,
-        builder: (context, snapshot) {
-          print("Waytoserve===============> $wayToServeValue");
-          return Column(
-            children: <Widget>[
-              GestureDetector(
-                  child: Card(
-                    margin: EdgeInsets.all(6),
-                    color: Theme.of(context).primaryColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Center(
-                        child: Text(
-                          'YOUR ORDER',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+
+          child: StreamBuilder<Object>(
+            stream: manageStatesBloc.widgetRebuildStream$,
+            builder: (context, snapshot) {
+              return Column(
+                children: <Widget>[
+                  GestureDetector(
+                      child: Card(
+                        margin: EdgeInsets.all(6),
+                        color: Theme.of(context).primaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Center(
+                            child: Text(
+                              'YOUR ORDER',
+                              style: TextStyle(color: Colors.white, fontSize: 20.0),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  onTap: () async {
-                    DateFormat dateFormat = new DateFormat.Hm();
-                    DateTime open = dateFormat.parse("17:30");
-                    print("Open: ${open.hour}");
-                    open = DateTime(open.hour, open.minute);
-                    DateTime now = DateTime.now();
-                    print("Open: ${now.hour}");
-                    if (now.hour == open.hour) {
-                      print("Hello");
-                    }
-                    FlutterStripePayment.setStripeSettings(
-                        "pk_test_71kZorZg8l0mwGd2hPGrUAQY00dEMYAZdE");
+                      onTap: () async {
+                        DateFormat dateFormat = new DateFormat.Hm();
+                        DateTime open = dateFormat.parse("17:30");
+                        print("Open: ${open.hour}");
+                        open = DateTime(open.hour, open.minute);
+                        DateTime now = DateTime.now();
+                        print("Open: ${now.hour}");
+                        if (now.hour == open.hour) {
+                          print("Hello");
+                        }
+                        FlutterStripePayment.setStripeSettings(
+                            "pk_test_71kZorZg8l0mwGd2hPGrUAQY00dEMYAZdE");
 //                var paymentResponse =
 //                    await FlutterStripePayment.addPaymentMethod();
 //                if (paymentResponse.status == PaymentResponseStatus.succeeded) {
 //                  var testData = paymentResponse.paymentMethodId;
 //                  print("PaymentData================> $testData");
 //                }
-                  }),
-              (restaurantInfo['deliveryOption']==false && restaurantInfo['collectionOption']==false)
-                  ? Container()
-                  : EndDrawerRadioButton(restaurantInfo),
-              Divider(
-                color: Colors.grey,
-              ),
-              Cart(restaurantInfo, wayToServeValue),
-              Container(
-                width: double.infinity,
-                height: 60,
-                child: Row(
-                  children: <Widget>[
-                    paymentMethodCards('assets/visa.png'),
-                    paymentMethodCards('assets/Mastercard.png'),
-                    paymentMethodCards('assets/Maestro.png'),
-                    paymentMethodCards('assets/american_express.png'),
-                  ],
-                ),
-              ),
-              FlatButton(
-                  onPressed: () => _showDialog(context),
-                  child: Center(
-                    child: Text(
-                      'ALLERGY AWARENESS',
-                      style: TextStyle(
-                          fontSize: 16, color: Theme.of(context).primaryColor),
+                      }),
+                  (restaurantInfo['deliveryOption']==false && restaurantInfo['collectionOption']==false)
+                      ? Container()
+                      : EndDrawerRadioButton(restaurantInfo),
+                  Divider(
+                    color: Colors.grey,
+                  ),
+                  Cart(restaurantInfo, wayToServeValue),
+                  Container(
+                    width: double.infinity,
+                    height: 60,
+                    child: Row(
+                      children: <Widget>[
+                        paymentMethodCards('assets/visa.png'),
+                        paymentMethodCards('assets/Mastercard.png'),
+                        paymentMethodCards('assets/Maestro.png'),
+                        paymentMethodCards('assets/american_express.png'),
+                      ],
                     ),
-                  )),
-              StreamBuilder(
-                  stream: manageStatesBloc.widgetRebuildStream$,
-                  builder: (context, snap) {
-                    return wayToServeValue == WayToServe.COLLECTION
-                        ? Text(
-                            "Discount ${restaurantInfo["collectionDiscount"]}% For Buying £"
-                            "${restaurantInfo["collectionMinimumAmountForDiscount"]}")
-                        : Text(
-                            "Discount ${restaurantInfo["deliveryDiscount"]}% For Buying £"
-                            "${restaurantInfo["deliveryMinimumAmountForDiscount"]}");
-                  }),
-              SizedBox(height: 30,)
-            ],
-          );
-        }
-      ),
+                  ),
+                  FlatButton(
+                      onPressed: () => _showDialog(context),
+                      child: Center(
+                        child: Text(
+                          'ALLERGY AWARENESS',
+                          style: TextStyle(
+                              fontSize: 16, color: Theme.of(context).primaryColor),
+                        ),
+                      )),
+                  StreamBuilder(
+                      stream: manageStatesBloc.widgetRebuildStream$,
+                      builder: (context, snap) {
+                        return wayToServeValue == WayToServe.COLLECTION
+                            ? Text(
+                                "Discount ${restaurantInfo["collectionDiscount"]}% For Buying £"
+                                "${restaurantInfo["collectionMinimumAmountForDiscount"]}")
+                            : Text(
+                                "Discount ${restaurantInfo["deliveryDiscount"]}% For Buying £"
+                                "${restaurantInfo["deliveryMinimumAmountForDiscount"]}");
+                      }),
+                  SizedBox(height: 30,)
+                ],
+              );
+            }
+          )
+
     ),
   );
 }

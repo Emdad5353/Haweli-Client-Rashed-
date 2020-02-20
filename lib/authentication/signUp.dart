@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
+import 'package:haweli/authentication/validator.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,8 +24,11 @@ showRegisterDialog(BuildContext mainContext, [OrderModel orderModel]) {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Registration',style: TextStyle(color: Colors.white70),),
-            IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(mainContext),)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: Text('Registration',style: TextStyle(color: Colors.white70),),
+            ),
+            //IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(mainContext),)
           ],
         ),
       ),
@@ -94,15 +99,15 @@ class _SignUpFormState extends State<SignUpForm> {
                 prefs.setString('email', result['userSignUp']['email']);
                 prefs.setString('phoneno', result['userSignUp']['phoneno']);
 
-                Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('Signed up successfully')));
+                showToast('Signed up successfully',backgroundColor: Colors.green);
                 manageStatesBloc.changeCurrentLoginStatus(true);
                 print('signUp:------------------------>$result');
                 print(result['userSignUp']['email']);
                 if(await prefs.get("checkoutButtonPressed") =='pressed'){
                   manageStatesBloc.changeViewSection(WidgetMarker.checkout);
                 }
-                Navigator.of(widget.mainContext, rootNavigator: true).pop();
-              }else {Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('${result['userSignUp']['msg']}')));}
+                Navigator.of(context, rootNavigator: true).pop();
+              }else {showToast('${result['userSignUp']['msg']}',backgroundColor: Colors.red);}
 
               if(pr.isShowing()) pr.hide();
             },
@@ -189,11 +194,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
     formWidget.add(new TextFormField(
       decoration: InputDecoration(isDense: true,labelText: 'Phone number', hintText: 'Enter Phone Number'),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Enter Phone Number';
-        }
-      },
+      validator: validateMobile,
       onSaved: (value) {
         setState(() {
           _phoneno = value;

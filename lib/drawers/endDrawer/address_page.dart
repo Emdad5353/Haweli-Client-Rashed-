@@ -14,6 +14,7 @@ import 'package:haweli/drawers/endDrawer/cart.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/utils/commonTextWidgets.dart';
+import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,6 +38,8 @@ class Checkout extends StatefulWidget {
 }
 
 class CheckoutState extends State<Checkout> {
+  List<String> preferredTimeList = [];
+  String _selectedTime;
   String name = '';
   String email = '';
   String phoneno = '';
@@ -55,6 +58,53 @@ class CheckoutState extends State<Checkout> {
 
   @override
   void initState() {
+    DateFormat dateFormat = DateFormat.Hm();
+    DateTime now = DateTime.now();
+
+    DateTime after =
+        DateFormat.jm().parse(widget.restaurantInfo["weekdayCloseTime"]);
+    DateTime start = DateFormat.jm().parse(widget.restaurantInfo["weekdayOpeningTime"]);
+    after = DateTime(
+        now.year, now.month, now.day, after.hour, after.minute);
+    DateTime before = DateTime(
+        now.year, now.month, now.day, start.hour, start.minute);
+    var openingStatus = now.isAfter(before);
+    var closingStatus = now.isBefore(after);
+    print("Status===========> $openingStatus");
+    if(openingStatus && closingStatus){
+      before = DateTime(
+          before.year, before.month, before.day, now.hour, now.minute);
+      print(before.minute % 15);
+      var extraminutes = 15 - (before.minute % 15);
+      var minutes = before.minute + extraminutes;
+      before = DateTime(
+          before.year, before.month, before.day, before.hour, minutes);
+    }else{
+      print(before.minute % 15);
+      var extraminutes = 15 - (before.minute % 15);
+      var minutes = before.minute + extraminutes;
+      before = DateTime(
+          before.year, before.month, before.day, before.hour, minutes);
+    }
+
+//    before =
+//        DateTime(before.year, before.month, before.day, before.hour, minutes);
+    var difference = after.difference(before);
+    print('before time:----------------------------$before');
+    print('after time:----------------------------$after');
+    print(
+        'time:----------------------------$difference--------------------------------------->');
+    print(
+        'time difference:----------------------------${difference.inMinutes}');
+    print(
+        'addTime:----------------------------${before.add(new Duration(minutes: 15))}');
+    print('isBefore:----------------------------${before.isBefore(after)}');
+    while (before.isBefore(after)) {
+      var time = before.hour.toString() + ":" + before.minute.toString();
+      preferredTimeList.add(time);
+      before = before.add(new Duration(minutes: 15));
+    }
+    print("PreferredTime=============>$preferredTimeList");
     super.initState();
     myfunc();
     _setSavedValues();
@@ -67,9 +117,9 @@ class CheckoutState extends State<Checkout> {
     deliveryCharge = prefs.getDouble("deliveryCharge");
     setState(() {
       cart = cartData;
-      if(deliveryCharge != null){
+      if (deliveryCharge != null) {
         deliveryCharge = deliveryCharge;
-      }else{
+      } else {
         deliveryCharge = 0.0;
       }
     });
@@ -130,7 +180,7 @@ class CheckoutState extends State<Checkout> {
             SubFoodItemModel(item.foodId, modifierId, item.qty).toJson();
         subFoodItemList.add(subFoodItemModel);
       }
-      if(item.discountExclude == 1){
+      if (item.discountExclude == 1) {
         excludeDiscountAmount += item.price;
         print("ExcludedDiscount============> $excludeDiscountAmount");
       }
@@ -168,7 +218,6 @@ class CheckoutState extends State<Checkout> {
                             FoodDB().deleteFood(item.id);
                             for (var modifier in item.modifiers) {
                               ModifierDB().deleteModifierOfFood(item.id);
-
                             }
                             manageStatesBloc.rebuildByValueDec();
                           } else {
@@ -177,12 +226,18 @@ class CheckoutState extends State<Checkout> {
 //                            print(item.qty);
                             var qty = item.qty - 1;
                             print(qty);
-                            Foods foods = Foods(item.name, item.foodId, item.price - (item.price/(item.qty)), item.qty - 1, item.discount, item.foodType, item.discountExclude);
+                            Foods foods = Foods(
+                                item.name,
+                                item.foodId,
+                                item.price - (item.price / (item.qty)),
+                                item.qty - 1,
+                                item.discount,
+                                item.foodType,
+                                item.discountExclude);
                             FoodDB().updateFood(foods);
                           }
                           print("Hello");
                           setState(() {
-
                             myfunc();
                           });
                         })
@@ -225,36 +280,37 @@ class CheckoutState extends State<Checkout> {
                       ],
                     );
                   }),
-
           ],
         ),
-
       );
-
     }
 
     double discountAmount;
     double minimumAmount;
     String discountType;
 
-    if(wayToServeValue == WayToServe.COLLECTION){
+    if (wayToServeValue == WayToServe.COLLECTION) {
       var test = widget.restaurantInfo["collectionDiscount"].toDouble();
       print(test.runtimeType);
-      print("Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
+      print(
+          "Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
       discountAmount = widget.restaurantInfo["collectionDiscount"].toDouble();
       discountType = "Collection";
-      minimumAmount = widget.restaurantInfo["collectionMinimumAmountForDiscount"].toDouble();
-    }else{
+      minimumAmount = widget
+          .restaurantInfo["collectionMinimumAmountForDiscount"]
+          .toDouble();
+    } else {
       discountType = "Collection";
       discountAmount = widget.restaurantInfo["deliveryDiscount"].toDouble();
-      minimumAmount = widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
+      minimumAmount =
+          widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
     }
     bool isDiscount = false;
     double discount = 0;
-    if(total >= minimumAmount){
+    if (total >= minimumAmount) {
       isDiscount = true;
       double discountOnTotal = total - excludeDiscountAmount;
-      discount = (discountOnTotal/100)*discountAmount;
+      discount = (discountOnTotal / 100) * discountAmount;
     }
     discount = num.parse(discount.toStringAsFixed(2));
     print(widget.restaurantInfo);
@@ -267,7 +323,6 @@ class CheckoutState extends State<Checkout> {
     finalTotal = num.parse(finalTotal.toStringAsFixed(2));
 
     total = num.parse(total.toStringAsFixed(2));
-
 
     Widget deliveryChargeWidget = Align(
         alignment: Alignment.centerRight,
@@ -284,138 +339,181 @@ class CheckoutState extends State<Checkout> {
           ],
         ));
 
-    if(wayToServeValue == WayToServe.DELIVERY){
+    if (wayToServeValue == WayToServe.DELIVERY) {
       itemsWidgets.add(deliveryChargeWidget);
-    }else{
+    } else {
       itemsWidgets.add(Container());
     }
 
+    itemsWidgets.add(Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Total: £$total',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 20,
+                )
+              ],
+            )),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Discount: £$discount',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 20,
+                )
+              ],
+            )),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+      ],
+    ));
 
-    itemsWidgets.add(
-        Column(
+    itemsWidgets.add(Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Final Total: £$finalTotal',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 20,
+                )
+              ],
+            )),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 2,
+            //thickness: 1,
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                height: 2,
-                //thickness: 1,
+            Text(
+              wayToServeValue==WayToServe.COLLECTION
+                  ?'Preferred Collection Time:'
+                  :'Preferred Delivery Time:',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                height: 2,
-                //thickness: 1,
-              ),
+            SizedBox(
+              width: 30,
             ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                height: 2,
-                //thickness: 1,
-              ),
-            ),
-            Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      'Total: £$total',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+            DropdownButton(
+              items: preferredTimeList.map((item) {
+                return DropdownMenuItem(
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Text(item,
+                              style: TextStyle(
+                                fontSize: 17,
+                              )),
+                        )
+                      ],
                     ),
-                    SizedBox(
-                      width: 20,
-                    )
-                  ],
-                )),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                height: 2,
-                //thickness: 1,
-              ),
-            ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                height: 2,
-                //thickness: 1,
-              ),
-            ),
-            Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      'Discount: £$discount',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    )
-                  ],
-                )),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                height: 2,
-                //thickness: 1,
-              ),
+                    value: item);
+              }).toList(),
+              onChanged: (newvalue) {
+                setState(() {
+                  _selectedTime = newvalue;
+                  print(_selectedTime);
+                });
+              },
+              hint: Text('Select Time', style: TextStyle(fontSize: 16)),
+              value: _selectedTime,
             ),
           ],
-        )
-    );
-
-
-
-    itemsWidgets.add(
-      Column(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Divider(
-              height: 2,
-              //thickness: 1,
-            ),
-          ),
-          Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    'Final Total: £$finalTotal',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  )
-                ],
-              )),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Divider(
-              height: 2,
-              //thickness: 1,
-            ),
-          ),
-        ],
-      )
-    );
+        ),
+      ],
+    ));
 
     print("Data Here");
     return StreamBuilder<Object>(
         stream: manageStatesBloc.currentOrderModel$,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(child: Center(child: CircularProgressIndicator(),),);
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
           } else if (snapshot.connectionState == ConnectionState.none) {
-            return Container(child: Center(child: CircularProgressIndicator(),),);;
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
           } else {
             print(
                 "StreamBuilderOrderModel==============================>${snapshot.data}");
@@ -457,37 +555,49 @@ class CheckoutState extends State<Checkout> {
                                 GestureDetector(
                                   child: Card(
                                     margin: EdgeInsets.all(6),
-                                    color: total < widget.restaurantInfo['minimumOrderPrice']
-                                        ?Colors.grey
-                                        :Theme.of(context).primaryColor,
+                                    color: total <
+                                            widget.restaurantInfo[
+                                                'minimumOrderPrice']
+                                        ? Colors.grey
+                                        : Theme.of(context).primaryColor,
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Center(
                                         child: Text(
                                           'PLACE ORDER',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w600,
+                                              fontWeight: FontWeight.w600,
                                               color: Colors.white,
                                               fontSize: 20.0),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  onTap: total < widget.restaurantInfo['minimumOrderPrice']
-                            ? null
-                                : () async {
-                                    if(pr.isShowing()) pr.hide();
-                                    if(wayToServeValue == WayToServe.COLLECTION){
-                                      normalOrder(snapshot.data);
-                                    }else{
-                                      deliveryAddressDialog(context, snapshot.data);
-                                    }
-
-                                  },
+                                  onTap: total <
+                                          widget.restaurantInfo[
+                                              'minimumOrderPrice']
+                                      ? null
+                                      : () async {
+                                          orderModel.preferredTime =
+                                              _selectedTime;
+                                          if (pr.isShowing()) pr.hide();
+                                          if (wayToServeValue ==
+                                              WayToServe.COLLECTION) {
+                                            normalOrder(orderModel);
+                                          } else {
+                                            deliveryAddressDialog(
+                                                context, orderModel);
+                                          }
+                                        },
                                 ),
-                                total < widget.restaurantInfo['minimumOrderPrice']
-                                ?Text('Minimum delivery order £${widget.restaurantInfo['minimumOrderPrice']}',style: TextStyle(color: Colors.red),)
-                                    :Container()
+                                total <
+                                        widget
+                                            .restaurantInfo['minimumOrderPrice']
+                                    ? Text(
+                                        'Minimum delivery order £${widget.restaurantInfo['minimumOrderPrice']}',
+                                        style: TextStyle(color: Colors.red),
+                                      )
+                                    : Container()
                               ],
                             );
                           }),
@@ -523,43 +633,31 @@ class CheckoutState extends State<Checkout> {
         });
   }
 
-  normalOrder(orderModel) async{
-
-    print(manageStatesBloc
-        .changeOrderModel());
+  normalOrder(orderModel) async {
+    print(manageStatesBloc.changeOrderModel());
     OrderModel orderData = orderModel;
-    orderData.address['postCode']='';
+    orderData.address['postCode'] = '';
 
-    QueryMutation queryMutation =
-    QueryMutation();
+    QueryMutation queryMutation = QueryMutation();
     print("OrderDataBloc=======================> $orderData");
 
-    if (paymentMethodValue ==
-        PaymentMethod.Cash) {
-      print('normal order:cash------------------------------------------------->');
+    if (paymentMethodValue == PaymentMethod.Cash) {
+      print(
+          'normal order:cash------------------------------------------------->');
       pr.show();
       //region CashOrder
       //Cash Order
-      QueryResult createOrderMutation =
-          await clientToQuery().mutate(
-          MutationOptions(
-              document: queryMutation
-                  .createOrder(),
-              variables: {
-                "OrderModel":
-                orderData.toJson(),
-                "paymentMethod": "Cash"
-              }));
-      if (!createOrderMutation
-          .hasErrors) {
-        var orderPay =
-            createOrderMutation.data;
-        print(
-            "OrderMutant===============>$orderPay");
+      QueryResult createOrderMutation = await clientToQuery().mutate(
+          MutationOptions(document: queryMutation.createOrder(), variables: {
+        "OrderModel": orderData.toJson(),
+        "paymentMethod": "Cash"
+      }));
+      if (!createOrderMutation.hasErrors) {
+        var orderPay = createOrderMutation.data;
+        print("OrderMutant===============>$orderPay");
 
         for (var cartData in cart) {
-          FoodDB()
-              .deleteFood(cartData.id);
+          FoodDB().deleteFood(cartData.id);
         }
         // region recentEdited_emdad//
         manageStatesBloc.initialValue(0);
@@ -568,113 +666,69 @@ class CheckoutState extends State<Checkout> {
           myfunc();
         });
       } else {
-        var error =
-            createOrderMutation.errors;
-        print(
-            "Error =============== > $error");
+        var error = createOrderMutation.errors;
+        print("Error =============== > $error");
       }
       //endregion
-    }
-    else {
-      print('normal order:card------------------------------------------------->');
+    } else {
+      print(
+          'normal order:card------------------------------------------------->');
       //pr.show();
       FlutterStripePayment.setStripeSettings(
           widget.restaurantInfo["stripeSetting"]["privateKey"]);
-      var paymentResponse =
-          await FlutterStripePayment
-          .addPaymentMethod();
-      if (paymentResponse.status ==
-          PaymentResponseStatus
-              .succeeded) {
+      var paymentResponse = await FlutterStripePayment.addPaymentMethod();
+      if (paymentResponse.status == PaymentResponseStatus.succeeded) {
         pr.show();
-        var paymentMethodId =
-            paymentResponse
-                .paymentMethodId;
-        print(
-            "PaymentData==============> $paymentMethodId");
-        print(
-            "PaymentDataFinalTotal==============> $orderData");
-        QueryResult paymentIntent =
-            await clientToQuery().mutate(
+        var paymentMethodId = paymentResponse.paymentMethodId;
+        print("PaymentData==============> $paymentMethodId");
+        print("PaymentDataFinalTotal==============> $orderData");
+        QueryResult paymentIntent = await clientToQuery().mutate(
             MutationOptions(
-                document: queryMutation
-                    .paymentIntent(),
+                document: queryMutation.paymentIntent(),
                 variables: {
-                  "payment_method_types": [
-                    "card"
-                  ],
-                  "payment_method":
-                  paymentMethodId,
-                  "amount":
-                  orderData.finalTotal
-                }));
+              "payment_method_types": ["card"],
+              "payment_method": paymentMethodId,
+              "amount": orderData.finalTotal
+            }));
 
         if (!paymentIntent.hasErrors) {
-          var payment =
-              paymentIntent.data;
-          var clientSecret = paymentIntent
-              .data["paymentIntent"]
-          ["clientSecret"];
-          print(
-              "PaymentDataIntent=========>$clientSecret");
-          print(
-              "PaymentData=========>$payment");
+          var payment = paymentIntent.data;
+          var clientSecret =
+              paymentIntent.data["paymentIntent"]["clientSecret"];
+          print("PaymentDataIntent=========>$clientSecret");
+          print("PaymentData=========>$payment");
 
           if (clientSecret != null) {
             //pr.show();
             var intentResponse =
-                await FlutterStripePayment
-                .confirmPaymentIntent(
-                clientSecret,
-                paymentMethodId,
-                orderData
-                    .finalTotal);
+                await FlutterStripePayment.confirmPaymentIntent(
+                    clientSecret, paymentMethodId, orderData.finalTotal);
 
-            var errorMessage =
-                intentResponse
-                    .errorMessage;
-            print(
-                "Intent=======================> $errorMessage");
-            var status =
-                intentResponse.status;
-            print(
-                "Intent=======================> $status");
-            var paymentIntentId =
-                intentResponse
-                    .paymentIntentId;
+            var errorMessage = intentResponse.errorMessage;
+            print("Intent=======================> $errorMessage");
+            var status = intentResponse.status;
+            print("Intent=======================> $status");
+            var paymentIntentId = intentResponse.paymentIntentId;
 
-            print(
-                "Intent=======================> $paymentIntentId");
+            print("Intent=======================> $paymentIntentId");
             if (errorMessage == null) {
               //pr.show();
               print("Helloooooooooo");
-              print(
-                  "OrderData=======================> $orderData");
-              QueryResult
-              createOrderMutation =
-                  await clientToQuery().mutate(
+              print("OrderData=======================> $orderData");
+              QueryResult createOrderMutation = await clientToQuery().mutate(
                   MutationOptions(
-                      document:
-                      queryMutation
-                          .createOrder(),
+                      document: queryMutation.createOrder(),
                       variables: {
-                        "OrderModel":
-                        orderData.toJson(),
-                        "paymentMethod": "Card"
-                      }));
-              if (!createOrderMutation
-                  .hasErrors) {
+                    "OrderModel": orderData.toJson(),
+                    "paymentMethod": "Card"
+                  }));
+              if (!createOrderMutation.hasErrors) {
                 //pr.show();
-                var orderPay =
-                    createOrderMutation
-                        .data;
-                print(
-                    "OrderMutant===============>$orderPay");
+                var orderPay = createOrderMutation.data;
+                print("OrderMutant===============>$orderPay");
 
-                for (var cartData
-                in cart) {
-                  FoodDB().deleteFood(
-                      cartData.id);
+                for (var cartData in cart) {
+                  FoodDB().deleteFood(cartData.id);
                 }
                 // region recentEdited_emdad//
                 manageStatesBloc.initialValue(0);
@@ -684,31 +738,25 @@ class CheckoutState extends State<Checkout> {
                   myfunc();
                 });
               } else {
-                var error =
-                    createOrderMutation
-                        .errors;
-                print(
-                    "Error =============== > $error");
+                var error = createOrderMutation.errors;
+                print("Error =============== > $error");
               }
             }
           } else {
-            print(
-                "Intent=======================> ClientSecretMissing");
+            print("Intent=======================> ClientSecretMissing");
           }
         } else {
-          var error =
-              paymentIntent.errors;
-          print(
-              "PaymentData=========>$error");
+          var error = paymentIntent.errors;
+          print("PaymentData=========>$error");
         }
       }
     }
     print('uuuuuuuu------------------------------------------------->');
     //Payment
     if (pr.isShowing()) {
-      print('normal order:outside------------------------------------------------->');
-      manageStatesBloc.changeViewSection(
-          WidgetMarker.menu);
+      print(
+          'normal order:outside------------------------------------------------->');
+      manageStatesBloc.changeViewSection(WidgetMarker.menu);
       pr.hide();
       showToastWidget(
         Container(
@@ -721,11 +769,9 @@ class CheckoutState extends State<Checkout> {
                 'Ordered Successfully',
                 style: TextStyle(
                     color: Colors.green,
-                    fontFamily:
-                    "Roboto-Medium",
+                    fontFamily: "Roboto-Medium",
                     fontSize: 14,
-                    fontWeight:
-                    FontWeight.w500),
+                    fontWeight: FontWeight.w500),
               ),
             )),
       );
@@ -849,7 +895,10 @@ class _PaymentMethodRadioButtonState extends State<PaymentMethodRadioButton> {
                 });
               },
             ),
-            Text('Cash',style: TextStyle(fontWeight: FontWeight.w700),),
+            Text(
+              'Cash',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
           ],
         ),
         Row(
@@ -864,7 +913,10 @@ class _PaymentMethodRadioButtonState extends State<PaymentMethodRadioButton> {
                 });
               },
             ),
-            Text('Card',style: TextStyle(fontWeight: FontWeight.w700),),
+            Text(
+              'Card',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
           ],
         )
       ],

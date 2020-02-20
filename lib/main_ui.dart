@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:haweli/ui/main_view.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
@@ -53,14 +54,17 @@ class MainUIState extends State<MainUI> {
     date = DateTime(now.year, now.month, now.day, date.hour, date.minute);
     print("Hour============> $now");
     print("Hour============> $date");
-
+    DateTime close = DateFormat.jm().parse(closingTime);
+    close = DateTime(now.year, now.month, now.day, close.hour, close.minute);
+    print("Hour============> $close");
     return Scaffold(
 
       body: Builder(builder: (BuildContext context){
-        var status = now.isBefore(date);
+        var openingStatus = now.isAfter(date);
+        var closingStatus = now.isBefore(close);
 
-        print('restaurant status------------------------------------------------->${status}');
-        if(!status && showPreorderOnce==true) Future.delayed(Duration.zero, (){
+        print('restaurant status------------------------------------------------->$openingStatus $closingStatus, $showPreorderOnce');
+        if((!openingStatus || !closingStatus) && showPreorderOnce==true) Future.delayed(Duration.zero, (){
           restaurantClosedDialog(context);
           showPreorderOnce=false;
         });

@@ -18,7 +18,8 @@ showLoginAndRegisterDialog(BuildContext context,Map restaurantInfo, [OrderModel 
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text('Login',style: TextStyle(color: Colors.white70),),
-            IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()=>Navigator.pop(context),)
+            IconButton(icon: Icon(Icons.clear),iconSize: 15,color: Colors.white,onPressed: ()async {
+  Navigator.pop(context);})
           ],
         ),
       ),

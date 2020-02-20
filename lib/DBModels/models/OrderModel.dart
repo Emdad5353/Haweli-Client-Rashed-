@@ -10,12 +10,14 @@ class OrderModel {
   bool isDiscountAdded;
   String discountType;
   double discountAmount;
+  String instructions;
+  String preferredTime;
 
 
   OrderModel(this.foodItem , this.subFoodItem , this.address , this.finalTotal ,
       this.deliveryCost , this.deliveryStatus ,
       this.collectionStatus , this.isDiscountAdded , this.discountType ,
-      this.discountAmount);
+      this.discountAmount, this.instructions, this.preferredTime);
 
   Map<String , dynamic> toJson() {
     return {
@@ -29,12 +31,14 @@ class OrderModel {
       "isDiscountAdded": this.isDiscountAdded,
       "discountType": this.discountType,
       "discountAmount": this.discountAmount,
+      "instructions": this.instructions,
+      "preferredTime": this.preferredTime,
     };
   }
 
   @override
   String toString() {
-    return 'OrderModel{foodItem: $foodItem, subFoodItem: $subFoodItem, address: $address, finalTotal: $finalTotal, deliveryCost: $deliveryCost, postcode: $postcode, isDiscountAdded: $isDiscountAdded, discountType: $discountType, discountAmount: $discountAmount, deliveryStatus: $deliveryStatus, collectionStatus: $collectionStatus}';
+    return 'OrderModel{foodItem: $foodItem, subFoodItem: $subFoodItem, address: $address, finalTotal: $finalTotal, deliveryCost: $deliveryCost, postcode: $postcode, deliveryStatus: $deliveryStatus, collectionStatus: $collectionStatus, isDiscountAdded: $isDiscountAdded, discountType: $discountType, discountAmount: $discountAmount, instructions: $instructions, preferredTime: $preferredTime}';
   }
 
 

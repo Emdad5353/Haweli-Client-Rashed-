@@ -85,7 +85,7 @@ class CartState extends State<Cart> {
             SubFoodItemModel(item.foodId, modifierId, item.qty).toJson();
         subFoodItemList.add(subFoodItemModel);
       }
-      if(item.discountExclude == 1){
+      if (item.discountExclude == 1) {
         excludeDiscountAmount += item.price;
         print("ExcludedDiscount============> $excludeDiscountAmount");
       }
@@ -124,7 +124,6 @@ class CartState extends State<Cart> {
                             FoodDB().deleteFood(item.id);
                             for (var modifier in item.modifiers) {
                               ModifierDB().deleteModifierOfFood(item.id);
-
                             }
                             manageStatesBloc.rebuildByValueDec();
                           } else {
@@ -133,7 +132,14 @@ class CartState extends State<Cart> {
 //                            print(item.qty);
                             var qty = item.qty - 1;
                             print(qty);
-                            Foods foods = Foods(item.name, item.foodId, item.price - (item.price/(item.qty)), item.qty - 1, item.discount, item.foodType, item.discountExclude);
+                            Foods foods = Foods(
+                                item.name,
+                                item.foodId,
+                                item.price - (item.price / (item.qty)),
+                                item.qty - 1,
+                                item.discount,
+                                item.foodType,
+                                item.discountExclude);
                             FoodDB().updateFood(foods);
                           }
                           print("Hello");
@@ -194,25 +200,29 @@ class CartState extends State<Cart> {
     double minimumAmount;
     String discountType;
 
-    if(widget.wayToServe == WayToServe.COLLECTION){
+    if (widget.wayToServe == WayToServe.COLLECTION) {
       var test = widget.restaurantInfo["collectionDiscount"].toDouble();
       print(test.runtimeType);
-      print("Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
+      print(
+          "Hellllloooooooooooooooooo${widget.restaurantInfo["collectionDiscount"]}");
       discountAmount = widget.restaurantInfo["collectionDiscount"].toDouble();
       discountType = "Collection";
-      minimumAmount = widget.restaurantInfo["collectionMinimumAmountForDiscount"].toDouble();
-    }else{
+      minimumAmount = widget
+          .restaurantInfo["collectionMinimumAmountForDiscount"]
+          .toDouble();
+    } else {
       discountType = "Collection";
       discountAmount = widget.restaurantInfo["deliveryDiscount"].toDouble();
-      minimumAmount = widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
+      minimumAmount =
+          widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
     }
     bool isDiscount = false;
     double discount = 0;
     double discountedTotal = total;
-    if(total >= minimumAmount){
+    if (total >= minimumAmount) {
       isDiscount = true;
       double discountOnTotal = total - excludeDiscountAmount;
-      discount = (discountOnTotal/100)*discountAmount;
+      discount = (discountOnTotal / 100) * discountAmount;
     }
     discount = num.parse(discount.toStringAsFixed(2));
     discountedTotal = total - discount;
@@ -223,6 +233,7 @@ class CartState extends State<Cart> {
     print("Discount==========>: ${discount.toString()}");
     print("Discount==========>: $excludeDiscountAmount");
 
+    final instructionsController = TextEditingController();
     return Column(
       children: <Widget>[
         Padding(
@@ -290,6 +301,26 @@ class CartState extends State<Cart> {
         SizedBox(
           height: 20,
         ),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: TextFormField(
+              decoration: new InputDecoration(hintText: 'Instructions'),
+              //keyboardType: TextInputType.emailAddress,
+              controller: instructionsController,
+              onSaved: (String val) {
+                instructionsController.text = val;
+              }),
+        ),
+//        Padding(
+//          padding: const EdgeInsets.all(8.0),
+//          child: TextField(
+//            decoration: InputDecoration(
+//                border: InputBorder.none,
+//                hintText: 'Instruction...'
+//            ),
+//            controller: instructionsController,
+//          ),
+//        ),
         RaisedButton(
             color: Theme.of(context).primaryColor,
             child: Text(
@@ -299,6 +330,7 @@ class CartState extends State<Cart> {
             onPressed: total < widget.restaurantInfo['minimumOrderPrice']
                 ? null
                 : () async {
+              print("Instructions===========>${instructionsController.text}");
                     final SharedPreferences prefs =
                         await SharedPreferences.getInstance();
                     var orderInput = {
@@ -322,8 +354,19 @@ class CartState extends State<Cart> {
                     print(
                         "Saved Data==================================>$addressJson");
 
-                    OrderModel orderModel = OrderModel(foodItemList,
-                        subFoodItemList, addressJson, total, 0, false, false, isDiscount, discountType, discount);
+                    OrderModel orderModel = OrderModel(
+                        foodItemList,
+                        subFoodItemList,
+                        addressJson,
+                        total,
+                        0,
+                        false,
+                        false,
+                        isDiscount,
+                        discountType,
+                        discount,
+                    instructionsController.text,
+                    "");
                     print(
                         "OrderModelFinal+========================================>$orderModel");
                     //deliveryAddressDialog(context, orderModel);
@@ -359,7 +402,6 @@ class CartState extends State<Cart> {
                 style: TextStyle(color: Colors.red),
               )
             : Container(),
-
       ],
     );
   }
