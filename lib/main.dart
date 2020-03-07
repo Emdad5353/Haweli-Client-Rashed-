@@ -7,7 +7,6 @@ import 'package:haweli/main_ui.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/utils/loader_cubeGrid.dart';
 import 'package:haweli/utils/splash_screen.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'graphQL_resources/common_queries.dart';
 import 'package:haweli/utils/getHexaColor.dart';
@@ -18,56 +17,54 @@ void main() =>  SystemChrome.setPreferredOrientations(
   runApp(
     GraphQLProvider(
       client: client,
-      child: OKToast(
-          child: FutureBuilder(
-            future: restaurantLogoColorSplashDuration(),
-            builder: (BuildContext context, AsyncSnapshot restaurantInfoSnap) {
-              if (!restaurantInfoSnap.hasData) {
-                return Container(
-                  color: Colors.white,
-                  child: Center(
-                    child: SpinKitPulse(
-                      color: Colors.grey,
-                    ),
-                  ),
-                );
-              }
-              if (restaurantInfoSnap.connectionState == ConnectionState.none &&
-                  restaurantInfoSnap.hasData == null) {
-                return Container(
-                  color: Colors.white,
-                  child: Center(
-                    child: SpinKitPulse(
-                      color: Colors.grey,
-                    ),
-                  ),
-                );
-              }
-              else if (restaurantInfoSnap.hasData){
-                return MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: restaurantInfoSnap.data['restaurantName'],
-                  theme: ThemeData(
-                    primaryColor: getColorFromHex(restaurantInfoSnap.data['color']),
-                  ),
-                  home: GraphQLProvider(
-                      client: client,
-                      child: SplashScreenPage(restaurantInfoSnap.data)
-                  ),
-                );
-              }
-              else {
-                return Container(
-                  color: Colors.white ,
-                  child: Center(
-                    child: SpinKitPulse(
-                      color: Colors.grey ,
-                    ) ,
-                  ) ,
-                );
-              }
-            },
-          )
+      child: FutureBuilder(
+        future: restaurantLogoColorSplashDuration(),
+        builder: (BuildContext context, AsyncSnapshot restaurantInfoSnap) {
+          if (!restaurantInfoSnap.hasData) {
+            return Container(
+              color: Colors.white,
+              child: Center(
+                child: SpinKitPulse(
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          }
+          if (restaurantInfoSnap.connectionState == ConnectionState.none &&
+              restaurantInfoSnap.hasData == null) {
+            return Container(
+              color: Colors.white,
+              child: Center(
+                child: SpinKitPulse(
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          }
+          else if (restaurantInfoSnap.hasData){
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: restaurantInfoSnap.data['restaurantName'],
+              theme: ThemeData(
+                primaryColor: getColorFromHex(restaurantInfoSnap.data['color']),
+              ),
+              home: GraphQLProvider(
+                  client: client,
+                  child: SplashScreenPage(restaurantInfoSnap.data)
+              ),
+            );
+          }
+          else {
+            return Container(
+              color: Colors.white ,
+              child: Center(
+                child: SpinKitPulse(
+                  color: Colors.grey ,
+                ) ,
+              ) ,
+            );
+          }
+        },
       ),
     ),
   );

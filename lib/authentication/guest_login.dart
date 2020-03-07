@@ -9,7 +9,6 @@ import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/menu/commonWidgets.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';

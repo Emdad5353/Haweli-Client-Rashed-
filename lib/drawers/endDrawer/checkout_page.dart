@@ -2,6 +2,7 @@ import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe_payment/flutter_stripe_payment.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
 import 'package:haweli/DBModels/ModifierDB.dart';
@@ -15,7 +16,6 @@ import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/utils/commonTextWidgets.dart';
 import 'package:intl/intl.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../DBModels/CartDB.dart';
@@ -179,6 +179,7 @@ class CheckoutState extends State<Checkout> {
         subFoodItemModel =
             SubFoodItemModel(item.foodId, modifierId, item.qty).toJson();
         subFoodItemList.add(subFoodItemModel);
+        print("SubFoodModelList==============> $subFoodItemList");
       }
       if (item.discountExclude == 1) {
         excludeDiscountAmount += item.price;
@@ -300,7 +301,8 @@ class CheckoutState extends State<Checkout> {
           .restaurantInfo["collectionMinimumAmountForDiscount"]
           .toDouble();
     } else {
-      discountType = "Collection";
+      total += deliveryCharge;
+      discountType = "Delivery";
       discountAmount = widget.restaurantInfo["deliveryDiscount"].toDouble();
       minimumAmount =
           widget.restaurantInfo["deliveryMinimumAmountForDiscount"].toDouble();
@@ -318,7 +320,7 @@ class CheckoutState extends State<Checkout> {
     print("Discount==========>: ${discount.toString()}");
     print("Discount==========>: $excludeDiscountAmount");
 
-    total += deliveryCharge;
+
     double finalTotal = total - discount;
     finalTotal = num.parse(finalTotal.toStringAsFixed(2));
 
@@ -555,9 +557,7 @@ class CheckoutState extends State<Checkout> {
                                 GestureDetector(
                                   child: Card(
                                     margin: EdgeInsets.all(6),
-                                    color: total <
-                                            widget.restaurantInfo[
-                                                'minimumOrderPrice']
+                                    color: (total < widget.restaurantInfo['minimumOrderPrice'] && wayToServeValue==WayToServe.DELIVERY)
                                         ? Colors.grey
                                         : Theme.of(context).primaryColor,
                                     child: Padding(
@@ -573,13 +573,12 @@ class CheckoutState extends State<Checkout> {
                                       ),
                                     ),
                                   ),
-                                  onTap: total <
-                                          widget.restaurantInfo[
-                                              'minimumOrderPrice']
+                                  onTap: (total < widget.restaurantInfo['minimumOrderPrice'] && wayToServeValue==WayToServe.DELIVERY)
                                       ? null
                                       : () async {
                                           orderModel.preferredTime =
                                               _selectedTime;
+                                          print("OrderModelPlaceOrder===========> $orderModel");
                                           if (pr.isShowing()) pr.hide();
                                           if (wayToServeValue ==
                                               WayToServe.COLLECTION) {
@@ -590,14 +589,16 @@ class CheckoutState extends State<Checkout> {
                                           }
                                         },
                                 ),
-                                total <
-                                        widget
-                                            .restaurantInfo['minimumOrderPrice']
-                                    ? Text(
-                                        'Minimum delivery order £${widget.restaurantInfo['minimumOrderPrice']}',
-                                        style: TextStyle(color: Colors.red),
-                                      )
-                                    : Container()
+                                wayToServeValue == WayToServe.DELIVERY
+                                    ?(
+                                    total < widget.restaurantInfo['minimumOrderPrice']
+                                        ? Text(
+                                      'Minimum delivery order £' +
+                                          widget.restaurantInfo['minimumOrderPrice'].toString(),
+                                      style: TextStyle(color: Colors.red),
+                                    )
+                                        : Container()
+                                ):Container()
                               ],
                             );
                           }),
@@ -674,9 +675,9 @@ class CheckoutState extends State<Checkout> {
       print(
           'normal order:card------------------------------------------------->');
       //pr.show();
-      FlutterStripePayment.setStripeSettings(
+      FlutterStripePayment().setStripeSettings(
           widget.restaurantInfo["stripeSetting"]["privateKey"]);
-      var paymentResponse = await FlutterStripePayment.addPaymentMethod();
+      var paymentResponse = await FlutterStripePayment().addPaymentMethod();
       if (paymentResponse.status == PaymentResponseStatus.succeeded) {
         pr.show();
         var paymentMethodId = paymentResponse.paymentMethodId;
@@ -701,7 +702,7 @@ class CheckoutState extends State<Checkout> {
           if (clientSecret != null) {
             //pr.show();
             var intentResponse =
-                await FlutterStripePayment.confirmPaymentIntent(
+                await FlutterStripePayment().confirmPaymentIntent(
                     clientSecret, paymentMethodId, orderData.finalTotal);
 
             var errorMessage = intentResponse.errorMessage;
@@ -758,23 +759,32 @@ class CheckoutState extends State<Checkout> {
           'normal order:outside------------------------------------------------->');
       manageStatesBloc.changeViewSection(WidgetMarker.menu);
       pr.hide();
-      showToastWidget(
-        Container(
-            color: Colors.green,
-            padding: EdgeInsets.all(10),
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(15),
-              child: Text(
-                'Ordered Successfully',
-                style: TextStyle(
-                    color: Colors.green,
-                    fontFamily: "Roboto-Medium",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500),
-              ),
-            )),
+      Fluttertoast.showToast(
+          msg: "Ordered Successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
       );
+//      showToastWidget(
+//        Container(
+//            color: Colors.green,
+//            padding: EdgeInsets.all(10),
+//            child: Container(
+//              color: Colors.white,
+//              padding: EdgeInsets.all(15),
+//              child: Text(
+//                'Ordered Successfully',
+//                style: TextStyle(
+//                    color: Colors.green,
+//                    fontFamily: "Roboto-Medium",
+//                    fontSize: 14,
+//                    fontWeight: FontWeight.w500),
+//              ),
+//            )),
+//      );
     }
   }
 

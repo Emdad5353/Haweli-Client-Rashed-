@@ -13,6 +13,7 @@ import 'package:haweli/authentication/register_login_dialog.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/drawers/endDrawer/checkoutDialog.dart';
 import 'package:haweli/drawers/endDrawer/post_code_verify_dialog.dart';
+import 'package:haweli/menu/menu_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main_ui.dart';
@@ -34,11 +35,15 @@ class Cart extends StatefulWidget {
 
 class CartState extends State<Cart> {
   var cart;
-
+  OrderModel orderModelFromBloc;
+  int cartLen = 0;
   @override
   initState() {
     super.initState();
     myfunc();
+    print("CartCheck==============>$cart");
+    orderModelFromBloc = manageStatesBloc.changeOrderModel();
+    print("ManageStateOrder, ${orderModelFromBloc.address["postCode"]}");
   }
 
   myfunc() async {
@@ -46,11 +51,13 @@ class CartState extends State<Cart> {
 
     setState(() {
       cart = cartData;
+      cartLen = cartData.length;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+
     Map<String, dynamic> foodItemModel;
     Map<String, dynamic> subFoodItemModel;
     List<Map> foodItemList = [];
@@ -84,6 +91,7 @@ class CartState extends State<Cart> {
         subFoodItemModel =
             SubFoodItemModel(item.foodId, modifierId, item.qty).toJson();
         subFoodItemList.add(subFoodItemModel);
+        print("SubFoodItemModel==========> $subFoodItemList");
       }
       if (item.discountExclude == 1) {
         excludeDiscountAmount += item.price;
@@ -327,10 +335,13 @@ class CartState extends State<Cart> {
               'CHECKOUT £$discountedTotal',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: total < widget.restaurantInfo['minimumOrderPrice']
+            onPressed:
+                //(total < widget.restaurantInfo['minimumOrderPrice'] && wayToServeValue==WayToServe.DELIVERY)
+            ((total < widget.restaurantInfo['minimumOrderPrice'] && wayToServeValue==WayToServe.DELIVERY) || cartLen == 0)
                 ? null
                 : () async {
-              print("Instructions===========>${instructionsController.text}");
+                    print(
+                        "Instructions===========>${instructionsController.text}");
                     final SharedPreferences prefs =
                         await SharedPreferences.getInstance();
                     var orderInput = {
@@ -339,8 +350,14 @@ class CartState extends State<Cart> {
                       "finalTotal": total
                     };
                     print(orderInput);
-                    Map<String, dynamic> addressModel =
-                        AddressModel("", "", "", "", "", "").toJson();
+
+                    Map<String, dynamic> addressModel;
+                    if (orderModelFromBloc.address["postCode"] == null) {
+                      addressModel =
+                          AddressModel("", "", "", "", "", "").toJson();
+                    } else {
+                      addressModel = orderModelFromBloc.address;
+                    }
                     SharedPreferences AddPrefs =
                         await SharedPreferences.getInstance();
                     Map<String, dynamic> addressJson = {};
@@ -365,8 +382,8 @@ class CartState extends State<Cart> {
                         isDiscount,
                         discountType,
                         discount,
-                    instructionsController.text,
-                    "");
+                        instructionsController.text,
+                        "");
                     print(
                         "OrderModelFinal+========================================>$orderModel");
                     //deliveryAddressDialog(context, orderModel);
@@ -395,13 +412,16 @@ class CartState extends State<Cart> {
         SizedBox(
           height: 10,
         ),
-        total < widget.restaurantInfo['minimumOrderPrice']
-            ? Text(
-                'Minimum delivery order £' +
-                    widget.restaurantInfo['minimumOrderPrice'].toString(),
-                style: TextStyle(color: Colors.red),
-              )
-            : Container(),
+        wayToServeValue == WayToServe.DELIVERY
+        ?(
+          total < widget.restaurantInfo['minimumOrderPrice']
+              ? Text(
+            'Minimum delivery order £' +
+                widget.restaurantInfo['minimumOrderPrice'].toString(),
+            style: TextStyle(color: Colors.red),
+          )
+              : Container()
+    ):Container()
       ],
     );
   }

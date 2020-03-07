@@ -66,7 +66,7 @@ class ProfileDialogState extends State<ProfileDialog> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height*0.65,
+      height: MediaQuery.of(context).size.height*0.68,
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: DefaultTabController(
         length: 2,

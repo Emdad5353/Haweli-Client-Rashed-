@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql/client.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/authentication/register_login_dialog.dart';
@@ -10,7 +11,6 @@ import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/menu/commonWidgets.dart';
 import 'package:haweli/utils/commonTextWidgets.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main_ui.dart';
@@ -94,7 +94,14 @@ class PostCodeVerifyForm extends StatefulWidget {
 }
 
 class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
-  final postcodeTextController = TextEditingController();
+  TextEditingController postcodeTextController;
+
+  @override
+  void initState() {
+    super.initState();
+    print("PostCode: ${widget.orderModel.address['postCode']}");
+    postcodeTextController = TextEditingController(text: manageStatesBloc.changeOrderModel().address['postCode']);
+  }
 
   @override
   void dispose() {
@@ -113,14 +120,15 @@ class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
               SizedBox(
                 height: 15,
               ),
-              TextField(
+              TextFormField(
+                textCapitalization: TextCapitalization.characters,
                 controller: postcodeTextController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   icon: Icon(
                     Icons.add_location,
                   ),
-                  labelText: 'Postcode',
+                  labelText: 'Postcode'.toUpperCase(),
                 ),
               ),
               SizedBox(
@@ -134,14 +142,14 @@ class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
                       padding: const EdgeInsets.symmetric(vertical:10.0),
                       child: Center(
                         child: Text(
-                          'Proceed',
+                          'PROCEED',
                           style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
                   ),
                 onTap: (){
-                  String newPostcode = postcodeTextController.text;
+                  String newPostcode = postcodeTextController.text.toUpperCase();
                   newPostcode = newPostcode.replaceAll(' ', '');
                   onPressedSubmitToVerify(context, newPostcode);
                 },
@@ -154,7 +162,7 @@ class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
                     padding: const EdgeInsets.symmetric(vertical:10.0),
                     child: Center(
                       child: Text(
-                        'Skip',
+                        'SKIP',
                         style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -193,30 +201,38 @@ class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
   void onPressedSubmitToVerify(BuildContext context, String postCode) async {
     print('postcode ${postCode.toString()}');
     QueryResult result = await clientToQuery().query(QueryOptions(
-        document: locationVerify, variables: {"postcode": postCode}));
+        document: locationVerify, variables: {"postcode": postCode.toUpperCase()}));
     print('result-----------------------------------${result.data.toString()}');
     if (result.data["validateLocation"]["msg"] == "Verified") {
-
-      showToastWidget(
-        Container(
-            color: Colors.green,
-            padding: EdgeInsets.all(10),
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(15),
-              child: Text(
-                'PostCode Verified',
-                style: TextStyle(
-                    color: Colors.green,
-                    fontFamily: "Roboto-Medium",fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-            )),
+      Fluttertoast.showToast(
+          msg: 'PostCode Verified',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 14.0
       );
+//      showToastWidget(
+//        Container(
+//            color: Colors.green,
+//            padding: EdgeInsets.all(10),
+//            child: Container(
+//              color: Colors.white,
+//              padding: EdgeInsets.all(15),
+//              child: Text(
+//                'PostCode Verified',
+//                style: TextStyle(
+//                    color: Colors.green,
+//                    fontFamily: "Roboto-Medium",fontSize: 14, fontWeight: FontWeight.w500),
+//              ),
+//            )),
+//      );
 
       widget.orderModel.deliveryCost =
           result.data["validateLocation"]["deliveryCharge"].toDouble();
-      widget.orderModel.postcode = postCode;
-      widget.address["postcode"] = postCode;
+      widget.orderModel.postcode = postCode.toUpperCase();
+      widget.address["postCode"] = postCode.toUpperCase();
 
       widget.orderModel.address = widget.address;
 
@@ -241,7 +257,7 @@ class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
 //            )),
 //      );
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString("postcode", postCode);
+      await prefs.setString("postcode", postCode.toUpperCase());
       await prefs.setString("showDeliveryAddress", "show");
       await prefs.setDouble("deliveryCharge", result.data["validateLocation"]["deliveryCharge"].toDouble());
       Navigator.of(context).pop();
@@ -251,7 +267,16 @@ class _PostCodeVerifyFormState extends State<PostCodeVerifyForm> {
         showLoginAndRegisterDialog(widget.preContext, widget.restaurantInfo,widget.orderModel);
       }
     } else {
-      showToastWidget(toastText('Enter a valid Postcode'));
+      Fluttertoast.showToast(
+          msg: 'Enter a valid Postcode',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 14.0
+      );
+      //showToastWidget(toastText('Enter a valid Postcode'));
       print("Invalid");
     }
     print(result.errors);

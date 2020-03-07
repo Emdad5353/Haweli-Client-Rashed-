@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
 import 'package:haweli/DBModels/ModifierDB.dart';
@@ -7,7 +8,7 @@ import 'package:haweli/DBModels/models/Modifiers.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources//graphql_client.dart';
 import 'package:haweli/graphQL_resources//graphql_queries.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:haweli/utils/commonTextWidgets.dart';
 
 import 'commonWidgets.dart';
 
@@ -311,7 +312,17 @@ class AddModifiersToCartState extends State<AddModifiersToCart> {
         } else {
           if (maxModifier <= testList.length) {
             print(value);
-            showToast("Can't select more than $maxModifier item");
+            Fluttertoast.showToast(
+                msg: "Can't select more than $maxModifier item",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIos: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+
+            //toastText("Can't select more than $maxModifier item");
             setState(() {
               value = false;
             });

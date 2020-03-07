@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/authentication/signUp.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/authentication/validator.dart';
 import 'package:haweli/authentication/models/user.dart';
 import 'package:haweli/main_ui.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,15 +70,34 @@ class _SignInFormState extends State<SignInForm> {
               prefs.setString('name', result['userLogin']['name']);
               prefs.setString('email', result['userLogin']['email']);
               prefs.setString('phoneno', result['userLogin']['phoneno']);
-
-              showToast('Signed in successfully',backgroundColor: Colors.green);
+              Fluttertoast.showToast(
+                  msg: 'Signed in successfully',
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIos: 1,
+                  backgroundColor: Colors.green,
+                  textColor: Colors.white,
+                  fontSize: 14.0
+              );
+              //showToast('Signed in successfully',backgroundColor: Colors.green);
               //Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('Signed in successfully')));
               if(pr.isShowing()) pr.hide();
               Navigator.of(context, rootNavigator: true).pop();
               if(await prefs.get("checkoutButtonPressed") =='pressed'){
                 manageStatesBloc.changeViewSection(WidgetMarker.checkout);
               }
-            }else{showToast('${result['userLogin']['msg']}',backgroundColor: Colors.red);}
+            }else{
+              Fluttertoast.showToast(
+                  msg: result['userLogin']['msg'],
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIos: 1,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 14.0
+              );
+             // showToast('${result['userLogin']['msg']}',backgroundColor: Colors.red);
+            }
 
             //Scaffold.of(widget.mainContext).showSnackBar(SnackBar(content: Text('${result['userLogin']['msg']}')));
             setState(() {
@@ -137,7 +156,6 @@ class _SignInFormState extends State<SignInForm> {
             ),
           ],
         ),
-        SizedBox(height: 10.0),
         RaisedButton(
           color: Theme.of(context).primaryColor,
           onPressed: (){
@@ -149,7 +167,7 @@ class _SignInFormState extends State<SignInForm> {
            },
           child: Text('SIGN IN',style: TextStyle(color: Colors.white),),
         ),
-        SizedBox(height: 15.0),
+        SizedBox(height: 10.0),
         widget.restaurantInfo['socialLogin']==false
         ?Container()
         :Column(
@@ -164,7 +182,7 @@ class _SignInFormState extends State<SignInForm> {
               //text: "Sign up with Facebook",
               onPressed: () {},
             ),
-            SizedBox(height: 10,),
+            SizedBox(height: 0,),
           ],
         ),
         Row(

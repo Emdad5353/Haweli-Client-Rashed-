@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/models/OrderModel.dart';
 import 'package:haweli/authentication/validator.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,8 +98,16 @@ class _SignUpFormState extends State<SignUpForm> {
                 prefs.setString('name', result['userSignUp']['name']);
                 prefs.setString('email', result['userSignUp']['email']);
                 prefs.setString('phoneno', result['userSignUp']['phoneno']);
-
-                showToast('Signed up successfully',backgroundColor: Colors.green);
+                Fluttertoast.showToast(
+                    msg: "Signed up successfully",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIos: 1,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                    fontSize: 16.0
+                );
+                //showToast('Signed up successfully',backgroundColor: Colors.green);
                 manageStatesBloc.changeCurrentLoginStatus(true);
                 print('signUp:------------------------>$result');
                 print(result['userSignUp']['email']);
@@ -107,7 +115,18 @@ class _SignUpFormState extends State<SignUpForm> {
                   manageStatesBloc.changeViewSection(WidgetMarker.checkout);
                 }
                 Navigator.of(context, rootNavigator: true).pop();
-              }else {showToast('${result['userSignUp']['msg']}',backgroundColor: Colors.red);}
+              }else {
+                Fluttertoast.showToast(
+                    msg: result['userSignUp']['msg'],
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIos: 1,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 14.0
+                );
+                //showToast('${result['userSignUp']['msg']}',backgroundColor: Colors.red);
+              }
 
               if(pr.isShowing()) pr.hide();
             },

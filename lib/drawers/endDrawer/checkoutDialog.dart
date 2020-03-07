@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe_payment/flutter_stripe_payment.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/CartDB.dart';
 import 'package:haweli/DBModels/FoodDB.dart';
@@ -10,11 +11,10 @@ import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
 import 'package:haweli/main_ui.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'checkout_page.dart';
 
-import 'address_page.dart';
 
 ProgressDialog pr;
 
@@ -245,6 +245,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     ));
 
     formWidget.add(new TextFormField(
+      textCapitalization: TextCapitalization.characters,
       initialValue: orderModel.address['postCode'],
       decoration: InputDecoration(
           isDense: true, labelText: 'Post Code', hintText: 'Post Code'),
@@ -256,7 +257,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       onSaved: (value) {
         setState(() {
           value = value.replaceAll(' ', '');
-          postCode = value;
+          postCode = value.toUpperCase();
         });
       },
     ));
@@ -271,10 +272,19 @@ class CheckoutDialogState extends State<CheckoutDialog> {
           document: locationVerify, variables: {"postcode": postCode}));
 
       if (!result.hasErrors) {
-        showToast(result.data["validateLocation"]["msg"]);
+        Fluttertoast.showToast(
+            msg: result.data["validateLocation"]["msg"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIos: 1,
+            backgroundColor: Colors.white,
+            textColor: Colors.black,
+            fontSize: 14.0
+        );
+        //showToast(result.data["validateLocation"]["msg"]);
         if (result.data["validateLocation"]["msg"] != "Invalid") {
           Navigator.of(context, rootNavigator: true).pop('alert');
-          pr.show();
+          //pr.show();
           widget.orderModel.deliveryCost =
               result.data["validateLocation"]["deliveryCharge"].toDouble();
           widget.orderModel.postcode = postCode;
@@ -283,13 +293,22 @@ class CheckoutDialogState extends State<CheckoutDialog> {
 
           manageStatesBloc.setModel(widget.orderModel);
 
-          normalOrder(widget.orderModel);
+          normalOrders(widget.orderModel);
 
 //          manageStatesBloc.changeViewSection(WidgetMarker.checkout);
 //          print(widget.orderModel.toString());
 
         } else {
-          showToast("Invalid");
+          Fluttertoast.showToast(
+              msg: "Invalid",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIos: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0
+          );
+          //showToast("Invalid");
         }
       }
       print(result.errors);
@@ -342,7 +361,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     return formWidget;
   }
 
-  normalOrder(orderModel) async{
+  normalOrders(orderModel) async{
     print(manageStatesBloc
         .changeOrderModel());
     OrderModel orderData = orderModel;
@@ -385,6 +404,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
         manageStatesBloc.initialValue(cartData.length);
 
       } else {
+        if(pr.isShowing()) pr.hide();
         var error =
             createOrderMutation.errors;
         print(
@@ -393,16 +413,16 @@ class CheckoutDialogState extends State<CheckoutDialog> {
       //endregion
     }
     else {
+      pr.show();
       print('-----------------------${pr.isShowing()}---------------------------------------------------->');
-      FlutterStripePayment.setStripeSettings(
+      FlutterStripePayment().setStripeSettings(
           "pk_test_71kZorZg8l0mwGd2hPGrUAQY00dEMYAZdE");
       var paymentResponse =
-      await FlutterStripePayment
-          .addPaymentMethod();
+      await FlutterStripePayment().addPaymentMethod();
       if (paymentResponse.status ==
           PaymentResponseStatus
               .succeeded) {
-        pr.show();
+        //pr.show();
         var paymentMethodId =
             paymentResponse
                 .paymentMethodId;
@@ -438,8 +458,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
 
           if (clientSecret != null) {
             var intentResponse =
-            await FlutterStripePayment
-                .confirmPaymentIntent(
+            await FlutterStripePayment().confirmPaymentIntent(
                 clientSecret,
                 paymentMethodId,
                 orderData
@@ -474,7 +493,7 @@ class CheckoutDialogState extends State<CheckoutDialog> {
                       variables: {
                         "OrderModel":
                         orderData.toJson(),
-                        "paymentMethod": "Cash"
+                        "paymentMethod": "Card"
                       }));
               if (!createOrderMutation
                   .hasErrors) {
@@ -519,27 +538,35 @@ class CheckoutDialogState extends State<CheckoutDialog> {
     //Payment
     if (pr.isShowing()) {
       pr.hide();
-      manageStatesBloc.changeViewSection(
-          WidgetMarker.menu);
-      showToastWidget(
-        Container(
-            color: Colors.green,
-            padding: EdgeInsets.all(10),
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(15),
-              child: Text(
-                'Ordered Successfully',
-                style: TextStyle(
-                    color: Colors.green,
-                    fontFamily:
-                    "Roboto-Medium",
-                    fontSize: 14,
-                    fontWeight:
-                    FontWeight.w500),
-              ),
-            )),
+      manageStatesBloc.changeViewSection(WidgetMarker.menu);
+      Fluttertoast.showToast(
+          msg: 'Ordered Successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
       );
+//      showToastWidget(
+//        Container(
+//            color: Colors.green,
+//            padding: EdgeInsets.all(10),
+//            child: Container(
+//              color: Colors.white,
+//              padding: EdgeInsets.all(15),
+//              child: Text(
+//                'Ordered Successfully',
+//                style: TextStyle(
+//                    color: Colors.green,
+//                    fontFamily:
+//                    "Roboto-Medium",
+//                    fontSize: 14,
+//                    fontWeight:
+//                    FontWeight.w500),
+//              ),
+//            )),
+//      );
     }
   }
 }

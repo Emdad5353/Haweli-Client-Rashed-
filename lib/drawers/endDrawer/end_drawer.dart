@@ -42,7 +42,7 @@ Widget endDrawer(BuildContext context, Map restaurantInfo) {
                         if (now.hour == open.hour) {
                           print("Hello");
                         }
-                        FlutterStripePayment.setStripeSettings(
+                        FlutterStripePayment().setStripeSettings(
                             "pk_test_71kZorZg8l0mwGd2hPGrUAQY00dEMYAZdE");
 //                var paymentResponse =
 //                    await FlutterStripePayment.addPaymentMethod();

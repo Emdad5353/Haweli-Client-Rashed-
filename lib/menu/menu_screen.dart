@@ -42,10 +42,10 @@ class MenuScreen extends StatefulWidget {
   final List<dynamic> menuList;
   MenuScreen(this.restaurantInfo, this.menuList);
   @override
-  _MenuScreenState createState() => new _MenuScreenState();
+  MenuScreenState createState() => new MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
+class MenuScreenState extends State<MenuScreen> {
   TextEditingController editingController = TextEditingController();
   var items = List();
   Icon _searchIcon = Icon(Icons.search);
