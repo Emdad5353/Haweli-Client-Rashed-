@@ -3,6 +3,8 @@ import 'package:haweli/main.dart';
 import 'package:haweli/utils/getHexaColor.dart';
 import 'package:splashscreen/splashscreen.dart';
 
+import '../MiddlewareFirebaseMessaging.dart';
+
 class SplashScreenPage extends StatefulWidget {
   final Map restaurantInfo;
   SplashScreenPage(this.restaurantInfo);
@@ -30,7 +32,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
       ?4
       :splashDuration,
       //splashDuration
-      navigateAfterSeconds: HomePage(),
+      navigateAfterSeconds: MiddlewareForFirebaseMessaging(),
 //      title: Text(widget.restaurantInfo['restaurantName'],
 //        style: TextStyle(
 //            fontWeight: FontWeight.bold,
