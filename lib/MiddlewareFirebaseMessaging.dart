@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 
@@ -31,6 +32,9 @@ class MessageItem {
 }
 
 class MiddlewareForFirebaseMessaging extends StatefulWidget {
+  final Map restaurantInfo;
+  MiddlewareForFirebaseMessaging(this.restaurantInfo);
+
   @override
   _MiddlewareForFirebaseMessagingState createState() => _MiddlewareForFirebaseMessagingState();
 }
@@ -42,10 +46,32 @@ class _MiddlewareForFirebaseMessagingState extends State<MiddlewareForFirebaseMe
 
   Widget _buildDialog(BuildContext context, MessageItem item) {
     return AlertDialog(
-      content: Text("${item.title} \n${item.body}"),
+      contentPadding: EdgeInsets.all(0),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(width: double.infinity,color: Theme.of(context).primaryColor,
+            padding: EdgeInsets.only(top: 15,left: 5,right: 5,bottom: 15),
+            child: Text('Notification from ${widget.restaurantInfo['restaurantName']}',textAlign: TextAlign.center,style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700)),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text("${item.title}",textAlign: TextAlign.left,style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700),),
+                SizedBox(height: 10,),
+                Text(item.body,style: TextStyle(color: Colors.black54,fontWeight: FontWeight.w500),),
+              ],
+            ),
+          )
+        ],
+      ),
       actions: <Widget>[
-        FlatButton(
-          child: const Text('CLOSE'),
+        OutlineButton(
+          color: Theme.of(context).primaryColor,
+          child: const Text('OK',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w700),),
           onPressed: () {
             Navigator.pop(context, false);
           },)
@@ -55,6 +81,7 @@ class _MiddlewareForFirebaseMessagingState extends State<MiddlewareForFirebaseMe
 
   void _showItemDialog(Map<String, dynamic> message) {
     showDialog<bool>(
+      barrierDismissible: false,
       context: context,
       builder: (_) => _buildDialog(context, _itemForMessage(message)),
     ).then((bool shouldNavigate) {

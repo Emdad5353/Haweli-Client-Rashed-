@@ -159,9 +159,8 @@ final String bodyQuery = r"""
   }
                   """;
 
-
 //--------------------------------------Mutation Guest Info----------------------------------------
-final String guestInfoQuery =r"""
+final String guestInfoQuery = r"""
       mutation guestInfoAdd($name:String!,$email:String!,$phoneno:String!){
                           guestInfoAdd(
                             userSignUpData:{
@@ -182,8 +181,8 @@ final String guestInfoQuery =r"""
 
 //--------------------------------------Mutation SignIn Group----------------------------------------
 final String mutationSignInQuery = r"""
-                    mutation userLogin ($email:String!,$password:String!){
-                      userLogin(email:$email, password:$password){
+                    mutation userLogin ($email:String!,$password:String!, $deviceId: String){
+                      userLogin(email:$email, password:$password, deviceId: $deviceId){
                         id
                         jwt
                         firstName
@@ -196,15 +195,49 @@ final String mutationSignInQuery = r"""
                     }
                   """;
 
+//--------------------------------------Mutation Google SignIn Group----------------------------------------
+final String mutationGoogleSignInQuery = r"""
+              mutation createUserByGoogle($googleToken: String!,$deviceId: String) {
+                createUserByGoogle(googleToken: $googleToken, deviceId: $deviceId) {
+                  id
+                  jwt
+                  firstName
+                  lastName
+                  name
+                  email
+                  phoneno
+                  msg
+                }
+              }
+""";
+
+
+//--------------------------------------Mutation Facebook SignIn Group----------------------------------------
+final String mutationFacebookSignInQuery = r"""
+              mutation createUserByFacebook($fbToken: String!,$deviceId: String){
+                createUserByFacebook(fbToken: $fbToken, deviceId: $deviceId){
+                  id
+                  jwt
+                  firstName
+                  lastName
+                  name
+                  email
+                  phoneno
+                  msg
+                }
+              }
+""";
+
 //--------------------------------------Mutation register Group----------------------------------------
 final String mutationQuery = r"""
-                    mutation insert($name:String,$email:String!,$password:String!,$phoneno:String!){
+                    mutation insert($name:String,$email:String!,$password:String!,$phoneno:String!,$deviceId:String){
                           userSignUp(
                             userSignUpData:{
                               name: $name,
                               email: $email,
                               password:$password,
-                              phoneno: $phoneno
+                              phoneno: $phoneno,
+                              deviceId:$deviceId
                             }
                           ){
                             id,
@@ -212,8 +245,8 @@ final String mutationQuery = r"""
                             email,
                             password,
                             phoneno,
-                            jwt
-    												msg
+                            jwt,
+                            msg
                           }
                         }
                   """;

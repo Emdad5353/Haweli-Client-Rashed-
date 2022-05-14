@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -56,6 +57,8 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  String push_messaging_token;
   ProgressDialog pr;
   final _formKey = GlobalKey<FormState>();
   var _passKey = GlobalKey<FormFieldState>();
@@ -65,6 +68,17 @@ class _SignUpFormState extends State<SignUpForm> {
   String _password = '';
   String _phoneno = '';
   String _email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _firebaseMessaging.getToken().then((String token) {
+      assert(token != null);
+      setState(() {
+        push_messaging_token = token;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +265,8 @@ class _SignUpFormState extends State<SignUpForm> {
           "name": "$_name",
           "email": _email,
           "password": _password,
-          "phoneno": _phoneno
+          "phoneno": _phoneno,
+          "deviceId": push_messaging_token
         });
         Scaffold.of(context).showSnackBar(SnackBar(content: Text('Form Submitted')));
       }

@@ -32,7 +32,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
       ?4
       :splashDuration,
       //splashDuration
-      navigateAfterSeconds: MiddlewareForFirebaseMessaging(),
+      navigateAfterSeconds: MiddlewareForFirebaseMessaging(widget.restaurantInfo),
 //      title: Text(widget.restaurantInfo['restaurantName'],
 //        style: TextStyle(
 //            fontWeight: FontWeight.bold,

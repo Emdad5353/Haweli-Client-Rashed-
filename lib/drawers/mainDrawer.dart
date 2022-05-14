@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
 import 'package:haweli/graphQL_resources/graphql_queries.dart';
-import 'package:haweli/utils/loader_cubeGrid.dart';
 
 Widget mainDrawer(context) {
   return Drawer(

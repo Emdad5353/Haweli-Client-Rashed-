@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "669587490909",
+    "firebase_url": "https://rashed-restaurant.firebaseio.com",
+    "project_id": "rashed-restaurant",
+    "storage_bucket": "rashed-restaurant.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669587490909:android:b18a9ea08e93afdceda5b4",
+        "android_client_info": {
+          "package_name": "com.haweli.haweli"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669587490909-fnbe2ke23a4su6vqovsuo0q5gqt84qb6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.haweli.haweli",
+            "certificate_hash": "dbbf044151779a22ca0b30dd5befb964735cb21f"
+          }
+        },
+        {
+          "client_id": "669587490909-p44es9ubjgm98ipk842hlha5q4k85dve.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.haweli.haweli",
+            "certificate_hash": "207d20df7fad4a6038d0766c41117220c61e9ae6"
+          }
+        },
+        {
+          "client_id": "669587490909-qdkesboi53ad737f7rc91g8us29dmbks.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg1XydZpRVwAVjzM251BEg-cgcsQkC0Yg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669587490909-qdkesboi53ad737f7rc91g8us29dmbks.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

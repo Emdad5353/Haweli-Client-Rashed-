@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:haweli/DBModels/CartDB.dart';
 import 'package:haweli/graphQL_resources/graphql_client.dart';
 import 'package:haweli/main_ui.dart';
 import 'package:haweli/bloc/manage_states_bloc.dart';
-import 'package:haweli/utils/loader_cubeGrid.dart';
 import 'package:haweli/utils/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'graphQL_resources/common_queries.dart';

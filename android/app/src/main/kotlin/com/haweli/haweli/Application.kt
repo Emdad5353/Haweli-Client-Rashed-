@@ -11,6 +11,7 @@ class Application : FlutterApplication(), PluginRegistrantCallback {
     override
     fun onCreate() {
         super.onCreate()
+
         FlutterFirebaseMessagingService.setPluginRegistrant(this)
     }
     override
